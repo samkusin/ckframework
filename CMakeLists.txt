@@ -71,7 +71,7 @@ endif( )
 
 # Build Library
 if( CINEK_EXT_PACKAGE_DIR )
-    include_directories( "${CINEK_EXT_PACKAGE_DIR}" )
+    include_directories( "${CINEK_EXT_PACKAGE_DIR}/include" )
 endif( )
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/.." )
 add_library( ck STATIC ${PROJECT_INCLUDES} ${PROJECT_SOURCES} )
