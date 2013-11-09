@@ -11,7 +11,7 @@
 #define CINEK_OVERVIEW_MAP_TYPES_H
 
 #include "cinek/overview/types.h"
-#include "kazmath/vec3.h"
+#include "glm/glm.hpp"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,7 +28,7 @@ typedef struct cinek_ov_map_bounds_t
 cinek_ov_map_bounds;
 
 /** Defines a location on the map */
-typedef kmVec3 cinek_ov_pos;
+typedef glm::vec3 cinek_ov_pos;
 
 /** Defines a boundary box (min/max) */
 typedef struct cinek_ov_bounds {

@@ -10,8 +10,6 @@
 #ifndef CINEK_OVERVIEW_QUADTREE_HPP
 #define CINEK_OVERVIEW_QUADTREE_HPP
 
-#include "kazmath/aabb.h"
-
 #include "cinek/cpp/ckstdalloc.hpp"
 
 #include <vector>

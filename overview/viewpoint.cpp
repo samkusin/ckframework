@@ -33,7 +33,6 @@ Viewpoint::Viewpoint(Viewpoint&& other) :
     _position(std::move(other._position)),
     _bounds(std::move(other._bounds))
 {
-    other._position = { 0, 0, 0 };
     other._bounds = { 0, 0, 0, 0 };
 }
 
