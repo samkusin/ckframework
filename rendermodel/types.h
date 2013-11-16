@@ -13,6 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct cinek_rgba_color_t {
+    uint8_t r;      /**< Red component */
+    uint8_t g;      /**< Green component */
+    uint8_t b;      /**< Blue component */
+    uint8_t a;      /**< Alpha component */
+}
+cinek_rgba_color;
+
 /*
     Bitmap Types
 */
