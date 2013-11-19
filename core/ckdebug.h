@@ -15,16 +15,20 @@
 */
 
 #ifndef NDEBUG
-/**
- * \def CK_DEBUG_LOGGING
- * Enables debug logging.
- */
-#define CK_DEBUG_LOGGING 1
-/**
- * \def CK_DEBUG_ASSERT
- * Enables the CK_ASSERT macro. 
- */
-#define CK_DEBUG_ASSERT 1
+    #ifndef CK_DEBUG_LOGGING
+    /**
+     * \def CK_DEBUG_LOGGING
+     * Enables debug logging.
+     */
+    #define CK_DEBUG_LOGGING 1
+    #endif
+    #ifndef CK_DEBUG_ASSERT
+    /**
+     * \def CK_DEBUG_ASSERT
+     * Enables the CK_ASSERT macro. 
+     */
+    #define CK_DEBUG_ASSERT 1
+    #endif
 #endif
 
 

@@ -14,8 +14,9 @@ extern "C" {
  *  @param resultBufSize The result C string buffer's size.
  *  @param leftPath     The left path string of the final path. 
  *  @param rightPath    The right path string of the final path.
+ *  @return  Same as resultPath
  */
-void cinek_path_join(char* resultPath, size_t resultBufSize, const char* leftPath,
+char* cinek_path_join(char* resultPath, size_t resultBufSize, const char* leftPath,
     const char* rightPath);
 
 #ifdef __cplusplus

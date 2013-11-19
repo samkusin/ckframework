@@ -2,7 +2,7 @@
 #include "ckfspath.h"
 
 
-void cinek_path_join(char *resultPath, size_t resultBufSize, const char *leftPath,
+char* cinek_path_join(char *resultPath, size_t resultBufSize, const char *leftPath,
     const char* rightPath)
 {
     char* const initialResultPath = resultPath;
@@ -21,7 +21,7 @@ void cinek_path_join(char *resultPath, size_t resultBufSize, const char *leftPat
     {
         /* On error, return a null string. */
         *initialResultPath = '\0';
-        return;
+        return initialResultPath;
     }
     /* Enforce mid-path separator */
     if (*(resultPath-1) != '/')
@@ -44,8 +44,9 @@ void cinek_path_join(char *resultPath, size_t resultBufSize, const char *leftPat
     {
         /* On error, return a null string. */
         *initialResultPath = '\0';
-        return;
+        return initialResultPath;
     }
 
     *resultPath = '\0';
+    return initialResultPath;
 }
