@@ -10,10 +10,12 @@
 
 #include "cinek/core/cktypes.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/** A RGBA quartet using 8-bit components */
 typedef struct cinek_rgba_color_t {
     uint8_t r;      /**< Red component */
     uint8_t g;      /**< Green component */
