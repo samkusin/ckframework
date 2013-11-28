@@ -13,8 +13,7 @@
 #include "cinek/overview/maptypes.h"
 #include "cinek/overview/grid.hpp"
 #include "cinek/cpp/ckalloc.hpp"
-
-#include <vector>
+#include "cinek/cpp/ckvector.hpp"
 
 
 namespace cinekine {
@@ -76,7 +75,7 @@ public:
 private:
     //  grid xyz
     cinek_ov_map_bounds _bounds;
-    std::vector<Tilemap, std_allocator<Tilemap> > _tilemaps;
+    vector<Tilemap> _tilemaps;
 };
 
 /** 

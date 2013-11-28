@@ -13,8 +13,7 @@
 #include "cinek/rendermodel/types.h"
 #include "cinek/cpp/ckalloc.hpp"
 #include "cinek/cpp/ckmemorypool.hpp"
-
-#include <vector>
+#include "cinek/cpp/ckvector.hpp" 
 
 namespace cinekine {
     namespace rendermodel {
@@ -115,7 +114,7 @@ private:
 
     //  state table containing animation lists mapped to state.
     ObjectPool<State> _statePool;
-    std::vector<State*, std_allocator<State*> > _states;
+    vector<State*> _states;
 };
 
     }   // namespace rendermodel

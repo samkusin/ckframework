@@ -13,6 +13,7 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/ckalloc.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ckdefs.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ckstring.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ckvector.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ckmemorypool.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ckerrorreporter.hpp
 )
