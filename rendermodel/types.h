@@ -31,10 +31,11 @@ cinek_rgba_color;
 typedef enum cinek_pixel_format_t
 {
     kCinekPixelFormat_Unknown,
-    kCinekPixelFormat_RGBA8888,
-    kCinekPixelFormat_RGBA4444,
+    kCinekPixelFormat_ARGB8888,
+    kCinekPixelFormat_ABGR8888,
+    kCinekPixelFormat_ARGB4444,
     kCinekPixelFormat_RGB888,
-    kCinekPixelFormat_RGBA5551,
+    kCinekPixelFormat_ARGB1555,
     kCinekPixelFormat_RGB565,
     kCinekPixelFormat_A8            /**< 8-bit Alpha, assuming RGB of white. */
 }
