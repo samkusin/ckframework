@@ -55,7 +55,7 @@ cinek_timer cinek_timer_create(uint32_t maxEvents)
 
 
 void cinek_timer_update(cinek_timer timer,
-                        cinek_time timeValue)
+                        cinek_time timeDelta)
 {
     struct cinek_timer_data* timerData;
     struct cinek_timer_event_data* eventData;
@@ -67,7 +67,7 @@ void cinek_timer_update(cinek_timer timer,
 
     /* Update timer */
     timerData->lastTime = timerData->thisTime;
-    timerData->thisTime = timeValue;
+    timerData->thisTime = timerData->thisTime + timeDelta;
 
     /* Handle scheduled events */
     nextEventData = NULL;
@@ -82,11 +82,11 @@ void cinek_timer_update(cinek_timer timer,
         fireTime = eventData->timeScheduled + eventData->delayTime;
         eventFired = 0;
 
-        if (timeValue >= fireTime)
+        if (timerData->thisTime >= fireTime)
         {
             /* account for fired time rollover */
             eventFired = fireTime >= eventData->timeScheduled || 
-                    (fireTime < eventData->timeScheduled && eventData->timeScheduled > timeValue);
+                    (fireTime < eventData->timeScheduled && eventData->timeScheduled > timerData->thisTime);
         }
         else if (timerData->thisTime < timerData->lastTime)
         {

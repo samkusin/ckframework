@@ -42,11 +42,10 @@ cinek_timer cinek_timer_create(uint32_t maxEvents);
 /**
  * Updates a timer instance.
  * @param timer     Handle to the timer.
- * @param timeValue Current time value for the timer (zero based on when the
- *                  timer was created.)
+ * @param timeDelta Delta time since last update
  */
 void cinek_timer_update(cinek_timer timer,
-                        cinek_time timeValue);
+                        cinek_time timeDelta);
 
 /**
  * Destroys a timer instance.
