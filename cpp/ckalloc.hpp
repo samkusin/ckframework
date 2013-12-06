@@ -209,13 +209,13 @@ struct SharedPtrDeleter
 
 /** unique_ptr using the shared deleter. */
 template<typename T>
-using unique_ptr = std::unique_ptr<T, SharedPtrDeleter<T>>;
-
-template<typename T, class... Args>
-unique_ptr<T> make_unique_ptr(Allocator& allocator, Args&&... args) {
-    unique_ptr<T> ptr(allocator.newItem<T>(std::forward<Args>(args)...), SharedPtrDeleter<T>(allocator));
-    return std::move(ptr);
-}
+class unique_ptr: public std::unique_ptr<T, SharedPtrDeleter<T>>
+{
+public:
+    unique_ptr() = default;
+    unique_ptr(T* ptr, const Allocator& allocator) : 
+        std::unique_ptr<T, SharedPtrDeleter<T>>(ptr, SharedPtrDeleter<T>(allocator)) {}
+};
 
 #endif
 
