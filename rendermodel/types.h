@@ -62,8 +62,8 @@ typedef uint16_t cinek_bitmap_index;
 /** Identifies a bitmap from its components. */
 typedef struct cinek_bitmap_t
 {
-    cinek_bitmap_atlas bmpAtlas;
-    cinek_bitmap_index bmpIndex;
+    cinek_bitmap_atlas bmpAtlas;    /**< Bitmap Atlas ID */
+    cinek_bitmap_index bmpIndex;    /**< Bitmap Index into Atlas */
 }
 cinek_bitmap;
 
@@ -79,6 +79,15 @@ cinek_bitmap_uvs;
 
 /** Identifies a tile on the tile map. */
 typedef uint16_t cinek_tile;
+
+/** Tile bitmap and extended information. */
+typedef struct cinek_tile_info_t
+{
+    cinek_bitmap bitmap;            /**< The tile's bitmap */
+    uint32_t appFlags;              /**< Application defined flags */
+    void* appData;                  /**< Pointer to application data */
+}
+cinek_tile_info;
 
 /** Identifies a sprite by key ID. */
 typedef uint32_t cinek_sprite_template_id;

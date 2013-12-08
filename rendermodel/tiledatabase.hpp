@@ -12,6 +12,7 @@
 
 #include "cinek/core/ckdebug.h"
 #include "cinek/cpp/ckstring.hpp"
+#include "cinek/cpp/ckvector.hpp"
 #include "cinek/cpp/ckmemorypool.hpp"
 #include "cinek/rendermodel/types.h"
 
@@ -55,19 +56,18 @@ public:
      * @param tile   The tile index to map bitmap info to.
      * @param bitmap The bitmap atlas and index used for the specified tile.
      */    
-    void mapTileToBitmap(cinek_tile tile, const cinek_bitmap& bitmap);
-
+    void mapTileToInfo(cinek_tile tile, const cinek_tile_info& info);
     /**
      * @param  tile The tile info to retrieve.
      * @return A TileInfo pair object containing bitmap atlas and index.
      */
-    const cinek_bitmap& getTileInfo(cinek_tile tile) const {
+    const cinek_tile_info& getTileInfo(cinek_tile tile) const {
         CK_ASSERT(tile < _tiles.size());
         return _tiles.at(tile);
     }
 
 private:
-    std::vector< cinek_bitmap, std_allocator<cinek_bitmap> > _tiles;
+    vector< cinek_tile_info > _tiles;
 };
 
     }   // namespace rendermodel
