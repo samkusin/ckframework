@@ -15,12 +15,15 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/types.h
     ${CMAKE_CURRENT_SOURCE_DIR}/model.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sprite.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/spriteanimation.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/spritetemplate.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/spritedatabase.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tiledatabase.hpp
 )
 
 set( PROJECT_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/sprite.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/spriteanimation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/spritetemplate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/spritedatabase.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tiledatabase.cpp
