@@ -11,7 +11,7 @@
 #define CINEK_OVERVIEW_GRID_HPP
 
 #include "cinek/overview/types.h"
-#include "cinek/cpp/ckalloc.hpp"
+#include "cinek/framework/allocator.hpp"
 
 #include <iterator>
 #include <algorithm>

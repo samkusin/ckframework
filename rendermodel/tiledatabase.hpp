@@ -11,9 +11,9 @@
 #define CINEK_RENDER_TILEDATABASE_HPP
 
 #include "cinek/core/ckdebug.h"
-#include "cinek/cpp/ckstring.hpp"
-#include "cinek/cpp/ckvector.hpp"
-#include "cinek/cpp/ckmemorypool.hpp"
+#include "cinek/framework/string.hpp"
+#include "cinek/framework/vector.hpp"
+#include "cinek/framework/memorypool.hpp"
 #include "cinek/rendermodel/types.h"
 
 #include <vector>

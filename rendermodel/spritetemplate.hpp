@@ -12,9 +12,9 @@
 
 #include "cinek/rendermodel/types.h"
 #include "cinek/rendermodel/spriteanimation.hpp"
-#include "cinek/cpp/ckalloc.hpp"
-#include "cinek/cpp/ckmemorypool.hpp"
-#include "cinek/cpp/ckvector.hpp"
+#include "cinek/framework/allocator.hpp"
+#include "cinek/framework/memorypool.hpp"
+#include "cinek/framework/vector.hpp"
 
 namespace cinekine {
     namespace rendermodel {

@@ -1,16 +1,37 @@
 /**
- * \file    ckobjectpool.hpp
+ * The MIT License (MIT)
  *
+ * Copyright (c) 2013 Cinekine Media
  *
- * \note    Created by Samir Sinha on 4/14/13.
- *          Copyright (c) 2013 Cinekine. All rights reserved.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE. 
+ * 
+ * @file    cinek/framework/memorypool.hpp
+ * @author  Samir Sinha
+ * @date    4/14/2013
+ * @brief   Object allocation within a pooled heap 
+ * @copyright Cinekine
  */
-
 
 #ifndef CINEK_MEMORY_POOL_HPP
 #define CINEK_MEMORY_POOL_HPP
 
-#include "ckalloc.hpp"
+#include "cinek/framework/allocator.hpp"
 #include <memory>
 
 namespace cinekine {
@@ -41,7 +62,9 @@ namespace cinekine {
          * @param allocator      An optional custom memory allocator.
          */
         ObjectPool(size_t initBlockCount, const Allocator& allocator = Allocator());
-        /** Destructor.  This also destroys any initialized objects in the pool. */
+        /**
+         * Destructor.  This also destroys any initialized objects in the pool. 
+         */
         ~ObjectPool();
         /** @cond */
         ObjectPool(ObjectPool&& other);

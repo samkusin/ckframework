@@ -11,9 +11,9 @@
 #define CINEK_RENDER_SPRITEDATABASE_HPP
 
 #include "cinek/rendermodel/spritetemplate.hpp"
-#include "cinek/cpp/ckstring.hpp"
-#include "cinek/cpp/ckalloc.hpp"
-#include "cinek/cpp/ckmemorypool.hpp"
+#include "cinek/framework/string.hpp"
+#include "cinek/framework/allocator.hpp"
+#include "cinek/framework/memorypool.hpp"
 
 #include <unordered_map>
 

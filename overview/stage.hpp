@@ -11,7 +11,7 @@
 #define CINEK_OVERVIEW_STAGE_HPP
 
 #include "./maptypes.h"
-#include "cinek/cpp/ckalloc.hpp"
+#include "cinek/framework/allocator.hpp"
 
 namespace cinekine {
     namespace overview {

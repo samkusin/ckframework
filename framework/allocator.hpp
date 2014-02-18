@@ -23,7 +23,7 @@
  * 
  * @file    ckalloc.hpp
  * @author  Samir Sinha
- * @date    6/22/2013
+ * @date    1/6/2013
  * @brief   std library allocator using custom allocation hooks
  * @copyright Cinekine
  */
@@ -31,7 +31,7 @@
 #ifndef CINEK_ALLOC_HPP
 #define CINEK_ALLOC_HPP
 
-#include "ckdefs.hpp"
+#include "cinek/framework/defs.hpp"
 #include "cinek/core/ckalloc.h" 
 
 #include <memory>

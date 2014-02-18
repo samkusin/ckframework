@@ -11,7 +11,7 @@
 #define CINEK_RENDER_SPRITE_HPP
 
 #include "cinek/rendermodel/model.hpp"
-#include "cinek/cpp/ckdefs.hpp"
+#include "cinek/framework/defs.hpp"
  
 namespace cinekine {
     namespace rendermodel {

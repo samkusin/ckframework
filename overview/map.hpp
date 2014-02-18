@@ -12,8 +12,8 @@
 
 #include "cinek/overview/maptypes.h"
 #include "cinek/overview/grid.hpp"
-#include "cinek/cpp/ckalloc.hpp"
-#include "cinek/cpp/ckvector.hpp"
+#include "cinek/framework/allocator.hpp"
+#include "cinek/framework/vector.hpp"
 
 
 namespace cinekine {
