@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Cinekine Media
+ * Copyright (c) 2014 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,30 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE. 
  * 
- * @file    cinek/framework/map.hpp
+ * @file    cinek/framework/jobscheduler.cpp
  * @author  Samir Sinha
- * @date    1/6/2013
- * @brief   Customized std::map container with allocator
+ * @date    2/17/2014
+ * @brief   A "schedule-only" interface to a JobQueue provided for Jobs
  * @copyright Cinekine
  */
 
-#ifndef CINEK_MAP_HPP
-#define CINEK_MAP_HPP
+#include <cinek/framework/jobscheduler.hpp>
+#include <cinek/framework/jobqueue.hpp>
 
-#include <cinek/framework/allocator.hpp>
-
-#include <unordered_map>
 
 namespace cinekine {
+ 
+    JobScheduler::JobScheduler(JobQueue& queue) :
+        _queue(queue)
+    {
 
-//  Std types using the overview allocator.
-//
-/** An allocator for string memory. */
-template<typename Key, typename Value>
-    using unordered_map = std::unordered_map<Key, Value,
-                                             std::hash<Key>, std::equal_to<Key>,
-                                             std_allocator<std::pair<const Key, Value>>>;
+    }
+    
+    JobHandle JobScheduler::schedule(unique_ptr<Job>&& job)
+    {
+        return _queue.schedule(std::move(job));
+    }
+    
+    void JobScheduler::cancel(JobHandle jobHandle)
+    {
+        _queue.cancel(jobHandle);
+    }
 
-} /* cinekine */
-
-#endif
+} /* namespace cinekine */

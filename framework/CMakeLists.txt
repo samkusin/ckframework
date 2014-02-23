@@ -13,16 +13,19 @@ include_directories( ${CINEKSDK_ROOT} )
 
 # files.
 set( PROJECT_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/defs.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/allocator.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/string.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/map.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/errorreporter.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memorypool.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/job.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/jobqueue.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.hpp  
 )
 
 set( PROJECT_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/jobqueue.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.cpp  
 )
 
 # Targets

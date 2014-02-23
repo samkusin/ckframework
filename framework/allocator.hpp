@@ -31,8 +31,8 @@
 #ifndef CINEK_ALLOC_HPP
 #define CINEK_ALLOC_HPP
 
-#include "cinek/framework/defs.hpp"
-#include "cinek/core/ckalloc.h" 
+#include <cinek/framework/types.hpp>
+#include <cinek/core/ckalloc.h>
 
 #include <memory>
 

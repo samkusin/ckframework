@@ -32,7 +32,7 @@
 #ifndef CINEK_STRING_HPP
 #define CINEK_STRING_HPP
 
-#include "cinek/framework/allocator.hpp"
+#include <cinek/framework/allocator.hpp>
 
 #include <string>
 #include <sstream>

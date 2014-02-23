@@ -32,7 +32,7 @@
 #ifndef CINEK_VECTOR_HPP
 #define CINEK_VECTOR_HPP
 
-#include "cinek/framework/allocator.hpp"
+#include <cinek/framework/allocator.hpp>
 
 #include <vector>
 

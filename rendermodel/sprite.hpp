@@ -10,8 +10,8 @@
 #ifndef CINEK_RENDER_SPRITE_HPP
 #define CINEK_RENDER_SPRITE_HPP
 
-#include "cinek/rendermodel/model.hpp"
-#include "cinek/framework/defs.hpp"
+#include <cinek/rendermodel/model.hpp>
+#include <cinek/framework/types.hpp>
  
 namespace cinekine {
     namespace rendermodel {

@@ -31,7 +31,7 @@
 #ifndef CINEK_MEMORY_POOL_HPP
 #define CINEK_MEMORY_POOL_HPP
 
-#include "cinek/framework/allocator.hpp"
+#include <cinek/framework/allocator.hpp>
 #include <memory>
 
 namespace cinekine {

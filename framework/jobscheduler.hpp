@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Cinekine Media
+ * Copyright (c) 2014 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,30 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE. 
  * 
- * @file    cinek/framework/map.hpp
+ * @file    cinek/framework/jobscheduler.hpp
  * @author  Samir Sinha
- * @date    1/6/2013
- * @brief   Customized std::map container with allocator
+ * @date    2/17/2014
+ * @brief   A "schedule-only" interface to a JobQueue provided for Jobs
  * @copyright Cinekine
  */
 
-#ifndef CINEK_MAP_HPP
-#define CINEK_MAP_HPP
+#ifndef CK_FRAMEWORK_JOBSCHEDULER_HPP
+#define CK_FRAMEWORK_JOBSCHECULER_HPP
 
+#include <cinek/framework/job.hpp>
 #include <cinek/framework/allocator.hpp>
 
-#include <unordered_map>
+namespace cinekine {
+    class JobQueue;
+}
 
 namespace cinekine {
+    class JobScheduler
+    {
+    public:
+        /**
+         * Constructor
+         * @param queue  The owning JobQueue
+         */
+        JobScheduler(JobQueue& queue);
+        /**
+         * Schedules a Job object for execution based on priority.  The queue
+         * dispatches the job as soon as it can, against other jobs
+         * @param  job      Job pointer
+         * @return          Handle to the scheduled job
+         */
+        JobHandle schedule(unique_ptr<Job>&& job);
+        /**
+         * Cancels a scheduled job.  Note this does not affect currently
+         * running jobs, only queued jobs.
+         * @param jobHandle Handle to a scheduled job.
+         */
+        void cancel(JobHandle jobHandle);
 
-//  Std types using the overview allocator.
-//
-/** An allocator for string memory. */
-template<typename Key, typename Value>
-    using unordered_map = std::unordered_map<Key, Value,
-                                             std::hash<Key>, std::equal_to<Key>,
-                                             std_allocator<std::pair<const Key, Value>>>;
+    private:
+        JobQueue& _queue;
+    };
+} /* namespace cinekine */
 
-} /* cinekine */
 
 #endif

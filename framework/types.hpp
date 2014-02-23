@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Cinekine Media
+ * Copyright (c) 2014 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,30 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE. 
  * 
- * @file    cinek/framework/map.hpp
+ * @file    cinek/framework/types.hpp
  * @author  Samir Sinha
- * @date    1/6/2013
- * @brief   Customized std::map container with allocator
+ * @date    2/17/2014
+ * @brief   Common framework-level types
  * @copyright Cinekine
  */
 
-#ifndef CINEK_MAP_HPP
-#define CINEK_MAP_HPP
+#ifndef CK_FRAMEWORK_TYPES_HPP
+#define CK_FRAMEWORK_TYPES_HPP
 
-#include <cinek/framework/allocator.hpp>
+#include <cinek/core/cktypes.h>
 
-#include <unordered_map>
+namespace cinekine {
+    class JobQueue;
+}
 
 namespace cinekine {
 
-//  Std types using the overview allocator.
-//
-/** An allocator for string memory. */
-template<typename Key, typename Value>
-    using unordered_map = std::unordered_map<Key, Value,
-                                             std::hash<Key>, std::equal_to<Key>,
-                                             std_allocator<std::pair<const Key, Value>>>;
+    /** A handle type */
+    typedef uint32_t Handle;
+    /** A null handle constant */
+    const Handle kNullHandle = 0;
 
-} /* cinekine */
+    /** A handle to a Job scheduled via the JobQueue */
+    typedef Handle JobHandle;
+
+} /* namespace cinekine */
+
 
 #endif
