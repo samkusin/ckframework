@@ -27,7 +27,7 @@ Sprite::~Sprite()
 {
 }
 
-void Sprite::setState(cinek_rendermodel_anim_id stateId, cinek_time startTime)
+void Sprite::setState(cinek_rendermodel_anim_id stateId, uint32_t startTime)
 {
     _stateId = stateId;
     _startTime = startTime;
@@ -45,7 +45,7 @@ uint16_t Sprite::getBitmapFrameCount() const
     return _animation->getFrameCount();
 }
 
-cinek_bitmap_index Sprite::getBitmapFromTime(cinek_time currentTime) const
+cinek_bitmap_index Sprite::getBitmapFromTime(uint32_t currentTime) const
 {  
     return _animation->getFrameByTime(currentTime - _startTime);
 }

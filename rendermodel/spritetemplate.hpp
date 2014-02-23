@@ -60,7 +60,7 @@ public:
      */
     SpriteAnimation* createAnimation(cinek_rendermodel_anim_id animId,
                                  uint16_t frameCount,
-                                 cinek_time duration);
+                                 uint32_t duration);
 
     /**
      * Returns the Animation interface for the specified animation.

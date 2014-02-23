@@ -61,7 +61,7 @@ struct SpriteTemplateState_Comparator
 SpriteAnimation* SpriteTemplate::createAnimation(
                             cinek_rendermodel_anim_id animId, 
                             uint16_t frameCount,
-                            cinek_time duration
+                            uint32_t duration
                         )
 {
     //  maintain a sorted state vector.

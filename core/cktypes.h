@@ -17,8 +17,5 @@
   #endif
 #endif
 
-/** Time value type.  Made into a typedef to allow for 32 or 64-bit times. */
-typedef uint32_t cinek_time;
-
 /* CINEK_TYPES_H */
 #endif

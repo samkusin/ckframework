@@ -17,16 +17,12 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/ckdefs.h
     ${CMAKE_CURRENT_SOURCE_DIR}/ckalloc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/ckdebug.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/ckpool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/cktimer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/ckfspath.h
 )
 
 set( PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/ckalloc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/ckdebug.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/ckpool.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/cktimer.c
     ${CMAKE_CURRENT_SOURCE_DIR}/ckfspath.c
 )
 
@@ -35,8 +31,8 @@ set( PROJECT_SOURCES
 CineKSDK_Module_Target( core "${PROJECT_INCLUDES}" "${PROJECT_SOURCES}")
 
 # Tests
-set( TEST_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/ckpooltest.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/cktimertest.cpp
-)
-CineKSDK_Test_Target( core "${TEST_SOURCES}" )
+#set( TEST_SOURCES
+#    ${CMAKE_CURRENT_SOURCE_DIR}/test/ckpooltest.cpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/test/cktimertest.cpp
+#)
+#CineKSDK_Test_Target( core "${TEST_SOURCES}" )

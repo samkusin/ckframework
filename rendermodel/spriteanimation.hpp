@@ -45,7 +45,7 @@ namespace cinekine {
          * @param  timeValue The time index.
          * @return           The bitmap frame index.
          */
-        cinek_bitmap_index getFrameByTime(cinek_time timeValue) const;
+        cinek_bitmap_index getFrameByTime(uint32_t timeValue) const;
         /**
          * \return Returns the number of frames in the state animation.
          */
@@ -65,7 +65,7 @@ namespace cinekine {
 
     private:
         cinek_rendermodel_anim_id _id;
-        cinek_time _duration;
+        uint32_t _duration;
         uint16_t _frameCount;
         cinek_bitmap_index* _frames;
     };

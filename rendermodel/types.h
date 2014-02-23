@@ -106,7 +106,7 @@ typedef uint16_t cinek_rendermodel_anim_id;
 typedef struct cinek_rendermodel_keyframe_t
 {
     uint16_t frame; /**< Frame index. */
-    cinek_time t;   /**< Time index at this frame. */
+    uint32_t t;   /**< Time index at this frame. */
 }
 cinek_rendermodel_keyframe;
 

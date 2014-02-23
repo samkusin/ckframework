@@ -21,7 +21,7 @@ namespace cinekine {
     {
     }
 
-    cinek_bitmap_index SpriteAnimation::getFrameByTime(cinek_time timeValue) const
+    cinek_bitmap_index SpriteAnimation::getFrameByTime(uint32_t timeValue) const
     {
         float scalar = (float)timeValue/_duration;
         return getFrame((uint16_t)(getFrameCount() * scalar));

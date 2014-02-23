@@ -11,7 +11,6 @@
 #define CINEK_RENDER_MODEL_HPP
 
 #include "cinek/rendermodel/types.h"
-#include "cinek/core/cktimer.h"
 
 namespace cinekine {
     namespace rendermodel {
@@ -41,7 +40,7 @@ public:
      * @param startTime The animation start time used to time animations
      */
     virtual void setState(cinek_rendermodel_anim_id stateId,
-                          cinek_time startTime) = 0;
+                          uint32_t startTime) = 0;
 };
 
     } /* rendermodel */ 

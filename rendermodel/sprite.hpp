@@ -59,7 +59,7 @@ namespace cinekine {
          * @param  currentTime Time value following the time specified in setState
          * @return             [description]
          */
-        cinek_bitmap_index getBitmapFromTime(cinek_time currentTime) const;
+        cinek_bitmap_index getBitmapFromTime(uint32_t currentTime) const;
          /**
          * Returns the bitmap at the specified frame index.
          * @param  index Frame index.
@@ -74,11 +74,11 @@ namespace cinekine {
          * @param startTime The animation start time used to time animations
          */
         virtual void setState(cinek_rendermodel_anim_id stateId,
-                              cinek_time startTime);
+                              uint32_t startTime);
 
     private:
         const SpriteTemplate& _template;
-        cinek_time _startTime;
+        uint32_t _startTime;
         cinek_rendermodel_anim_id _stateId;
         SpriteAnimation* _animation;
     };
