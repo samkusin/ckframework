@@ -1,4 +1,3 @@
-core
 framework
 rendermodel
 overview

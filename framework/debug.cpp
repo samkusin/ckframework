@@ -6,7 +6,7 @@
  *          Copyright (c) 2013 Cinekine. All rights reserved.
  */
 
-#include "ckdebug.h"
+#include <cinek/framework/debug.hpp>
 
 #if CK_DEBUG_LOGGING
 

@@ -25,15 +25,9 @@ endif( )
 # testing against headers specific to component.
 #
 foreach( _CINEK_MODULE ${_CINEK_COMPONENTS} )  
-    if( ${_CINEK_MODULE} STREQUAL "core" )
+    if( ${_CINEK_MODULE} STREQUAL "framework" )
         find_path( CINEKSDK_${_CINEK_MODULE}_INCLUDE_DIR 
-            cinek/${_CINEK_MODULE}/cktypes.h
-            HINTS "${CINEKSDK_ROOT}"
-            PATH_SUFFIXES "include"
-        )
-    elseif( ${_CINEK_MODULE} STREQUAL "cpp" )
-        find_path( CINEKSDK_${_CINEK_MODULE}_INCLUDE_DIR 
-            cinek/${_CINEK_MODULE}/ckdefs.hpp
+            cinek/${_CINEK_MODULE}/types.hpp
             HINTS "${CINEKSDK_ROOT}"
             PATH_SUFFIXES "include"
         )

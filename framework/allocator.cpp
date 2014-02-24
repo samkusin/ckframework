@@ -6,9 +6,11 @@
  *          Copyright (c) 2013 Cinekine. All rights reserved.
  */
 
-#include "ckalloc.h"
+#include <cinek/framework/allocator.hpp>
 #include <string.h>
 #include <stdlib.h>
+
+namespace cinekine {
 
 /*****************************************************************************/
 static void* DefaultAlloc(void* ctx, size_t numBytes)
@@ -76,3 +78,6 @@ void cinek_alloc_heap_dealloc(void* ptr)
         return;
     (*g_cinek_memoryProvider.cbs.free)(g_cinek_memoryProvider.cbs.context, ptr);
 }
+
+} /* namespace cinekine */
+

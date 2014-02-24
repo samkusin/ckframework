@@ -10,8 +10,6 @@
 #include "cinek/overview/map.hpp"
 #include "cinek/overview/debug.hpp"
 
-#include "cinek/overview/alloc.h"
-
 
 namespace cinekine {
     namespace overview {

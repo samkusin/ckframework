@@ -10,11 +10,11 @@
 #ifndef CINEK_RENDER_TILEDATABASE_HPP
 #define CINEK_RENDER_TILEDATABASE_HPP
 
-#include "cinek/core/ckdebug.h"
-#include "cinek/framework/string.hpp"
-#include "cinek/framework/vector.hpp"
-#include "cinek/framework/memorypool.hpp"
-#include "cinek/rendermodel/types.h"
+#include <cinek/framework/debug.hpp>
+#include <cinek/framework/string.hpp>
+#include <cinek/framework/vector.hpp>
+#include <cinek/framework/memorypool.hpp>
+#include <cinek/rendermodel/types.h>
 
 #include <vector>
 

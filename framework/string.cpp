@@ -21,37 +21,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE. 
  * 
- * @file    cinek/framework/string.hpp
+ * @file    cinek/framework/string.cpp
  * @author  Samir Sinha
- * @date    1/6/2013
+ * @date    2/22/2014
  * @brief   std::string with custom allocators
  * @copyright Cinekine
  */
 
 
-#ifndef CINEK_STRING_HPP
-#define CINEK_STRING_HPP
-
-#include <cinek/framework/allocator.hpp>
+#include <cinek/framework/string.hpp>
 
 #include <string>
+#include <sstream>
+#include <cstring>
+
 
 namespace cinekine {
 
-//  Std types using the overview allocator.
-//
-/** An allocator for string memory. */
-typedef std_allocator<char> string_allocator;
-/** A standard C++ string object using the default string allocator. */
-typedef std::basic_string<char, std::char_traits<char>, string_allocator > string;
-
-/**
- * Joins path elements from the root and returns a normalized path
- * @param  root The root path
- * @return The resulting path string
- */
-string directoryPath(const std::initializer_list<string>& elements);
+    string directoryPath(const std::initializer_list<string>& elements)
+    {
+        const char kSep = '/';
+        string path;
+        path.reserve(MAX_PATH);
+        auto it = elements.begin();
+        auto itEnd = elements.end();
+        if (it != itEnd)
+        {
+            path = *it;
+            if (path.back() != kSep)
+                path.push_back(kSep);
+            ++it;
+            for (; it != itEnd; ++it)
+            {
+                auto& element = *it;
+                size_t len = element.length();
+                size_t offset = 0;
+                if (element.front() == kSep)
+                {
+                    ++offset;
+                    --len;
+                }
+                path.append(element, offset, len);
+                //  this logic is almost the same as the first element
+                //  check done prior to the for loop - only that the first
+                //  path element can have a forward and back path separator
+                if (path.back() != kSep)
+                    path.push_back(kSep);
+            }
+        }
+        return path;
+    }
 
 } /* cinekine */
-
-#endif

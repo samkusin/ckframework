@@ -8,7 +8,7 @@
 #ifndef CINEK_RENDER_TYPES_H
 #define CINEK_RENDER_TYPES_H
 
-#include "cinek/core/cktypes.h"
+#include <cinek/framework/types.hpp>
 
 
 #ifdef __cplusplus

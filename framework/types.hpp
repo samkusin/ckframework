@@ -31,7 +31,16 @@
 #ifndef CK_FRAMEWORK_TYPES_HPP
 #define CK_FRAMEWORK_TYPES_HPP
 
-#include <cinek/core/cktypes.h>
+#include <cinek/framework/ckdefs.h>
+
+#if CK_COMPILER_HAS_STDINT
+  #ifdef __cplusplus
+    #include <cstdint>
+  #else
+    #include <stdint.h>
+  #endif
+#endif
+
 
 namespace cinekine {
     class JobQueue;

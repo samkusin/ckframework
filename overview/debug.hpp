@@ -10,7 +10,7 @@
 #ifndef CINEK_OVERVIEW_DEBUG_HPP
 #define CINEK_OVERVIEW_DEBUG_HPP
 
-#include "cinek/core/ckdebug.h"
+#include <cinek/framework/debug.hpp>
 
 /*****************************************************************************/
 

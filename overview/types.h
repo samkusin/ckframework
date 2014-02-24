@@ -8,7 +8,7 @@
 #ifndef CINEK_OVERVIEW_TYPES_H
 #define CINEK_OVERVIEW_TYPES_H
 
-#include "cinek/core/cktypes.h"
-#include "cinek/rendermodel/types.h"
+#include <cinek/framework/types.hpp>
+#include <cinek/rendermodel/types.h>
 
 #endif

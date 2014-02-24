@@ -32,11 +32,47 @@
 #define CINEK_ALLOC_HPP
 
 #include <cinek/framework/types.hpp>
-#include <cinek/core/ckalloc.h>
 
 #include <memory>
 
 namespace cinekine {
+
+/** Callbacks used for memory allocation/deallocation */
+struct cinek_memory_callbacks
+{
+    /** Invoked when a subsystem allocates memory. */
+    void*   (*alloc)(void* ctx, size_t numBytes);
+    /** Invoked when a subsystem frees memory. */
+    void    (*free)(void* ctx, void* ptr);
+    /** Invoked when a subsystem reallocates memory given a block of memory 
+     * previously allocated by alloc. */
+    void*   (*realloc)(void* ctx, void* ptr, size_t numBytes);
+    /** An application specific context pointer passed to the callback function
+     * pointers in callbacks. */
+    void*   context;
+};
+
+/** Specify a custom memory allocator with an application specific context for 
+ *  CineK systems.
+ *
+ *  All applications must call this function with its own set of memory callbacks
+ *  before using any CineK systems.
+ *  
+ *  @param  callbacks       The custom allocator defined by a series of application
+ *                          defined callbacks.
+ */
+void cinek_alloc_set_callbacks(
+        const cinek_memory_callbacks* callbacks
+    );
+
+/** Returns the allocation callbacks and context supplied by 
+ *  cinek_alloc_set_callbacks.
+ *
+ *  @param  callbacks Pointer to a struct to hold the memory allocation 
+ *                    callbacks.
+ */
+void cinek_get_alloc_callbacks(cinek_memory_callbacks* callbacks);
+
 /**
  * @class Allocator
  * @brief Wraps a cinek_alloc based memory allocator for use in
@@ -55,7 +91,7 @@ public:
 	 * @param context 		 Context passed to the callbacks supplied via
 	 *                   	 allocCallbacks. 
 	 */
-	Allocator(const cinek_memory_callbacks_t& allocCallbacks)
+	Allocator(const cinek_memory_callbacks& allocCallbacks)
 		: _callbacks(allocCallbacks) {}
 	/**
 	 * Allocates a block of memory of the supplied size.

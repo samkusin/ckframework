@@ -1,5 +1,5 @@
 /**
- * \file    ckdebug.h
+ * \file    debug.hpp
  *
  *
  * \note    Created by Samir Sinha on 1/5/13.
@@ -13,6 +13,8 @@
    Try to mimic ckdefs.h if we need preprocessor ifdef checks for including one 
    header vs. another.
 */
+#include <cstdarg>
+#include <cstddef>
 
 #ifndef NDEBUG
     #ifndef CK_DEBUG_LOGGING
@@ -29,14 +31,6 @@
      */
     #define CK_DEBUG_ASSERT 1
     #endif
-#endif
-
-
-#ifdef __cplusplus
-#include <cstdarg>
-extern "C" {
-#else
-#include <stdarg.h>
 #endif
 
 /** Logging level constants. */
@@ -136,10 +130,6 @@ void cinek_debug_break(void);
 
 #define CK_ASSERT(_cond_)
 
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif  /* CINEK_CKDEBUG_H */
