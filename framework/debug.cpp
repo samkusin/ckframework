@@ -82,11 +82,10 @@ void cinek_debug_log_start(
     }
     else
     {
-        cinek_log_level level;
-        for (level = kCinekLogLevel_First; level < kCinekLogLevel_Count; ++level)
-        {
-            g_cinek_logProvider.cbs.logger[level] = &stdlog;
-        }
+        g_cinek_logProvider.cbs.logger[kCinekLogLevel_Trace] = &stdlog;
+        g_cinek_logProvider.cbs.logger[kCinekLogLevel_Debug] = &stdlog;
+        g_cinek_logProvider.cbs.logger[kCinekLogLevel_Info] = &stdlog;
+        g_cinek_logProvider.cbs.logger[kCinekLogLevel_Warn] = &stdlog;
         g_cinek_logProvider.cbs.logger[kCinekLogLevel_Error] = &stdlogerr;
         g_cinek_logProvider.cbs.flush = &stdlogflush;
         g_cinek_logProvider.context = NULL;

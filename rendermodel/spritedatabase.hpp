@@ -98,7 +98,7 @@ private:
     using unordered_map = std::unordered_map<Key, T, 
         std::hash<Key>,
         std::equal_to<Key>,
-        std_allocator<std::pair<Key, T>> >;
+        std_allocator<std::pair<const Key, T>> >;
 
     unordered_map<string, cinek_rendermodel_anim_id> _nameToAnimIds;
     unordered_map<string, cinek_sprite_template_id> _nameToIds;
