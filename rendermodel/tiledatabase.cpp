@@ -18,8 +18,7 @@ namespace cinekine {
                                               kCinekBitmapAtlas_Invalid, 
                                               kCinekBitmapIndex_Invalid 
                                             },
-                                            0, 
-                                            { nullptr }
+                                            0, 0, 0 
                                           },
                std_allocator<cinek_tile_info>(allocator))
     {

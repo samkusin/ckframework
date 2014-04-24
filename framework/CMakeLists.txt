@@ -23,7 +23,7 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/memorypool.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/job.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jobqueue.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.hpp  
+    ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.hpp
 )
 
 set( PROJECT_SOURCES
@@ -31,7 +31,7 @@ set( PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/allocator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/string.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jobqueue.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.cpp  
+    ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.cpp
 )
 
 # Targets

@@ -84,12 +84,9 @@ typedef uint16_t cinek_tile;
 typedef struct cinek_tile_info_t
 {
     cinek_bitmap bitmap;            /**< The tile's bitmap */
-    uint32_t appFlags;              /**< Application defined flags */
-    union
-    {
-        void* appData;              /**< Pointer to application data */
-        uint32_t appValue;          /**< An application defined value */
-    };
+    uint8_t categoryIndex;
+    uint8_t classIndex;
+    uint16_t flags;
 }
 cinek_tile_info;
 
