@@ -49,21 +49,21 @@ public:
      * @param  id The Sprite Template ID
      * @return    Pointer to the Sprite Template (or NULL.)
      */
-    const Sprite* findTemplate(cinek_sprite_template_id id) const;
+    const Sprite* sprite(cinek_sprite_id id) const;
     /**
      * Returns a SpriteTemplate ID given its name.
      *
      * @param  templateName SpriteTemplate name.
      * @return              The ID or kCinekSpriteTemplate_Null.
      */
-    cinek_sprite_template_id findTemplateIDByName(const char* templateName) const;
+    cinek_sprite_id spriteIdByName(const char* templateName) const;
     /**
      * Returns the animation ID given its state name.
      *
      * @param  animationName Animation state name.
      * @return               Numeric ID for the animation state name.
      */
-    cinek_rendermodel_anim_id findAnimationIDByName(const char* animationName) const;
+    cinek_rendermodel_anim_id animationIDByName(const char* animationName) const;
     /**
      * Creates a SpriteTemplate.
      *
@@ -74,7 +74,7 @@ public:
      * @return           Pointer to a SpriteTemplate or nullptr if out of
      *                   memory.
      */
-    Sprite* createOrModifyTemplateFromName(const char* name,
+    Sprite* createOrModifyFromName(const char* name,
         cinek_bitmap_atlas classId,
         uint16_t numStates);
     /**
@@ -101,8 +101,8 @@ private:
         std_allocator<std::pair<const Key, T>> >;
 
     unordered_map<string, cinek_rendermodel_anim_id> _nameToAnimIds;
-    unordered_map<string, cinek_sprite_template_id> _nameToIds;
-    unordered_map<cinek_sprite_template_id, Sprite* > _idToTemplates;
+    unordered_map<string, cinek_sprite_id> _nameToIds;
+    unordered_map<cinek_sprite_id, Sprite* > _idToTemplates;
 };
 
     }   // namespace rendermodel

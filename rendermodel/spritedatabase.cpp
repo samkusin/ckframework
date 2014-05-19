@@ -17,12 +17,12 @@ SpriteDatabase::SpriteDatabase(size_t initTemplateLimit, const Allocator& alloca
     _allocator(allocator),
     _templatePool(initTemplateLimit, allocator),
     _nameToAnimIds(std_allocator<std::pair<string, cinek_rendermodel_anim_id>>(allocator)),
-    _nameToIds(std_allocator<std::pair<string, cinek_sprite_template_id>>(allocator)),
-    _idToTemplates(std_allocator<std::pair<cinek_sprite_template_id, SpriteTemplate*> >(allocator))
+    _nameToIds(std_allocator<std::pair<string, cinek_sprite_id>>(allocator)),
+    _idToTemplates(std_allocator<std::pair<cinek_sprite_id, SpriteTemplate*> >(allocator))
 {
 }
 
-const Sprite* SpriteDatabase::findTemplate(cinek_sprite_template_id id) const
+const Sprite* SpriteDatabase::sprite(cinek_sprite_id id) const
 {
     auto it = _idToTemplates.find(id);
     if (it == _idToTemplates.end())
@@ -30,15 +30,15 @@ const Sprite* SpriteDatabase::findTemplate(cinek_sprite_template_id id) const
     return it->second;
 }
 
-cinek_sprite_template_id SpriteDatabase::findTemplateIDByName(const char* templateName) const
+cinek_sprite_id SpriteDatabase::spriteIdByName(const char* templateName) const
 {
     auto it = _nameToIds.find(templateName);
     if (it == _nameToIds.end())
-        return kCinekSpriteTemplate_Null;
+        return kCinekSprite_Null;
     return it->second;
 }
 
-cinek_rendermodel_anim_id SpriteDatabase::findAnimationIDByName(const char* animationName) const
+cinek_rendermodel_anim_id SpriteDatabase::animationIDByName(const char* animationName) const
 {
     auto it = _nameToAnimIds.find(animationName);
     if (it == _nameToAnimIds.end())
@@ -46,7 +46,7 @@ cinek_rendermodel_anim_id SpriteDatabase::findAnimationIDByName(const char* anim
     return it->second;
 }
 
-Sprite* SpriteDatabase::createOrModifyTemplateFromName(const char* name,
+Sprite* SpriteDatabase::createOrModifyFromName(const char* name,
         cinek_bitmap_atlas classId,
         uint16_t numStates)
 {
@@ -54,7 +54,7 @@ Sprite* SpriteDatabase::createOrModifyTemplateFromName(const char* name,
     //  and replace the old template with a new one.
     //  otherwise just create a new one.
     auto itId = _nameToIds.find(string(name));
-    cinek_sprite_template_id id;
+    cinek_sprite_id id;
     if (itId != _nameToIds.end())
     {
         id = itId->second;

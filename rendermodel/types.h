@@ -91,11 +91,11 @@ typedef struct cinek_tile_info_t
 cinek_tile_info;
 
 /** Identifies a sprite by key ID. */
-typedef uint32_t cinek_sprite_template_id;
+typedef uint32_t cinek_sprite_id;
 /** Identifies the animation of a particular model. */
 typedef uint16_t cinek_rendermodel_anim_id;
 /** Define for a null sprite template. */
-#define kCinekSpriteTemplate_Null   ((cinek_sprite_template_id)0)
+#define kCinekSprite_Null   ((cinek_sprite_id)0)
 /** Define for a null sprite template. */
 #define kCinekAnimation_Null        ((cinek_rendermodel_anim_id)0)
 
