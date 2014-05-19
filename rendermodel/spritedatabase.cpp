@@ -8,7 +8,7 @@
  */
 
 #include "spritedatabase.hpp"
-#include "spritetemplate.hpp"
+#include "sprite.hpp"
 
 namespace cinekine {
     namespace rendermodel {
@@ -22,7 +22,7 @@ SpriteDatabase::SpriteDatabase(size_t initTemplateLimit, const Allocator& alloca
 {
 }
 
-const SpriteTemplate* SpriteDatabase::findTemplate(cinek_sprite_template_id id) const
+const Sprite* SpriteDatabase::findTemplate(cinek_sprite_template_id id) const
 {
     auto it = _idToTemplates.find(id);
     if (it == _idToTemplates.end())
@@ -46,7 +46,7 @@ cinek_rendermodel_anim_id SpriteDatabase::findAnimationIDByName(const char* anim
     return it->second;
 }
 
-SpriteTemplate* SpriteDatabase::createOrModifyTemplateFromName(const char* name,
+Sprite* SpriteDatabase::createOrModifyTemplateFromName(const char* name,
         cinek_bitmap_atlas classId,
         uint16_t numStates)
 {
@@ -63,13 +63,13 @@ SpriteTemplate* SpriteDatabase::createOrModifyTemplateFromName(const char* name,
         id = _nameToIds.size()+1;
     }
 
-    SpriteTemplate* theTemplate;
+    Sprite* theTemplate;
     auto itTemplate = _idToTemplates.find(id);
     if (itTemplate != _idToTemplates.end())
     {
         theTemplate = itTemplate->second;
-        theTemplate->~SpriteTemplate();
-        new(theTemplate) SpriteTemplate(classId, numStates, _allocator);
+        theTemplate->~Sprite();
+        new(theTemplate) Sprite(classId, numStates, _allocator);
     }
     else
     {
@@ -79,7 +79,7 @@ SpriteTemplate* SpriteDatabase::createOrModifyTemplateFromName(const char* name,
     return theTemplate;
 }
 
-bool SpriteDatabase::mapAnimationStateNameToId(const char* name, 
+bool SpriteDatabase::mapAnimationStateNameToId(const char* name,
         cinek_rendermodel_anim_id id)
 {
     for(const auto& val : _nameToAnimIds)

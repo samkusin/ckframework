@@ -10,7 +10,7 @@
 #ifndef CINEK_RENDER_SPRITEDATABASE_HPP
 #define CINEK_RENDER_SPRITEDATABASE_HPP
 
-#include "cinek/rendermodel/spritetemplate.hpp"
+#include "cinek/rendermodel/sprite.hpp"
 #include "cinek/framework/string.hpp"
 #include "cinek/framework/allocator.hpp"
 #include "cinek/framework/memorypool.hpp"
@@ -32,77 +32,77 @@ namespace cinekine {
 class SpriteDatabase
 {
     CK_CLASS_NON_COPYABLE(SpriteDatabase);
-    
+
 public:
     /**
      * @param initTemplateLimit The initial SpriteTemplate limit value.  Used
      *                          for efficient usage of memory.  SpriteTemplate
      *                          count can exceed the limit, but will result in
-     *                          additional memory allocations. 
+     *                          additional memory allocations.
      * @param allocator         An optional allocator.
      */
-    SpriteDatabase(size_t initTemplateLimit, 
+    SpriteDatabase(size_t initTemplateLimit,
                    const Allocator& allocator=Allocator());
     /**
      * Finds a SpriteTemplate given its ID.
-     * 
+     *
      * @param  id The Sprite Template ID
      * @return    Pointer to the Sprite Template (or NULL.)
      */
-    const SpriteTemplate* findTemplate(cinek_sprite_template_id id) const;
+    const Sprite* findTemplate(cinek_sprite_template_id id) const;
     /**
      * Returns a SpriteTemplate ID given its name.
-     * 
+     *
      * @param  templateName SpriteTemplate name.
      * @return              The ID or kCinekSpriteTemplate_Null.
      */
     cinek_sprite_template_id findTemplateIDByName(const char* templateName) const;
     /**
      * Returns the animation ID given its state name.
-     * 
+     *
      * @param  animationName Animation state name.
      * @return               Numeric ID for the animation state name.
      */
     cinek_rendermodel_anim_id findAnimationIDByName(const char* animationName) const;
     /**
      * Creates a SpriteTemplate.
-     * 
+     *
      * @param  name      Name of the template.
      * @param  classId   The bitmap class used for all bitmaps referenced in
      *                   the template.
-     * @param  numStates The animation state count. 
+     * @param  numStates The animation state count.
      * @return           Pointer to a SpriteTemplate or nullptr if out of
      *                   memory.
      */
-    SpriteTemplate* createOrModifyTemplateFromName(const char* name,
+    Sprite* createOrModifyTemplateFromName(const char* name,
         cinek_bitmap_atlas classId,
         uint16_t numStates);
     /**
      * Maps animation state name to a numeric ID.  Numeric IDs are used
-     * to reference animations from SpriteTemplates.  If a state is already 
+     * to reference animations from SpriteTemplates.  If a state is already
      * mapped to the specified id, the method returns False.
-     * 
+     *
      * @param  name Name of the animation state.
-     * @param  id   ID value (can be used to reference a SpriteTemplate 
+     * @param  id   ID value (can be used to reference a SpriteTemplate
      *              animation.)
      * @return      False if a state already exists with the passed id.
      */
-    bool mapAnimationStateNameToId(const char* name, 
+    bool mapAnimationStateNameToId(const char* name,
         cinek_rendermodel_anim_id id);
 
-private:    
+private:
     Allocator _allocator;
-    ObjectPool<SpriteTemplate> _templatePool;
+    ObjectPool<Sprite> _templatePool;
 
     template <typename Key, typename T>
-    using unordered_map = std::unordered_map<Key, T, 
+    using unordered_map = std::unordered_map<Key, T,
         std::hash<Key>,
         std::equal_to<Key>,
         std_allocator<std::pair<const Key, T>> >;
 
     unordered_map<string, cinek_rendermodel_anim_id> _nameToAnimIds;
     unordered_map<string, cinek_sprite_template_id> _nameToIds;
-    unordered_map<cinek_sprite_template_id, SpriteTemplate* > _idToTemplates;
+    unordered_map<cinek_sprite_template_id, Sprite* > _idToTemplates;
 };
 
     }   // namespace rendermodel

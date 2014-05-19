@@ -1,59 +1,99 @@
 /**
  * \file    rendermodel/sprite.cpp
  *
- * Contains a Sprite Model instance's state information.
+ * Model data shared across
  *
  * \note    Created by Samir Sinha on 5/18/13.
  *          Copyright (c) 2013 Cinekine. All rights reserved.
  */
 
-#include "./sprite.hpp"
-#include "./spritetemplate.hpp"
-#include "./spriteanimation.hpp"
+#include "sprite.hpp"
+
+#include <algorithm>
+#include <cstring>
 
 namespace cinekine {
     namespace rendermodel {
 
-Sprite::Sprite(const SpriteTemplate& spriteTemplate) :
-    _template(spriteTemplate),
-    _startTime(0),
-    _stateId(kCinekAnimation_Null),
-    _animation(nullptr)
+Sprite::Sprite(cinek_bitmap_atlas bitmapClass, uint16_t numStates,
+                               const Allocator& allocator) :
+    _allocator { allocator },
+    _bitmapClass{ bitmapClass },
+    _statePool( numStates, allocator ),
+    _states(std_allocator<SpriteAnimation*>(allocator))
 {
-
+    _states.reserve(numStates);
 }
 
 Sprite::~Sprite()
 {
+    for( auto& state : _states )
+    {
+        _allocator.free(state->_frames);
+    }
 }
 
-void Sprite::setState(cinek_rendermodel_anim_id stateId, uint32_t startTime)
+Sprite::Sprite(Sprite&& other) :
+    _bitmapClass(other._bitmapClass),
+    _statePool(std::move(other._statePool)),
+    _states(std::move(other._states))
 {
-    _stateId = stateId;
-    _startTime = startTime;
-
-    _animation = _template.getAnimation(stateId);
+    other._bitmapClass = kCinekBitmapAtlas_Invalid;
 }
 
-cinek_bitmap_atlas Sprite::getBitmapAtlas() const
+Sprite& Sprite::operator=(Sprite&& other)
 {
-    return _template.getBitmapClass();
+    _bitmapClass = other._bitmapClass;
+    other._bitmapClass = kCinekBitmapAtlas_Invalid;
+    _statePool = std::move(other._statePool);
+    _states = std::move(other._states);
+    return *this;
 }
 
-uint16_t Sprite::getBitmapFrameCount() const
+struct SpriteState_Comparator
 {
-    return _animation->getFrameCount();
-}
+    bool operator()(const SpriteAnimation* state, const cinek_rendermodel_anim_id& id) const
+    {
+        return state->getId() < id;
+    }
+};
 
-cinek_bitmap_index Sprite::getBitmapFromTime(uint32_t currentTime) const
-{  
-    return _animation->getFrameByTime(currentTime - _startTime);
-}
-
-cinek_bitmap_index Sprite::getBitmapFrame(uint16_t index) const
+SpriteAnimation* Sprite::createAnimation(
+                            cinek_rendermodel_anim_id animId,
+                            uint16_t frameCount,
+                            uint32_t duration
+                        )
 {
-    return _animation->getFrame(index);
+    //  maintain a sorted state vector.
+    auto stateIt = std::lower_bound(_states.begin(), _states.end(), animId, SpriteState_Comparator());
+    SpriteAnimation* state = nullptr;
+    if (stateIt == _states.end() || (*stateIt)->getId() != animId)
+    {
+        cinek_bitmap_index* frames = _allocator.allocItems<cinek_bitmap_index>(frameCount);
+        state = _statePool.allocateAndConstruct(animId, frameCount, frames);
+        _states.emplace(stateIt, state);
+    }
+    else
+    {
+        state = (*stateIt);
+        _allocator.free(state->_frames);
+        state->~SpriteAnimation();
+        cinek_bitmap_index* frames = _allocator.allocItems<cinek_bitmap_index>(frameCount);
+        ::new(state) SpriteAnimation(animId, frameCount, frames);
+    }
+
+    return state;
 }
 
-    } /* rendermodel */ 
-} /* cinekine */
+SpriteAnimation* Sprite::getAnimation(cinek_rendermodel_anim_id animId) const
+{
+    auto stateIt = std::lower_bound(_states.begin(), _states.end(), animId, SpriteState_Comparator());
+    if (stateIt != _states.end() && (*stateIt)->getId() == animId)
+    {
+        return *stateIt;
+    }
+    return nullptr;
+}
+
+    }   // namespace rendermodel
+}   // namespace cinekine

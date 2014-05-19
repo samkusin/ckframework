@@ -1,5 +1,5 @@
 /**
- * \file    rendermodel/model.hpp
+ * \file    rendermodel/modelinstance.hpp
  *
  * A generalized model, representing a visual entity.
  *
@@ -7,8 +7,8 @@
  *          Copyright (c) 2013 Cinekine. All rights reserved.
  */
 
-#ifndef CINEK_RENDER_MODEL_HPP
-#define CINEK_RENDER_MODEL_HPP
+#ifndef CINEK_RENDER_MODELINSTANCE_HPP
+#define CINEK_RENDER_MODELINSTANCE_HPP
 
 #include "cinek/rendermodel/types.h"
 
@@ -16,26 +16,26 @@ namespace cinekine {
     namespace rendermodel {
 
 /**
- * \class Model model.hpp "rendermodel/model.hpp"
+ * \class ModelInstance
  * \brief An abstract class representing a rendered entity.
- * 
- * The Model class abstracts graphical representations of game objects or 
+ *
+ * The Model class abstracts graphical representations of game objects or
  * other higher level objects.   Even model instance contains its own state
  * data.
- * 
+ *
  * A model's template contains Data shared across multiple model instances.
- * For more information, 
+ * For more information,
  */
-class Model
+class ModelInstance
 {
 public:
-    virtual ~Model() {}
+    virtual ~ModelInstance() {}
     /**
      * Sets the model's state.
-     * State is an abstract concept on the Model level.  For example, a state could 
+     * State is an abstract concept on the Model level.  For example, a state could
      * refer to a keyframe or set of bitmaps animated over time.  What states constitute
-     * depends on the model's implementation. 
-     * 
+     * depends on the model's implementation.
+     *
      * @param stateId   The State identifier as defined by the application.
      * @param startTime The animation start time used to time animations
      */
@@ -43,7 +43,7 @@ public:
                           uint32_t startTime) = 0;
 };
 
-    } /* rendermodel */ 
+    } /* rendermodel */
 } /* cinekine */
 
 #endif

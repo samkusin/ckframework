@@ -23,8 +23,8 @@ namespace cinekine {
      */
     class SpriteAnimation
     {
-        friend class SpriteTemplate;
-        
+        friend class Sprite;
+
     public:
         /**
          * Initializes the state.
