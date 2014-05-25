@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Cinekine Media
+ * Copyright (c) 2014 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,39 +21,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/framework/string.hpp
+ * @file    cinek/types.hpp
  * @author  Samir Sinha
- * @date    1/6/2013
- * @brief   std::string with custom allocators
+ * @date    2/17/2014
+ * @brief   Common framework-level types
  * @copyright Cinekine
  */
 
+#ifndef CINEK_TYPES_HPP
+#define CINEK_TYPES_HPP
 
-#ifndef CINEK_STRING_HPP
-#define CINEK_STRING_HPP
+#include "cinek/ckdefs.h"
 
-#include <cinek/framework/allocator.hpp>
+#if CK_COMPILER_HAS_STDINT
+  #ifdef __cplusplus
+    #include <cstdint>
+  #else
+    #include <stdint.h>
+  #endif
+#endif
 
-#include <string>
+
+namespace cinekine {
+    class JobQueue;
+}
 
 namespace cinekine {
 
-//  Std types using the overview allocator.
-//
-/** An allocator for string memory. */
-typedef std_allocator<char> string_allocator;
-/** A standard C++ string object using the default string allocator. */
-typedef std::basic_string<char, std::char_traits<char>, string_allocator > string;
+    /** A handle type */
+    typedef uint32_t Handle;
+    /** A null handle constant */
+    const Handle kNullHandle = 0;
 
-/**
- * Joins path elements from the root and returns a normalized path
- * @param  root The root path
- * @return The resulting path string
- */
-string directoryPath(const std::initializer_list<string>& elements);
+    /** A handle to a Job scheduled via the JobQueue */
+    typedef Handle JobHandle;
 
-uint32_t UInt32FromString(const char* string);
+} /* namespace cinekine */
 
-} /* cinekine */
 
 #endif

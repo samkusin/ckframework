@@ -12,19 +12,19 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
- * @file    cinek/core/ckdefs.h
+ * THE SOFTWARE.
+ *
+ * @file    cinek/ckdefs.h
  * @author  Samir Sinha
  * @date    11/1/2013
- * @brief   C and C++ common macros and definitions 
+ * @brief   C and C++ common macros and definitions
  * @copyright Cinekine
  */
 
@@ -32,16 +32,16 @@
 #define CINEK_DEFS_H
 
 #ifdef CINEK_HAS_CKOPTS_H
-#include "cinek/core/ckopts.h"
+#include "cinek/ckopts.h"
 #endif
 
 #include <stddef.h>
 
-/** 
+/**
  *  \name Compiler Defines
  *  Defines properties related to the build compiler system.
  */
-/**@{*/ 
+/**@{*/
 /*
  *  Detect Compiler.
  */
@@ -55,7 +55,7 @@
 #ifndef CK_CPP_11_BASIC
   #if __clang__
     #if __has_feature(cxx_lambdas) && __has_feature(cxx_nullptr) \
-        && __has_feature(cxx_auto_type) && __has_feature(cxx_rvalue_references) 
+        && __has_feature(cxx_auto_type) && __has_feature(cxx_rvalue_references)
       #define CK_CPP_11_BASIC
     #endif
   #elif __GNUC__ >= 4
@@ -70,7 +70,7 @@
     #define CK_CPP_11_BASIC
   #endif
   /* CK_CPP_11_BASIC */
-  #endif  
+  #endif
 /* __cplusplus */
 #else
   #undef CK_CPP_11_BASIC
@@ -109,14 +109,14 @@
 #endif
 
 #ifdef __cplusplus
-/** 
+/**
  *  \name C++ Macros
  *  Useful macros for C++ development.
  */
-/**@{*/ 
+/**@{*/
 /**
  * \def CK_CLASS_NON_COPYABLE(__class_name_)
- * Prevents copy operations for the specified class.  This must be placed 
+ * Prevents copy operations for the specified class.  This must be placed
  * the C++ class definition.
  */
 #ifdef CK_CPP_11_BASIC
@@ -132,30 +132,30 @@
 /**@}*/
 #endif
 
-/** 
+/**
  *  \name Platform Defines
  *  Defines the target development platform
  */
-/**@{*/ 
+/**@{*/
 #ifdef CK_DOXYGEN_RUNNING_PASS
 /**
  * \def CK_TARGET_OSX
- * Compiling for OS X 
+ * Compiling for OS X
  */
 #define CK_TARGET_OSX
 /**
  * \def CK_TARGET_LINUX
- * Compiling for Linux 
+ * Compiling for Linux
  */
 #define CK_TARGET_LINUX
 /**
  * \def CK_TARGET_WINDOWS
- * Compiling for a Windows desktop OS. 
+ * Compiling for a Windows desktop OS.
  */
 #define CK_TARGET_WINDOWS
 /**
  * \def CK_TARGET_IOS
- * Compiling for the iOS Platform. 
+ * Compiling for the iOS Platform.
  */
 #define CK_TARGET_IOS
 /**
@@ -191,13 +191,13 @@
 #define CK_ALIGN_SIZE(_val_, _align_) ( ((_val_)+(_align_)-1) & ~((_align_)-1) )
 /**
  * \def CK_ALIGN_PTR(_ptr_, _align_)
- * Returns an adjusted pointer based on _ptr_, aligned by _align_ bytes. 
+ * Returns an adjusted pointer based on _ptr_, aligned by _align_ bytes.
  */
 #define CK_ALIGN_PTR(_ptr_, _align_) ( ((uintptr_t)(_ptr_)+(_align_)-1) & ~((_align_)-1) )
 
 /**
  * \def CK_ARCH_ALIGN_BYTES
- * The architecture specific alignment value (in bytes.) 
+ * The architecture specific alignment value (in bytes.)
  */
 #define CK_ARCH_ALIGN_BYTES (4)
 /**
@@ -214,7 +214,7 @@
 
 /**
  * \def DO_PRAGMA(_x_)
- * Adds a compiler pragma. 
+ * Adds a compiler pragma.
  */
 #define DO_PRAGMA(_x_) _Pragma (#_x_)
 

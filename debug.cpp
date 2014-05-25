@@ -1,12 +1,12 @@
 /**
- * \file    ckdebug.c
+ * \file    debug.cpp
  *
  *
  * \note    Created by Samir Sinha on 2/1/13.
  *          Copyright (c) 2013 Cinekine. All rights reserved.
  */
 
-#include <cinek/framework/debug.hpp>
+#include "cinek/debug.hpp"
 
 #if CK_DEBUG_LOGGING
 
@@ -18,7 +18,7 @@ static void stdlog(void* , const char*, const char* , va_list args);
 static void stdlogerr(void* , const char*, const char* , va_list args);
 static void stdlogflush(void*);
 
-/*  global logging provider. */ 
+/*  global logging provider. */
 struct
 {
     cinek_log_callbacks cbs;

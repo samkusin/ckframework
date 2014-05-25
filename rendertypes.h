@@ -8,21 +8,11 @@
 #ifndef CINEK_RENDER_TYPES_H
 #define CINEK_RENDER_TYPES_H
 
-#include <cinek/framework/types.hpp>
-
+#include "cinek/types.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/** A RGBA quartet using 8-bit components */
-typedef struct cinek_rgba_color_t {
-    uint8_t r;      /**< Red component */
-    uint8_t g;      /**< Green component */
-    uint8_t b;      /**< Blue component */
-    uint8_t a;      /**< Alpha component */
-}
-cinek_rgba_color;
 
 /*
     Bitmap Types
@@ -40,14 +30,6 @@ typedef enum cinek_pixel_format_t
     kCinekPixelFormat_A8            /**< 8-bit Alpha, assuming RGB of white. */
 }
 cinek_pixel_format;
-
-/** Defines bitmap formats supported by the renderer. */
-typedef enum cinek_bitmap_type_t
-{
-    kCinekBitmapType_Unknown = 1,
-    kCinekBitmapType_PNG
-}
-cinek_bitmap_type;
 
 /** An index to a bitmap collection. */
 typedef uint16_t cinek_bitmap_atlas;
@@ -77,35 +59,6 @@ typedef struct cinek_bitmap_uvs_t
 }
 cinek_bitmap_uvs;
 
-/** Identifies a tile on the tile map. */
-typedef uint16_t cinek_tile;
-
-/** Tile bitmap and extended information. */
-typedef struct cinek_tile_info_t
-{
-    cinek_bitmap bitmap;            /**< The tile's bitmap */
-    uint8_t categoryIndex;
-    uint8_t classIndex;
-    uint16_t flags;
-}
-cinek_tile_info;
-
-/** Identifies a sprite by key ID. */
-typedef uint32_t cinek_sprite_id;
-/** Identifies the animation of a particular model. */
-typedef uint16_t cinek_rendermodel_anim_id;
-/** Define for a null sprite template. */
-#define kCinekSprite_Null   ((cinek_sprite_id)0)
-/** Define for a null sprite template. */
-#define kCinekAnimation_Null        ((cinek_rendermodel_anim_id)0)
-
-/** Keyframe information for an animation. */
-typedef struct cinek_rendermodel_keyframe_t
-{
-    uint16_t frame; /**< Frame index. */
-    uint32_t t;   /**< Time index at this frame. */
-}
-cinek_rendermodel_keyframe;
 
 #ifdef __cplusplus
 }

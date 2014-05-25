@@ -12,28 +12,28 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
- * @file    cinek/framework/jobqueue.hpp
+ * THE SOFTWARE.
+ *
+ * @file    cinek/jobqueue.hpp
  * @author  Samir Sinha
  * @date    2/17/2014
  * @brief   A job housekeeping and dispatcher
  * @copyright Cinekine
  */
 
-#ifndef CK_FRAMEWORK_JOBQUEUE_HPP
-#define CK_FRAMEWORK_JOBQUEUE_HPP
+#ifndef CINEK_JOBQUEUE_HPP
+#define CINEK_JOBQUEUE_HPP
 
-#include <cinek/framework/allocator.hpp>
-#include <cinek/framework/job.hpp>
-#include <cinek/framework/vector.hpp>
+#include "cinek/allocator.hpp"
+#include "cinek/job.hpp"
+#include "cinek/vector.hpp"
 
 namespace cinekine {
 
@@ -84,7 +84,7 @@ namespace cinekine {
         Allocator _allocator;
         JobHandle _nextHandle;
         void* _context;
-        typedef std::pair<JobHandle, unique_ptr<Job>> JobHandleObject; 
+        typedef std::pair<JobHandle, unique_ptr<Job>> JobHandleObject;
         vector<JobHandleObject> _jobs;
     };
 

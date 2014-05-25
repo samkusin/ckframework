@@ -12,37 +12,47 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
- * @file    cinek/framework/vector.hpp
+ * THE SOFTWARE.
+ *
+ * @file    cinek/string.hpp
  * @author  Samir Sinha
  * @date    1/6/2013
- * @brief   std::vector with a custom allocator
+ * @brief   std::string with custom allocators
  * @copyright Cinekine
  */
 
 
-#ifndef CINEK_VECTOR_HPP
-#define CINEK_VECTOR_HPP
+#ifndef CINEK_STRING_HPP
+#define CINEK_STRING_HPP
 
-#include <cinek/framework/allocator.hpp>
+#include "cinek/allocator.hpp"
 
-#include <vector>
+#include <string>
 
 namespace cinekine {
 
 //  Std types using the overview allocator.
 //
 /** An allocator for string memory. */
-template<typename T>
-    using vector = std::vector<T, std_allocator<T>>;
+typedef std_allocator<char> string_allocator;
+/** A standard C++ string object using the default string allocator. */
+typedef std::basic_string<char, std::char_traits<char>, string_allocator > string;
+
+/**
+ * Joins path elements from the root and returns a normalized path
+ * @param  root The root path
+ * @return The resulting path string
+ */
+string directoryPath(const std::initializer_list<string>& elements);
+
+uint32_t UInt32FromString(const char* string);
 
 } /* cinekine */
 

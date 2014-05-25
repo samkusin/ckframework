@@ -12,59 +12,42 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
- * @file    cinek/framework/jobscheduler.hpp
+ * THE SOFTWARE.
+ *
+ * @file    cinek/jobscheduler.cpp
  * @author  Samir Sinha
  * @date    2/17/2014
  * @brief   A "schedule-only" interface to a JobQueue provided for Jobs
  * @copyright Cinekine
  */
 
-#ifndef CK_FRAMEWORK_JOBSCHEDULER_HPP
-#define CK_FRAMEWORK_JOBSCHEDULER_HPP
+#include "cinek/jobscheduler.hpp"
+#include "cinek/jobqueue.hpp"
 
-#include <cinek/framework/job.hpp>
-#include <cinek/framework/allocator.hpp>
 
 namespace cinekine {
-    class JobQueue;
-}
 
-namespace cinekine {
-    class JobScheduler
+    JobScheduler::JobScheduler(JobQueue& queue) :
+        _queue(queue)
     {
-    public:
-        /**
-         * Constructor
-         * @param queue  The owning JobQueue
-         */
-        JobScheduler(JobQueue& queue);
-        /**
-         * Schedules a Job object for execution based on priority.  The queue
-         * dispatches the job as soon as it can, against other jobs
-         * @param  job      Job pointer
-         * @return          Handle to the scheduled job
-         */
-        JobHandle schedule(unique_ptr<Job>&& job);
-        /**
-         * Cancels a scheduled job.  Note this does not affect currently
-         * running jobs, only queued jobs.
-         * @param jobHandle Handle to a scheduled job.
-         */
-        void cancel(JobHandle jobHandle);
 
-    private:
-        JobQueue& _queue;
-    };
+    }
+
+    JobHandle JobScheduler::schedule(unique_ptr<Job>&& job)
+    {
+        return _queue.schedule(std::move(job));
+    }
+
+    void JobScheduler::cancel(JobHandle jobHandle)
+    {
+        _queue.cancel(jobHandle);
+    }
+
 } /* namespace cinekine */
-
-
-#endif

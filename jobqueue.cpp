@@ -12,28 +12,28 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
- * @file    cinek/framework/jobqueue.cpp
+ * THE SOFTWARE.
+ *
+ * @file    cinek/jobqueue.cpp
  * @author  Samir Sinha
  * @date    2/22/2014
  * @brief   A job housekeeping and dispatcher
  * @copyright Cinekine
  */
 
-#include <cinek/framework/jobqueue.hpp>
+#include "cinek/jobqueue.hpp"
 
 #include <algorithm>
 
 namespace cinekine {
- 
+
     /**
      * @param allocator  An (optional) allocator for custom memory
      *                   management
@@ -70,7 +70,7 @@ namespace cinekine {
             {
                 _jobs.erase(it);
                 return;
-            }           
+            }
         }
     }
 

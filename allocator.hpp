@@ -12,16 +12,16 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
- * @file    ckalloc.hpp
+ * THE SOFTWARE.
+ *
+ * @file    cinek/allocator.hpp
  * @author  Samir Sinha
  * @date    1/6/2013
  * @brief   std library allocator using custom allocation hooks
@@ -31,7 +31,7 @@
 #ifndef CINEK_ALLOC_HPP
 #define CINEK_ALLOC_HPP
 
-#include <cinek/framework/types.hpp>
+#include "cinek/types.hpp"
 
 #include <memory>
 
@@ -44,7 +44,7 @@ struct cinek_memory_callbacks
     void*   (*alloc)(void* ctx, size_t numBytes);
     /** Invoked when a subsystem frees memory. */
     void    (*free)(void* ctx, void* ptr);
-    /** Invoked when a subsystem reallocates memory given a block of memory 
+    /** Invoked when a subsystem reallocates memory given a block of memory
      * previously allocated by alloc. */
     void*   (*realloc)(void* ctx, void* ptr, size_t numBytes);
     /** An application specific context pointer passed to the callback function
@@ -52,12 +52,12 @@ struct cinek_memory_callbacks
     void*   context;
 };
 
-/** Specify a custom memory allocator with an application specific context for 
+/** Specify a custom memory allocator with an application specific context for
  *  CineK systems.
  *
  *  All applications must call this function with its own set of memory callbacks
  *  before using any CineK systems.
- *  
+ *
  *  @param  callbacks       The custom allocator defined by a series of application
  *                          defined callbacks.
  */
@@ -65,10 +65,10 @@ void cinek_alloc_set_callbacks(
         const cinek_memory_callbacks* callbacks
     );
 
-/** Returns the allocation callbacks and context supplied by 
+/** Returns the allocation callbacks and context supplied by
  *  cinek_alloc_set_callbacks.
  *
- *  @param  callbacks Pointer to a struct to hold the memory allocation 
+ *  @param  callbacks Pointer to a struct to hold the memory allocation
  *                    callbacks.
  */
 void cinek_get_alloc_callbacks(cinek_memory_callbacks* callbacks);
@@ -77,7 +77,7 @@ void cinek_get_alloc_callbacks(cinek_memory_callbacks* callbacks);
  * @class Allocator
  * @brief Wraps a cinek_alloc based memory allocator for use in
  * compliant C++ objects.
- * 
+ *
  */
 class Allocator
 {
@@ -89,7 +89,7 @@ public:
 	 * Constructor.
 	 * @param allocCallbacks Memory allocation callbacks.
 	 * @param context 		 Context passed to the callbacks supplied via
-	 *                   	 allocCallbacks. 
+	 *                   	 allocCallbacks.
 	 */
 	Allocator(const cinek_memory_callbacks& allocCallbacks)
 		: _callbacks(allocCallbacks) {}
@@ -99,7 +99,7 @@ public:
 	 * @return A pointer to the allocated block or nullptr.
 	 */
 	void* alloc(size_t size) {
-		return (*_callbacks.alloc)(_callbacks.context, size);	
+		return (*_callbacks.alloc)(_callbacks.context, size);
 	}
 	/**
 	 * Allocates and constucts instance of T.
@@ -167,39 +167,39 @@ struct std_custom_allocator
     typedef T& reference;
     typedef const T& const_reference;
     typedef T value_type;
-        
+
     template <class U> struct rebind { typedef std_custom_allocator<U, Allocator> other; };
     std_custom_allocator() {}
 #ifdef CK_CPP_11_BASIC  // libc++11 supports stateful allocators
     std_custom_allocator(const Allocator& allocator): _allocator(allocator) {}
 #endif
     std_custom_allocator(const std_custom_allocator& source): _allocator(source._allocator) {}
-        
+
     template <class U> std_custom_allocator(const std_custom_allocator<U, Allocator>& source): _allocator(source._allocator) {}
-        
+
     ~std_custom_allocator() {}
-        
+
     pointer address(reference x) const { return &x; }
     const_pointer address(const_reference x) const { return &x; }
-        
+
     pointer allocate(size_type s, const void* = 0)
     {
         if (s == 0)
             return nullptr;
         pointer temp = static_cast<pointer>(_allocator.alloc(s*sizeof(T)));
-        
+
     #if CK_CPP_EXCEPTIONS
         if (temp == nullptr)
             throw std::bad_alloc();
     #endif
         return temp;
     }
-        
+
     void deallocate(pointer p, size_type)
     {
     	_allocator.free((void* )p);
     }
-        
+
     size_type max_size() const
     {
         return std::numeric_limits<size_t>::max() / sizeof(T);
@@ -216,20 +216,20 @@ struct std_custom_allocator
         new((void *)p) T(val);
     }
 #endif
-        
+
     void destroy(pointer p)
     {
         p->~T();
     }
-    
+
     Allocator _allocator;
 
     /** @endcond */
 };
 
 /** @cond */
-template<typename T, class Allocator> 
-inline bool operator==(const std_custom_allocator<T, Allocator>& lha, 
+template<typename T, class Allocator>
+inline bool operator==(const std_custom_allocator<T, Allocator>& lha,
                        const std_custom_allocator<T, Allocator>& rha)
 {
     return lha._allocator == rha._allocator;
@@ -244,14 +244,14 @@ inline bool operator!=(const std_custom_allocator<T, Allocator>& lha,
 
 /** std_allocator using the generic Allocator */
 template <typename T>
-using std_allocator = std_custom_allocator<T, Allocator>; 
+using std_allocator = std_custom_allocator<T, Allocator>;
 
 
 #ifdef CK_CPP_11_BASIC
 /**
  * @class SharedPtrDeleter
  * @brief Used by std pointer types that refer to memory allocated using external
- * memory managers. 
+ * memory managers.
  */
 template<typename T>
 struct SharedPtrDeleter
@@ -272,7 +272,7 @@ class unique_ptr: public std::unique_ptr<T, SharedPtrDeleter<T>>
 {
 public:
     unique_ptr() = default;
-    unique_ptr(T* ptr, const Allocator& allocator) : 
+    unique_ptr(T* ptr, const Allocator& allocator) :
         std::unique_ptr<T, SharedPtrDeleter<T>>(ptr, SharedPtrDeleter<T>(allocator)) {}
 };
 

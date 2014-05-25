@@ -12,26 +12,27 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
- * @file    cinek/framework/memorypool.hpp
+ * THE SOFTWARE.
+ *
+ * @file    cinek/memorypool.hpp
  * @author  Samir Sinha
  * @date    4/14/2013
- * @brief   Object allocation within a pooled heap 
+ * @brief   Object allocation within a pooled heap
  * @copyright Cinekine
  */
 
 #ifndef CINEK_MEMORY_POOL_HPP
 #define CINEK_MEMORY_POOL_HPP
 
-#include <cinek/framework/allocator.hpp>
+#include "cinek/allocator.hpp"
+
 #include <memory>
 
 namespace cinekine {
@@ -41,13 +42,13 @@ namespace cinekine {
      *
      * The ObjectPool grabs memory from the supplied allocator in chunks.  Each
      * chunk contains a number of blocks of specified type T.
-     * 
+     *
      * When the pool runs out of blocks, it will attempt to allocate from the
      * supplied allocator up to double the block count of the last chunk -
      * basically meaning that the pool will exponentially grow as blocks are
      * used up from the current chunk.
      *
-     * To prevent this exponential growth, one can call growBy to manually 
+     * To prevent this exponential growth, one can call growBy to manually
      * increase the size of the pool by a fixed amount.  It's recommended that
      * callers try to use growBy, preempting the default ObjectPool growth
      * behavior described above.
@@ -63,7 +64,7 @@ namespace cinekine {
          */
         ObjectPool(size_t initBlockCount, const Allocator& allocator = Allocator());
         /**
-         * Destructor.  This also destroys any initialized objects in the pool. 
+         * Destructor.  This also destroys any initialized objects in the pool.
          */
         ~ObjectPool();
         /** @cond */
@@ -71,7 +72,7 @@ namespace cinekine {
         ObjectPool& operator=(ObjectPool&& other);
         /** @endcond */
         /**
-         * Calculates the number of total number of blocks in the pool. 
+         * Calculates the number of total number of blocks in the pool.
          * @return The total number of blocks in the pool.
          */
         size_t blockLimit() const;
@@ -198,9 +199,9 @@ namespace cinekine {
         {
             cur->destruct(_allocator);
             cur = cur->_prev;
-        }   
+        }
     }
-    
+
     template<typename T>
     size_t ObjectPool<T>::blockLimit() const
     {
@@ -212,7 +213,7 @@ namespace cinekine {
         }
         return total;
     }
-    
+
     template<typename T>
     size_t ObjectPool<T>::blockCount() const
     {

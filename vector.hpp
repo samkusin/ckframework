@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Cinekine Media
+ * Copyright (c) 2013 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -12,51 +12,38 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
- * @file    cinek/framework/types.hpp
+ * THE SOFTWARE.
+ *
+ * @file    cinek/vector.hpp
  * @author  Samir Sinha
- * @date    2/17/2014
- * @brief   Common framework-level types
+ * @date    1/6/2013
+ * @brief   std::vector with a custom allocator
  * @copyright Cinekine
  */
 
-#ifndef CK_FRAMEWORK_TYPES_HPP
-#define CK_FRAMEWORK_TYPES_HPP
 
-#include <cinek/framework/ckdefs.h>
+#ifndef CINEK_VECTOR_HPP
+#define CINEK_VECTOR_HPP
 
-#if CK_COMPILER_HAS_STDINT
-  #ifdef __cplusplus
-    #include <cstdint>
-  #else
-    #include <stdint.h>
-  #endif
-#endif
+#include "cinek/allocator.hpp"
 
-
-namespace cinekine {
-    class JobQueue;
-}
+#include <vector>
 
 namespace cinekine {
 
-    /** A handle type */
-    typedef uint32_t Handle;
-    /** A null handle constant */
-    const Handle kNullHandle = 0;
+//  Std types using the overview allocator.
+//
+/** An allocator for string memory. */
+template<typename T>
+    using vector = std::vector<T, std_allocator<T>>;
 
-    /** A handle to a Job scheduled via the JobQueue */
-    typedef Handle JobHandle;
-
-} /* namespace cinekine */
-
+} /* cinekine */
 
 #endif

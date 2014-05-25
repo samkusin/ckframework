@@ -12,36 +12,36 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
- * @file    cinek/framework/job.hpp
+ * THE SOFTWARE.
+ *
+ * @file    cinek/job.hpp
  * @author  Samir Sinha
  * @date    2/17/2014
  * @brief   Common framework-level types
  * @copyright Cinekine
  */
 
-#ifndef CK_FRAMEWORK_JOB_HPP
-#define CK_FRAMEWORK_JOB_HPP
+#ifndef CINEK_JOB_HPP
+#define CINEK_JOB_HPP
 
-#include <cinek/framework/types.hpp>
+#include "cinek/types.hpp"
 
 namespace cinekine {
     class JobScheduler;
 }
 
 namespace cinekine {
-    
+
     /**
      * @class Job
-     * @brief A standalone runner object 
+     * @brief A standalone runner object
      */
     class Job
     {
@@ -62,11 +62,11 @@ namespace cinekine {
          *                   objects to schedule Jobs
          * @param  context   Context pointer shared with other Jobs managed by
          *                   their common JobQueue/JobScheduler
-         * @return Signals the Job's status to callers 
+         * @return Signals the Job's status to callers
          */
         virtual Result execute(JobScheduler& scheduler,
                                void* context) = 0;
-        /** 
+        /**
          * Defines the Job's priority
          * @return A relative priority (0 = normal)
          */

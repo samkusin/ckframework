@@ -1,12 +1,12 @@
 /**
- * \file    ckalloc.c
+ * \file    allocator.cpp
  *
  *
  * \note    Created by Samir Sinha on 1/6/13.
  *          Copyright (c) 2013 Cinekine. All rights reserved.
  */
 
-#include <cinek/framework/allocator.hpp>
+#include "cinek/allocator.hpp"
 #include <string.h>
 #include <stdlib.h>
 
@@ -33,13 +33,13 @@ struct
 {
     cinek_memory_callbacks cbs;
 }
-g_cinek_memoryProvider = 
+g_cinek_memoryProvider =
 {
     {
        &DefaultAlloc,
        &DefaultFree,
-       &DefaultRealloc, 
-       NULL    
+       &DefaultRealloc,
+       NULL
     }
 };
 
