@@ -49,17 +49,6 @@ typedef struct cinek_bitmap_t
 }
 cinek_bitmap;
 
-/** Contains the UVs for a bitmap within a texture. */
-typedef struct cinek_bitmap_uvs_t
-{
-    float u0;   /**< The upper-left U coord of a bitmap. */
-    float v0;   /**< The upper-top V coord of a bitmap. */
-    float u1;   /**< The lower right U coord of a bitmap. */
-    float v1;   /**< The lower bottom V coord of a bitmap. */
-}
-cinek_bitmap_uvs;
-
-
 #ifdef __cplusplus
 }
 #endif
