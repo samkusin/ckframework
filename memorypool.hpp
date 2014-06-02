@@ -266,6 +266,9 @@ namespace cinekine {
         return false;
     }
 
+
+    ////////////////////////////////////////////////////////////////////////////
+
 }   // namespace cinekine
 
 #endif
