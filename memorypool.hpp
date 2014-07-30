@@ -103,6 +103,7 @@ namespace cinekine {
         struct node
         {
             node* prev;
+            node* next;
             T* first;
             T* last;
             T* limit;
@@ -115,6 +116,7 @@ namespace cinekine {
             void destruct(Allocator& allocator);
         };
         node* _tail;
+        node* _current;
 
         void freeAll();
     };
@@ -152,7 +154,8 @@ namespace cinekine {
     template<typename T>
     ObjectPool<T>::ObjectPool(size_t initBlockCount, const Allocator& allocator) :
         _allocator(allocator),
-        _tail{ _allocator.newItem<node>() }
+        _tail(_allocator.newItem<node>()),
+        _current(_tail)
     {
         _tail->alloc(initBlockCount, _allocator);
     }
@@ -166,9 +169,11 @@ namespace cinekine {
     template<typename T>
     ObjectPool<T>::ObjectPool(ObjectPool<T>&& other) :
         _allocator(std::move(other._allocator)),
-        _tail(std::move(other._tail))
+        _tail(std::move(other._tail)),
+        _current(std::move(other._current))
     {
         other._tail = nullptr;
+        other._current = nullptr;
     }
 
     template<typename T>
@@ -177,6 +182,7 @@ namespace cinekine {
         freeAll();
         _allocator = std::move(other._allocator);
         _tail = std::move(other._tail);
+        _current = std::move(other._current);
         return *this;
     }
 
@@ -186,9 +192,14 @@ namespace cinekine {
         while(_tail)
         {
             node* prev = _tail->prev;
+            if (prev)
+            {
+                prev->next = nullptr;
+            }
             _tail->free(_allocator);
             _tail = prev;
         }
+        _current = nullptr;
     }
 
     template<typename T>
@@ -198,7 +209,9 @@ namespace cinekine {
         while(cur)
         {
             cur->destruct(_allocator);
-            cur = cur->_prev;
+            cur = cur->prev;
+            if (cur)
+                _current = cur;
         }
     }
 
@@ -206,10 +219,11 @@ namespace cinekine {
     size_t ObjectPool<T>::blockLimit() const
     {
         size_t total = 0;
-        node* cur = _tail;
+        node* cur = _tail->blockLimit();
         while (cur)
         {
             total += cur->blockLimit();
+            cur = cur->_prev;
         }
         return total;
     }
@@ -218,10 +232,11 @@ namespace cinekine {
     size_t ObjectPool<T>::blockCount() const
     {
         size_t total = 0;
-        node* cur = _tail;
+        node* cur = _current;
         while (cur)
         {
             total += cur->blockCount();
+            cur = cur->_prev;
         }
         return total;
     }
@@ -229,20 +244,27 @@ namespace cinekine {
     template<typename T> template<class... Args>
     T* ObjectPool<T>::allocateAndConstruct(Args&&... args)
     {
-        if (!_tail->availCount())
+        if (!_current->availCount())
         {
-            //  create a new pool
-            //  we'll take the size of the last chunk, and request another pool
-            //  of the same size.
-            if (!growBy(_tail->blockLimit()))
+            node* next = _current->next;
+        
+            if (!next)
             {
-            //    TODO("Support exception handling for auto-grow failure (CK_CPP_EXCEPTIONS).");
-                return nullptr;
+                //  create a new pool
+                //  we'll take the size of the last chunk, and request another pool
+                //  of the same size.
+                if (!growBy(_tail->blockLimit()))
+                {
+                //    TODO("Support exception handling for auto-grow failure (CK_CPP_EXCEPTIONS).");
+                    return nullptr;
+                }
+                next = _tail;
             }
+            _current = next;
         }
-        T* p = _tail->last;
+        T* p = _current->last;
          ::new((void *)p) T(std::forward<Args>(args)...);
-        ++_tail->last;
+        ++_current->last;
         return p;
     }
 
@@ -255,6 +277,7 @@ namespace cinekine {
             if (next->alloc(blockCount, _allocator))
             {
                 next->prev = _tail;
+                _tail->next = next;
                 _tail = next;
                 return true;
             }
