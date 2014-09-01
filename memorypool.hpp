@@ -56,6 +56,8 @@ namespace cinekine {
     template<typename T>
     class ObjectPool
     {
+        CK_CLASS_NON_COPYABLE(ObjectPool);
+
     public:
         /**
          * Constructor initializing the memory pool.
@@ -86,6 +88,11 @@ namespace cinekine {
          * @return Pointer to the allocated block or nullptr if out of memory.
          */
         template<class... Args> T* allocateAndConstruct(Args&&... args);
+        /**
+         * Allocates a block of type T (shorter version of allocateAndConstruct)
+         * @return Pointer to the allocated block or nullptr if out of memory.
+         */
+        template<class... Args> T* allocate(Args&&... args);
         /**
          * Attempts to grow the pool by the specified block count.
          * @param blockCount Block count to grow pool by.
@@ -247,7 +254,7 @@ namespace cinekine {
         if (!_current->availCount())
         {
             node* next = _current->next;
-        
+
             if (!next)
             {
                 //  create a new pool
@@ -266,6 +273,12 @@ namespace cinekine {
          ::new((void *)p) T(std::forward<Args>(args)...);
         ++_current->last;
         return p;
+    }
+
+    template<typename T> template<class... Args>
+    T* ObjectPool<T>::allocate(Args&&... args)
+    {
+        return allocateAndConstruct(std::forward<Args>(args)...);
     }
 
     template<typename T>
