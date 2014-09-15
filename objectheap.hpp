@@ -21,26 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/memorypool.hpp
+ * @file    cinek/objectheap.hpp
  * @author  Samir Sinha
  * @date    4/14/2013
  * @brief   Object allocation within a pooled heap
  * @copyright Cinekine
  */
 
-#ifndef CINEK_MEMORY_POOL_HPP
-#define CINEK_MEMORY_POOL_HPP
+#ifndef CINEK_OBJECT_HEAP_HPP
+#define CINEK_OBJECT_HEAP_HPP
 
 #include "cinek/allocator.hpp"
 
 #include <memory>
 
 namespace cinekine {
+
     /**
-     * @class ObjectPool
+     * @class ObjectHeap
      * @brief Implements a simple stack-based memory allocation pool.
      *
-     * The ObjectPool grabs memory from the supplied allocator in chunks.  Each
+     * The ObjectHeap grabs memory from the supplied allocator in chunks.  Each
      * chunk contains a number of blocks of specified type T.
      *
      * When the pool runs out of blocks, it will attempt to allocate from the
@@ -50,13 +51,13 @@ namespace cinekine {
      *
      * To prevent this exponential growth, one can call growBy to manually
      * increase the size of the pool by a fixed amount.  It's recommended that
-     * callers try to use growBy, preempting the default ObjectPool growth
+     * callers try to use growBy, preempting the default ObjectHeap growth
      * behavior described above.
      */
     template<typename T>
-    class ObjectPool
+    class ObjectHeap
     {
-        CK_CLASS_NON_COPYABLE(ObjectPool);
+        CK_CLASS_NON_COPYABLE(ObjectHeap);
 
     public:
         /**
@@ -64,14 +65,14 @@ namespace cinekine {
          * @param initBlockCount The initial memory block count.
          * @param allocator      An optional custom memory allocator.
          */
-        ObjectPool(size_t initBlockCount, const Allocator& allocator = Allocator());
+        ObjectHeap(size_t initBlockCount, const Allocator& allocator = Allocator());
         /**
          * Destructor.  This also destroys any initialized objects in the pool.
          */
-        ~ObjectPool();
+        ~ObjectHeap();
         /** @cond */
-        ObjectPool(ObjectPool&& other);
-        ObjectPool& operator=(ObjectPool&& other);
+        ObjectHeap(ObjectHeap&& other);
+        ObjectHeap& operator=(ObjectHeap&& other);
         /** @endcond */
         /**
          * Calculates the number of total number of blocks in the pool.
@@ -131,7 +132,7 @@ namespace cinekine {
     ///////////////////////////////////////////////////////////////////////////
 
     template<typename T>
-    bool ObjectPool<T>::node::alloc(size_t blockCount, Allocator& allocator)
+    bool ObjectHeap<T>::node::alloc(size_t blockCount, Allocator& allocator)
     {
         first = last = allocator.allocItems<T>(blockCount);
         if (!first)
@@ -141,7 +142,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    void ObjectPool<T>::node::destruct(Allocator& allocator)
+    void ObjectHeap<T>::node::destruct(Allocator& allocator)
     {
         while( last != first )
         {
@@ -151,7 +152,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    void ObjectPool<T>::node::free(Allocator& allocator)
+    void ObjectHeap<T>::node::free(Allocator& allocator)
     {
         destruct(allocator);
         allocator.free(first);
@@ -159,7 +160,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    ObjectPool<T>::ObjectPool(size_t initBlockCount, const Allocator& allocator) :
+    ObjectHeap<T>::ObjectHeap(size_t initBlockCount, const Allocator& allocator) :
         _allocator(allocator),
         _tail(_allocator.newItem<node>()),
         _current(_tail)
@@ -168,13 +169,13 @@ namespace cinekine {
     }
 
     template<typename T>
-    ObjectPool<T>::~ObjectPool()
+    ObjectHeap<T>::~ObjectHeap()
     {
         freeAll();
     }
 
     template<typename T>
-    ObjectPool<T>::ObjectPool(ObjectPool<T>&& other) :
+    ObjectHeap<T>::ObjectHeap(ObjectHeap<T>&& other) :
         _allocator(std::move(other._allocator)),
         _tail(std::move(other._tail)),
         _current(std::move(other._current))
@@ -184,7 +185,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    ObjectPool<T>& ObjectPool<T>::operator=(ObjectPool<T>&& other)
+    ObjectHeap<T>& ObjectHeap<T>::operator=(ObjectHeap<T>&& other)
     {
         freeAll();
         _allocator = std::move(other._allocator);
@@ -194,7 +195,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    void ObjectPool<T>::freeAll()
+    void ObjectHeap<T>::freeAll()
     {
         while(_tail)
         {
@@ -210,7 +211,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    void ObjectPool<T>::destructAll()
+    void ObjectHeap<T>::destructAll()
     {
         node* cur = _tail;
         while(cur)
@@ -223,7 +224,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    size_t ObjectPool<T>::blockLimit() const
+    size_t ObjectHeap<T>::blockLimit() const
     {
         size_t total = 0;
         node* cur = _tail->blockLimit();
@@ -236,7 +237,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    size_t ObjectPool<T>::blockCount() const
+    size_t ObjectHeap<T>::blockCount() const
     {
         size_t total = 0;
         node* cur = _current;
@@ -249,7 +250,7 @@ namespace cinekine {
     }
 
     template<typename T> template<class... Args>
-    T* ObjectPool<T>::allocateAndConstruct(Args&&... args)
+    T* ObjectHeap<T>::allocateAndConstruct(Args&&... args)
     {
         if (!_current->availCount())
         {
@@ -276,13 +277,13 @@ namespace cinekine {
     }
 
     template<typename T> template<class... Args>
-    T* ObjectPool<T>::allocate(Args&&... args)
+    T* ObjectHeap<T>::allocate(Args&&... args)
     {
         return allocateAndConstruct(std::forward<Args>(args)...);
     }
 
     template<typename T>
-    bool ObjectPool<T>::growBy(size_t blockCount)
+    bool ObjectHeap<T>::growBy(size_t blockCount)
     {
         node *next = _allocator.newItem<node>();
         if (next)

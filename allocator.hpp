@@ -249,16 +249,16 @@ using std_allocator = std_custom_allocator<T, Allocator>;
 
 #ifdef CK_CPP_11_BASIC
 /**
- * @class SharedPtrDeleter
+ * @class AllocatorDeleter
  * @brief Used by std pointer types that refer to memory allocated using external
  * memory managers.
  */
 template<typename T>
-struct SharedPtrDeleter
+struct AllocatorDeleter
 {
     /** @cond */
-    SharedPtrDeleter() {}
-    SharedPtrDeleter(const Allocator& allocator): _allocator(allocator) {}
+    AllocatorDeleter() {}
+    AllocatorDeleter(const Allocator& allocator): _allocator(allocator) {}
     void operator()(T* ptr)  {
         _allocator.deleteItem(ptr);
     }
@@ -268,13 +268,7 @@ struct SharedPtrDeleter
 
 /** unique_ptr using the shared deleter. */
 template<typename T>
-class unique_ptr: public std::unique_ptr<T, SharedPtrDeleter<T>>
-{
-public:
-    unique_ptr() = default;
-    unique_ptr(T* ptr, const Allocator& allocator) :
-        std::unique_ptr<T, SharedPtrDeleter<T>>(ptr, SharedPtrDeleter<T>(allocator)) {}
-};
+using unique_ptr = std::unique_ptr<T, AllocatorDeleter<T>>;
 
 #endif
 
