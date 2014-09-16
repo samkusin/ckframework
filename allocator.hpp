@@ -85,6 +85,23 @@ public:
 	Allocator() {
 		cinek_get_alloc_callbacks(&_callbacks);
 	}
+    Allocator(Allocator&& other) :
+        _callbacks(other._callbacks)
+    {
+        cinek_get_alloc_callbacks(&other._callbacks);
+    }
+    Allocator& operator=(Allocator&& other)
+    {
+        _callbacks = other._callbacks;
+        cinek_get_alloc_callbacks(&other._callbacks);
+        return *this;
+    }
+    Allocator(const Allocator& other) :
+        _callbacks(other._callbacks) {}
+    Allocator& operator=(const Allocator& other) {
+        _callbacks = other._callbacks;
+        return *this;
+    }
 	/**
 	 * Constructor.
 	 * @param allocCallbacks Memory allocation callbacks.
