@@ -21,51 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/memorypool.hpp
+ * @file    cinek/objectpool.hpp
  * @author  Samir Sinha
  * @date    4/14/2013
  * @brief   Object allocation within a pooled heap
  * @copyright Cinekine
  */
 
-#ifndef CINEK_MEMORY_REGION_HPP
-#define CINEK_MEMORY_REGION_HPP
+#ifndef CINEK_OBJECT_POOL_HPP
+#define CINEK_OBJECT_POOL_HPP
 
 #include "cinek/allocator.hpp"
 #include "cinek/debug.hpp"
 
 namespace cinekine {
 
-    template<size_t _BlockSize>
-    class MemoryRegion
+    template<typename _T>
+    class ObjectPool
     {
-        CK_CLASS_NON_COPYABLE(MemoryRegion);
+        CK_CLASS_NON_COPYABLE(ObjectPool);
 
     public:
-        MemoryRegion(size_t blockCount, const Allocator& allocator);
-        ~MemoryRegion();
+        typedef _T          value_type;
+        typedef _T*         pointer;
+        typedef const _T*   const_pointer;
 
-        operator bool() const { return _first != nullptr && _freefirst != nullptr; }
+        ObjectPool(size_t blockLimit, const Allocator& allocator);
+        ~ObjectPool();
 
-        size_t blocksRemaining() const { return _limit - _last; }
-        size_t blockLimit() const { return _limit - _first; }
-        size_t blockCount() const { return _last - _first; }
+        size_t blockLimit() const { return (_limit - _first); }
+        size_t blockCount() const { return (_last - _first); }
 
-        uint8_t* allocate();
-        void deallocate(uint8_t* block);
+        template<typename... Args> pointer construct(Args&&... args);
+        void destruct(pointer p);
 
     private:
         Allocator _allocator;
-        uint8_t* _first;
-        uint8_t* _last;
-        uint8_t* _limit;
-        uint8_t** _freefirst;
-        uint8_t** _freelast;
-        uint8_t** _freelimit;
+        pointer _first;
+        pointer _last;
+        pointer _limit;
+        pointer* _freefirst;
+        pointer* _freelast;
+        pointer* _freelimit;
     };
 
-    template<size_t _BlockSize>
-    MemoryRegion<_BlockSize>::MemoryRegion(size_t blockCount, const Allocator& allocator) :
+    template<typename _T>
+    ObjectPool<_T>::ObjectPool(size_t blockCount, const Allocator& allocator) :
         _allocator(allocator),
         _first(nullptr),
         _last(nullptr),
@@ -74,63 +75,63 @@ namespace cinekine {
         _freelast(nullptr),
         _freelimit(nullptr)
     {
-        const size_t kByteCount = _BlockSize * blockCount;
-        _first = reinterpret_cast<uint8_t*>(_allocator.alloc(kByteCount));
+        _first = reinterpret_cast<pointer>(_allocator.alloc(sizeof(_T) * blockCount));
         _last = _first;
-        _limit = _first + kByteCount;
-        _freefirst = reinterpret_cast<uint8_t**>(_allocator.alloc(blockCount * sizeof(uint8_t*)));
+        _limit = _first + blockCount;
+        _freefirst = reinterpret_cast<pointer*>(_allocator.alloc(blockCount * sizeof(pointer)));
         _freelast = _freefirst;
         _freelimit = _freefirst + blockCount;
     }
 
-    template<size_t _BlockSize>
-    MemoryRegion<_BlockSize>::~MemoryRegion()
+    template<typename _T>
+    ObjectPool<_T>::~ObjectPool()
     {
+        //  TODO!
+        //  sort our free list, and then traverse the pool, releasing objects
+        //  while skipping freed objects O(n)
+
         _allocator.free(_freefirst);
         _allocator.free(_first);
     }
 
-    template<size_t _BlockSize>
-    uint8_t* MemoryRegion<_BlockSize>::allocate()
+    template<typename _T> template<typename... Args>
+    auto ObjectPool<_T>::construct(Args&&... args) -> pointer
     {
-        uint8_t* block;
+        pointer p = nullptr;
         if (_freefirst != _freelast)
         {
             --_freelast;
-            block = *_freelast;
+            p = *_freelast;
         }
         else if (_last < _limit)
         {
-            block = _last;
-            _last += _BlockSize;
+            p = *_last;
+            ++_last;
         }
-        else
+
+        CK_ASSERT(p);
+        if (p)
         {
-            block = nullptr;
+            ::new(p) _T(std::forward<Args>(args)...);
         }
 
-        CK_ASSERT(block != nullptr);
-
-        return block;
+        return p;
     }
 
-    template<size_t _BlockSize>
-    void MemoryRegion<_BlockSize>::deallocate(uint8_t* block)
+    template<typename _T>
+    void ObjectPool<_T>::destruct(pointer p)
     {
-    #if CK_DEBUG_ASSERT
-        uintptr_t diff = reinterpret_cast<uintptr_t>(block) - reinterpret_cast<uintptr_t>(_first);
-        CK_ASSERT(!(diff % _BlockSize) && block < _last);
+        if (!p)
+            return;
+
+        CK_ASSERT(p >= _first && p < _limit);
         CK_ASSERT(_freelast < _freelimit);
-    #endif
-    #if CK_MEMORY_DEBUG_VERBOSE
-        uint8_t** freeptr = _freelast;
-        while (freeptr > _freefirst)
-        {
-            CK_DEBUG_ASSERT(*freeptr != block);
-            --freeptr;
-        }
-    #endif
-        *_freelast = block;
+        if (_freelast >= _freelimit)
+            return;
+
+        p->~value_type();
+
+        *_freelast = p;
         ++_freelast;
     }
 

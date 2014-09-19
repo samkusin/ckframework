@@ -43,8 +43,9 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/string.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/map.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/memoryregion.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/intrusive_list.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/objectheap.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/objectpool.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/job.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jobqueue.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.hpp
