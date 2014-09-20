@@ -58,7 +58,7 @@ public:
     }
     //  comparable equivalence
     bool operator==(const this_type& rhs) const { return _ptr == rhs._ptr; }
-    bool operator!=(const this_type& rhs) const { return _ptr == rhs._ptr; }
+    bool operator!=(const this_type& rhs) const { return _ptr != rhs._ptr; }
     //  dereferencable
     reference operator*() { return *_ptr; }
     pointer operator->() { return _ptr; }
@@ -104,7 +104,7 @@ public:
     }
     //  comparable equivalence
     bool operator==(const this_type& rhs) const { return _ptr == rhs._ptr; }
-    bool operator!=(const this_type& rhs) const { return _ptr == rhs._ptr; }
+    bool operator!=(const this_type& rhs) const { return _ptr != rhs._ptr; }
     //  dereferencable
     reference operator*() const { return *_ptr; }
     pointer operator->() const { return _ptr; }
@@ -259,10 +259,10 @@ public:
     }
 
     //  internal (undocumented)
-    static pointer prevNode(pointer node) {
+    static pointer prevNode(const_pointer node) {
         return node->__prevListNode;
     }
-    static pointer nextNode(pointer node) {
+    static pointer nextNode(const_pointer node) {
         return node->__nextListNode;
     }
     static void setNodeNextNode(pointer node, pointer nextNode) {

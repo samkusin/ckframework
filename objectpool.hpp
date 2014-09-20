@@ -105,7 +105,7 @@ namespace cinekine {
         }
         else if (_last < _limit)
         {
-            p = *_last;
+            p = _last;
             ++_last;
         }
 
