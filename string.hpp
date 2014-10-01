@@ -38,19 +38,12 @@
 
 namespace cinekine {
 
-//  Std types using the overview allocator.
-//
-/** An allocator for string memory. */
-typedef std_allocator<char> string_allocator;
-/** A standard C++ string object using the default string allocator. */
-typedef std::basic_string<char, std::char_traits<char>, string_allocator > string;
-
 /**
  * Joins path elements from the root and returns a normalized path
  * @param  root The root path
  * @return The resulting path string
  */
-string directoryPath(const std::initializer_list<string>& elements);
+std::string directoryPath(const std::initializer_list<std::string>& elements);
 
 uint32_t UInt32FromString(const char* string);
 

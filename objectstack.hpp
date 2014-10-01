@@ -21,15 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/objectheap.hpp
+ * @file    cinek/objectstack.hpp
  * @author  Samir Sinha
  * @date    4/14/2013
  * @brief   Object allocation within a pooled heap
  * @copyright Cinekine
  */
 
-#ifndef CINEK_OBJECT_HEAP_HPP
-#define CINEK_OBJECT_HEAP_HPP
+#ifndef CINEK_OBJECT_STACK_HPP
+#define CINEK_OBJECT_STACK_HPP
 
 #include "cinek/allocator.hpp"
 
@@ -38,10 +38,10 @@
 namespace cinekine {
 
     /**
-     * @class ObjectHeap
+     * @class ObjectStack
      * @brief Implements a simple stack-based memory allocation pool.
      *
-     * The ObjectHeap grabs memory from the supplied allocator in chunks.  Each
+     * The ObjectStack grabs memory from the supplied allocator in chunks.  Each
      * chunk contains a number of blocks of specified type T.
      *
      * When the pool runs out of blocks, it will attempt to allocate from the
@@ -51,13 +51,13 @@ namespace cinekine {
      *
      * To prevent this exponential growth, one can call growBy to manually
      * increase the size of the pool by a fixed amount.  It's recommended that
-     * callers try to use growBy, preempting the default ObjectHeap growth
+     * callers try to use growBy, preempting the default ObjectStack growth
      * behavior described above.
      */
     template<typename T>
-    class ObjectHeap
+    class ObjectStack
     {
-        CK_CLASS_NON_COPYABLE(ObjectHeap);
+        CK_CLASS_NON_COPYABLE(ObjectStack);
 
     public:
         /**
@@ -65,14 +65,14 @@ namespace cinekine {
          * @param initBlockCount The initial memory block count.
          * @param allocator      An optional custom memory allocator.
          */
-        ObjectHeap(size_t initBlockCount, const Allocator& allocator = Allocator());
+        ObjectStack(size_t initBlockCount, const Allocator& allocator = Allocator());
         /**
          * Destructor.  This also destroys any initialized objects in the pool.
          */
-        ~ObjectHeap();
+        ~ObjectStack();
         /** @cond */
-        ObjectHeap(ObjectHeap&& other);
-        ObjectHeap& operator=(ObjectHeap&& other);
+        ObjectStack(ObjectStack&& other);
+        ObjectStack& operator=(ObjectStack&& other);
         /** @endcond */
         /**
          * Calculates the number of total number of blocks in the pool.
@@ -132,7 +132,7 @@ namespace cinekine {
     ///////////////////////////////////////////////////////////////////////////
 
     template<typename T>
-    bool ObjectHeap<T>::node::alloc(size_t blockCount, Allocator& allocator)
+    bool ObjectStack<T>::node::alloc(size_t blockCount, Allocator& allocator)
     {
         first = last = allocator.allocItems<T>(blockCount);
         if (!first)
@@ -142,7 +142,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    void ObjectHeap<T>::node::destruct(Allocator& allocator)
+    void ObjectStack<T>::node::destruct(Allocator& allocator)
     {
         while( last != first )
         {
@@ -152,7 +152,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    void ObjectHeap<T>::node::free(Allocator& allocator)
+    void ObjectStack<T>::node::free(Allocator& allocator)
     {
         destruct(allocator);
         allocator.free(first);
@@ -160,7 +160,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    ObjectHeap<T>::ObjectHeap(size_t initBlockCount, const Allocator& allocator) :
+    ObjectStack<T>::ObjectStack(size_t initBlockCount, const Allocator& allocator) :
         _allocator(allocator),
         _tail(_allocator.newItem<node>()),
         _current(_tail)
@@ -169,13 +169,13 @@ namespace cinekine {
     }
 
     template<typename T>
-    ObjectHeap<T>::~ObjectHeap()
+    ObjectStack<T>::~ObjectStack()
     {
         freeAll();
     }
 
     template<typename T>
-    ObjectHeap<T>::ObjectHeap(ObjectHeap<T>&& other) :
+    ObjectStack<T>::ObjectStack(ObjectStack<T>&& other) :
         _allocator(std::move(other._allocator)),
         _tail(std::move(other._tail)),
         _current(std::move(other._current))
@@ -185,7 +185,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    ObjectHeap<T>& ObjectHeap<T>::operator=(ObjectHeap<T>&& other)
+    ObjectStack<T>& ObjectStack<T>::operator=(ObjectStack<T>&& other)
     {
         freeAll();
         _allocator = std::move(other._allocator);
@@ -195,7 +195,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    void ObjectHeap<T>::freeAll()
+    void ObjectStack<T>::freeAll()
     {
         while(_tail)
         {
@@ -211,7 +211,7 @@ namespace cinekine {
     }
 
     template<typename T>
-    void ObjectHeap<T>::destructAll()
+    void ObjectStack<T>::destructAll()
     {
         node* cur = _tail;
         while(cur)
@@ -224,33 +224,33 @@ namespace cinekine {
     }
 
     template<typename T>
-    size_t ObjectHeap<T>::blockLimit() const
+    size_t ObjectStack<T>::blockLimit() const
     {
         size_t total = 0;
-        node* cur = _tail->blockLimit();
+        node* cur = _tail;
         while (cur)
         {
             total += cur->blockLimit();
-            cur = cur->_prev;
+            cur = cur->prev;
         }
         return total;
     }
 
     template<typename T>
-    size_t ObjectHeap<T>::blockCount() const
+    size_t ObjectStack<T>::blockCount() const
     {
         size_t total = 0;
         node* cur = _current;
         while (cur)
         {
             total += cur->blockCount();
-            cur = cur->_prev;
+            cur = cur->prev;
         }
         return total;
     }
 
     template<typename T> template<class... Args>
-    T* ObjectHeap<T>::allocateAndConstruct(Args&&... args)
+    T* ObjectStack<T>::allocateAndConstruct(Args&&... args)
     {
         if (!_current->availCount())
         {
@@ -277,13 +277,13 @@ namespace cinekine {
     }
 
     template<typename T> template<class... Args>
-    T* ObjectHeap<T>::allocate(Args&&... args)
+    T* ObjectStack<T>::allocate(Args&&... args)
     {
         return allocateAndConstruct(std::forward<Args>(args)...);
     }
 
     template<typename T>
-    bool ObjectHeap<T>::growBy(size_t blockCount)
+    bool ObjectStack<T>::growBy(size_t blockCount)
     {
         node *next = _allocator.newItem<node>();
         if (next)

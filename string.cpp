@@ -38,10 +38,10 @@
 
 namespace cinekine {
 
-    string directoryPath(const std::initializer_list<string>& elements)
+    std::string directoryPath(const std::initializer_list<std::string>& elements)
     {
         const char kSep = '/';
-        string path;
+        std::string path;
         path.reserve(MAX_PATH);
         auto it = elements.begin();
         auto itEnd = elements.end();

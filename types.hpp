@@ -41,6 +41,7 @@
   #endif
 #endif
 
+#include <type_traits>
 
 namespace cinekine {
     class JobQueue;
@@ -55,6 +56,56 @@ namespace cinekine {
 
     /** A handle to a Job scheduled via the JobQueue */
     typedef Handle JobHandle;
+
+
+    //  Cribbed from http://stackoverflow.com/a/23815961
+
+    /**
+     * Varadic min function (compile-time deduced)
+     */
+    template <typename T0, typename T1>
+    constexpr typename std::common_type<T0, T1>::type multi_min(T0&& v0, T1&& v1)
+    {
+        return v0 < v1 ? std::forward<T0>(v0) : std::forward<T1>(v1);
+    }
+
+
+    template <typename T, typename... Ts>
+    constexpr typename std::common_type<T, Ts...>::type multi_min(T&& v, Ts&&... vs)
+    {
+        return multi_min(std::forward<T>(v), multi_min(std::forward<Ts>(vs)...));
+    }
+
+    /**
+     * Varadic max function (compile-tile deduced)
+     */
+    template <typename T0, typename T1>
+    constexpr typename std::common_type<T0, T1>::type multi_max(T0&& v0, T1&& v1)
+    {
+        return v0 < v1 ? std::forward<T1>(v1) : std::forward<T0>(v0);
+    }
+
+    template <typename T, typename... Ts>
+    constexpr typename std::common_type<T, Ts...>::type multi_max(T&& v, Ts&&... vs)
+    {
+        return multi_max(std::forward<T>(v), multi_max(std::forward<Ts>(vs)...));
+    }
+
+    template<typename... Ts>
+    struct sizeof_max;
+
+    template<>
+    struct sizeof_max<>
+    {
+        enum { size = 0 };
+    };
+
+    template<typename T0, typename... Ts>
+    struct sizeof_max<T0, Ts...>
+    {
+        enum { size = sizeof(T0) < sizeof_max<Ts...>::size ?
+                      sizeof_max<Ts...>::size : sizeof(T0) };
+    };
 
 } /* namespace cinekine */
 

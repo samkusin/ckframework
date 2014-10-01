@@ -19,7 +19,7 @@ if( NOT DEFINED CINEK_C_FLAGS_SET OR NOT CINEK_C_FLAGS_SET )
 endif( )
 
 if( NOT DEFINED CINEK_CXX_FLAGS_SET OR NOT CINEK_CXX_FLAGS_SET )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++1y -stdlib=libc++" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11 -stdlib=libc++" )
     set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++" )
     if( NOT DEFINED CINEK_CXX_EXCEPTIONS OR NOT CINEK_CXX_EXCEPTIONS )
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions -fno-rtti" )

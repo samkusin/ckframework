@@ -15,15 +15,17 @@ endif( )
 
 # Setup whether to enable or disable exception handling in CineK SDK systems.
 option( CINEK_CXX_EXCEPTIONS
-    "Enabled C++ exception handling for the SDK." OFF
+    "Enable C++ exception handling for the SDK." OFF
 )
 
 # Used for gtest support for module testing.
+option( CINEK_GTEST "Enable testing suite." OFF )
+
 set( CINEK_GTEST_DIR ""
     CACHE FILEPATH "The path to the gtest package used for testing."
 )
 
-if( CINEK_GTEST_DIR )
+if( CINEK_GTEST AND CINEK_GTEST_DIR )
     enable_testing()
 endif( )
 
@@ -43,8 +45,11 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/string.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/map.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/value.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/value_map.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/intrusive_list.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/objectheap.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/memorystack.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/objectstack.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/objectpool.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/job.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jobqueue.hpp
@@ -55,6 +60,7 @@ set( PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/allocator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/string.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/memorystack.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jobqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.cpp
 )

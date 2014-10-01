@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Cinekine Media
+ * Copyright (c) 2014 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
  *
  * @file    cinek/objectpool.hpp
  * @author  Samir Sinha
- * @date    4/14/2013
+ * @date    9/1/2014
  * @brief   Object allocation within a pooled heap
  * @copyright Cinekine
  */
