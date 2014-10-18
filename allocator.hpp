@@ -287,6 +287,12 @@ struct AllocatorDeleter
 template<typename T>
 using unique_ptr = std::unique_ptr<T, AllocatorDeleter<T>>;
 
+template<typename T, typename... Args>
+unique_ptr<T> allocate_unique(Allocator& allocator, Args&&... args) {
+    T* ptr = allocator.newItem<T>(std::forward<Args>(args)...);
+    return unique_ptr<T>(ptr, allocator);
+}
+
 #endif
 
 

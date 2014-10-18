@@ -49,6 +49,9 @@ namespace cinekine {
         ObjectPool(size_t blockLimit, const Allocator& allocator);
         ~ObjectPool();
 
+        ObjectPool(ObjectPool&& other);
+        ObjectPool& operator=(ObjectPool&& other);
+
         size_t blockLimit() const { return (_limit - _first); }
         size_t blockCount() const { return (_last - _first); }
 
@@ -56,6 +59,8 @@ namespace cinekine {
         void destruct(pointer p);
 
     private:
+        void zeroVectors();
+
         Allocator _allocator;
         pointer _first;
         pointer _last;
@@ -92,6 +97,46 @@ namespace cinekine {
 
         _allocator.free(_freefirst);
         _allocator.free(_first);
+    }
+
+    template<typename _T>
+    ObjectPool<_T>::ObjectPool(ObjectPool&& other) :
+        _allocator(std::move(other._allocator)),
+        _first(other._first),
+        _last(other._last),
+        _limit(other._limit),
+        _freefirst(other._freefirst),
+        _freelast(other._freelast),
+        _freelimit(other._freelimit)
+    {
+        other.zeroVectors();
+    }
+
+    template<typename _T>
+    ObjectPool<_T>& ObjectPool<_T>::operator=(ObjectPool&& other)
+    {
+        _allocator = std::move(other._allocator);
+        _first = other._first;
+        _last = other._last;
+        _limit = other._limit;
+        _freefirst = other._freefirst;
+        _freelast = other._freelast;
+        _freelimit = other._freelimit;
+
+        other.zeroVectors();
+
+        return *this;
+    }
+
+    template<typename _T>
+    void ObjectPool<_T>::zeroVectors()
+    {
+        _first = nullptr;
+        _last = nullptr;
+        _limit = nullptr;
+        _freefirst = nullptr;
+        _freelast = nullptr;
+        _freelimit = nullptr;
     }
 
     template<typename _T> template<typename... Args>
