@@ -34,7 +34,7 @@
 #include "cinek/value.hpp"
 #include "cinek/debug.hpp"
 
-namespace cinekine {
+namespace cinek {
 
     /**
      * @class   ValueMap
@@ -293,6 +293,6 @@ namespace cinekine {
         return defaultVal;
     }
 
-}   /* namespace cinekine */
+}   /* namespace cinek */
 
 #endif

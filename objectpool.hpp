@@ -34,7 +34,7 @@
 #include "cinek/allocator.hpp"
 #include "cinek/debug.hpp"
 
-namespace cinekine {
+namespace cinek {
 
     template<typename _T>
     class ObjectPool
@@ -180,6 +180,6 @@ namespace cinekine {
         ++_freelast;
     }
 
-} /* namespace cinekine */
+} /* namespace cinek */
 
 #endif

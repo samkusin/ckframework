@@ -37,8 +37,7 @@
 
 #include <iterator>
 
-namespace cinekine {
-    namespace ovengine {
+namespace cinek {
 
 template<typename Object, typename IntrusiveList>
 class intrusive_list_iterator : std::iterator<std::bidirectional_iterator_tag, Object>
@@ -277,8 +276,7 @@ private:
     size_type _size;
 };
 
-    }   /* namespace ovengine */
-}   /* namespace cinekine */
+}   /* namespace cinek */
 
 
 #endif

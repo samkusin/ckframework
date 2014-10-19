@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-namespace cinekine {
+namespace cinek {
 
 /*****************************************************************************/
 static void* DefaultAlloc(void* ctx, size_t numBytes)
@@ -79,5 +79,5 @@ void cinek_alloc_heap_dealloc(void* ptr)
     (*g_cinek_memoryProvider.cbs.free)(g_cinek_memoryProvider.cbs.context, ptr);
 }
 
-} /* namespace cinekine */
+} /* namespace cinek */
 

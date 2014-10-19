@@ -43,11 +43,11 @@
 
 #include <type_traits>
 
-namespace cinekine {
+namespace cinek {
     class JobQueue;
 }
 
-namespace cinekine {
+namespace cinek {
 
     /** A handle type */
     typedef uint32_t Handle;
@@ -107,7 +107,7 @@ namespace cinekine {
                       sizeof_max<Ts...>::size : sizeof(T0) };
     };
 
-} /* namespace cinekine */
+} /* namespace cinek */
 
 
 #endif

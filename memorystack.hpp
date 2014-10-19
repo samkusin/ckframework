@@ -33,7 +33,7 @@
 
 #include "cinek/allocator.hpp"
 
-namespace cinekine {
+namespace cinek {
 
     /**
      * @class MemoryStack
@@ -129,6 +129,6 @@ namespace cinekine {
 
     ////////////////////////////////////////////////////////////////////////////
 
-}   // namespace cinekine
+}   // namespace cinek
 
 #endif

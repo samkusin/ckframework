@@ -32,7 +32,7 @@
 #include "cinek/jobqueue.hpp"
 
 
-namespace cinekine {
+namespace cinek {
 
     JobScheduler::JobScheduler(JobQueue& queue) :
         _queue(queue)
@@ -50,4 +50,4 @@ namespace cinekine {
         _queue.cancel(jobHandle);
     }
 
-} /* namespace cinekine */
+} /* namespace cinek */

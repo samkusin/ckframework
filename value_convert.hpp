@@ -34,7 +34,7 @@
 #include "cinek/types.hpp"
 #include "cinek/string.hpp"
 
-namespace cinekine {
+namespace cinek {
 
 template<typename TSource, typename TTarget>
 class value_convert

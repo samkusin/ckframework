@@ -33,11 +33,11 @@
 
 #include "cinek/types.hpp"
 
-namespace cinekine {
+namespace cinek {
     class JobScheduler;
 }
 
-namespace cinekine {
+namespace cinek {
 
     /**
      * @class Job
@@ -73,7 +73,7 @@ namespace cinekine {
         virtual int32_t priority() const = 0;
     };
 
-} /* namespace cinekine */
+} /* namespace cinek */
 
 
 #endif

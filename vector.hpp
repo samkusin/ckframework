@@ -36,7 +36,7 @@
 
 #include <vector>
 
-namespace cinekine {
+namespace cinek {
 
 //  Std types using the overview allocator.
 //

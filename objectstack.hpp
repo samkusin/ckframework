@@ -35,7 +35,7 @@
 
 #include <memory>
 
-namespace cinekine {
+namespace cinek {
 
     /**
      * @class ObjectStack
@@ -306,6 +306,6 @@ namespace cinekine {
 
     ////////////////////////////////////////////////////////////////////////////
 
-}   // namespace cinekine
+}   // namespace cinek
 
 #endif

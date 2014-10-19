@@ -30,7 +30,7 @@
 
 #include "cinek/memorystack.hpp"
 
-namespace cinekine {
+namespace cinek {
 
     bool MemoryStack::node::alloc(size_t cnt, Allocator& allocator)
     {
@@ -162,4 +162,4 @@ namespace cinekine {
         return false;
     }
 
-} /* namespace cinekine */
+} /* namespace cinek */

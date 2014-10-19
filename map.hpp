@@ -35,7 +35,7 @@
 
 #include <unordered_map>
 
-namespace cinekine {
+namespace cinek {
 
 //  Std types using the overview allocator.
 //

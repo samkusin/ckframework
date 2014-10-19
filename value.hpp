@@ -35,7 +35,7 @@
 #include "cinek/allocator.hpp"
 #include "cinek/value_convert.hpp"
 
-namespace cinekine {
+namespace cinek {
 
     template<typename StringType, typename EuclidVectorType>
     class Value
@@ -153,6 +153,6 @@ namespace cinekine {
         return T();
     }
 
-}   /* namespace cinekine */
+}   /* namespace cinek */
 
 #endif

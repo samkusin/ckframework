@@ -36,7 +36,7 @@
 #include <cstring>
 
 
-namespace cinekine {
+namespace cinek {
 
     std::string directoryPath(const std::initializer_list<std::string>& elements)
     {

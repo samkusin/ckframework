@@ -36,7 +36,7 @@
 
 #include <string>
 
-namespace cinekine {
+namespace cinek {
 
 /**
  * Joins path elements from the root and returns a normalized path

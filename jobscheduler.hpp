@@ -34,11 +34,11 @@
 #include "cinek/job.hpp"
 #include "cinek/allocator.hpp"
 
-namespace cinekine {
+namespace cinek {
     class JobQueue;
 }
 
-namespace cinekine {
+namespace cinek {
     class JobScheduler
     {
     public:
@@ -64,7 +64,7 @@ namespace cinekine {
     private:
         JobQueue& _queue;
     };
-} /* namespace cinekine */
+} /* namespace cinek */
 
 
 #endif

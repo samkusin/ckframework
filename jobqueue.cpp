@@ -32,7 +32,7 @@
 
 #include <algorithm>
 
-namespace cinekine {
+namespace cinek {
 
     /**
      * @param allocator  An (optional) allocator for custom memory
@@ -84,5 +84,5 @@ namespace cinekine {
         return std::move(job);
     }
 
-} /* namespace cinekine */
+} /* namespace cinek */
 

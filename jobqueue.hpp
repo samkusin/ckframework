@@ -35,7 +35,7 @@
 #include "cinek/job.hpp"
 #include "cinek/vector.hpp"
 
-namespace cinekine {
+namespace cinek {
 
     /**
      * @class JobQueue
@@ -88,7 +88,7 @@ namespace cinekine {
         vector<JobHandleObject> _jobs;
     };
 
-} /* namespace cinekine */
+} /* namespace cinek */
 
 
 #endif

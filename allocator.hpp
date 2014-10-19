@@ -35,7 +35,7 @@
 
 #include <memory>
 
-namespace cinekine {
+namespace cinek {
 
 /** Callbacks used for memory allocation/deallocation */
 struct cinek_memory_callbacks
@@ -296,6 +296,6 @@ unique_ptr<T> allocate_unique(Allocator& allocator, Args&&... args) {
 #endif
 
 
-}	// namespace cinekine
+}	// namespace cinek
 
 #endif
