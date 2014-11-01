@@ -51,9 +51,8 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/memorystack.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/objectstack.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/objectpool.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/job.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/jobqueue.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/task.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/taskscheduler.hpp
 )
 
 set( PROJECT_SOURCES
@@ -61,8 +60,8 @@ set( PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/allocator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/string.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memorystack.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/jobqueue.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/jobscheduler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/task.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/taskscheduler.cpp
 )
 
 # Build Library

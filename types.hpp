@@ -54,10 +54,6 @@ namespace cinek {
     /** A null handle constant */
     const Handle kNullHandle = 0;
 
-    /** A handle to a Job scheduled via the JobQueue */
-    typedef Handle JobHandle;
-
-
     //  Cribbed from http://stackoverflow.com/a/23815961
 
     /**

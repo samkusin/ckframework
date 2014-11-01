@@ -31,9 +31,9 @@
 #ifndef CINEK_DEFS_H
 #define CINEK_DEFS_H
 
-#ifdef CINEK_HAS_CKOPTS_H
+/* #ifdef CINEK_HAS_CKOPTS_H */
 #include "cinek/ckopts.h"
-#endif
+/* #endif */
 
 #include <stddef.h>
 

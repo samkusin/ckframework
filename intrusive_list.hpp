@@ -61,6 +61,7 @@ public:
     //  dereferencable
     reference operator*() { return *_ptr; }
     pointer operator->() { return _ptr; }
+
     //  incrementable
     this_type& operator++() { _ptr = IntrusiveList::nextNode(_ptr); return *this; }
     this_type operator++(int) {

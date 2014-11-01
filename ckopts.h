@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Cinekine Media
+ * Copyright (c) 2012 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,33 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/jobscheduler.cpp
+ * @file    cinek/ckdefs.h
  * @author  Samir Sinha
- * @date    2/17/2014
- * @brief   A "schedule-only" interface to a JobQueue provided for Jobs
+ * @date    11/1/2013
+ * @brief   C and C++ common macros and definitions
  * @copyright Cinekine
  */
 
-#include "cinek/jobscheduler.hpp"
-#include "cinek/jobqueue.hpp"
+#ifndef CINEK_OPTS_H
+#define CINEK_OPTS_H
 
+#ifndef NDEBUG
+#define CK_DEBUG
+#endif
 
-namespace cinek {
-
-    JobScheduler::JobScheduler(JobQueue& queue) :
-        _queue(queue)
-    {
-
-    }
-
-    JobHandle JobScheduler::schedule(unique_ptr<Job>&& job)
-    {
-        return _queue.schedule(std::move(job));
-    }
-
-    void JobScheduler::cancel(JobHandle jobHandle)
-    {
-        _queue.cancel(jobHandle);
-    }
-
-} /* namespace cinek */
+/* CINEK_OPTS_H */
+#endif
