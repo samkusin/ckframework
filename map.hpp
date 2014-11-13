@@ -34,6 +34,7 @@
 #include "cinek/allocator.hpp"
 
 #include <unordered_map>
+#include <map>
 
 namespace cinek {
 
@@ -44,6 +45,9 @@ template<typename Key, typename Value>
     using unordered_map = std::unordered_map<Key, Value,
                                              std::hash<Key>, std::equal_to<Key>,
                                              std_allocator<std::pair<const Key, Value>>>;
+template<typename Key, typename Value>
+    using map = std::map< Key, Value, std::less<Key>,
+                          std_allocator<std::pair<const Key, Value>> >;
 
 } /* cinekine */
 

@@ -57,6 +57,7 @@ set( PROJECT_INCLUDES
 
 set( PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/types.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/allocator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/string.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memorystack.cpp

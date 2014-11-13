@@ -21,15 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/objectpool.hpp
+ * @file    cinek/poolallocator.hpp
  * @author  Samir Sinha
  * @date    9/1/2014
  * @brief   Object allocation within a pooled heap
  * @copyright Cinekine
  */
 
-#ifndef CINEK_OBJECT_POOL_HPP
-#define CINEK_OBJECT_POOL_HPP
+#ifndef CINEK_POOL_ALLOCATOR_HPP
+#define CINEK_POOL_ALLOCATOR_HPP
 
 #include "cinek/allocator.hpp"
 #include "cinek/debug.hpp"

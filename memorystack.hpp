@@ -94,6 +94,10 @@ namespace cinek {
          * @return    False if growth fails (out of memory.)
          */
         bool growBy(size_t cnt);
+        /**
+         * Resets the stack to the head
+         */
+        void reset();
 
     private:
         Allocator _allocator;

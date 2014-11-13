@@ -53,6 +53,13 @@ namespace cinek {
     typedef uint32_t Handle;
     /** A null handle constant */
     const Handle kNullHandle = 0;
+    /** A UUID array (128-bit) */
+    struct UUID
+    {
+        uint8_t bytes[16];
+    };
+
+    bool operator==(const UUID& l, const UUID& r);
 
     //  Cribbed from http://stackoverflow.com/a/23815961
 

@@ -185,14 +185,16 @@ struct std_custom_allocator
     typedef const T& const_reference;
     typedef T value_type;
 
-    template <class U> struct rebind { typedef std_custom_allocator<U, Allocator> other; };
+    template <class U> struct rebind {
+        typedef std_custom_allocator<U, Allocator> other;
+    };
+
     std_custom_allocator() {}
-#ifdef CK_CPP_11_BASIC  // libc++11 supports stateful allocators
     std_custom_allocator(const Allocator& allocator): _allocator(allocator) {}
-#endif
     std_custom_allocator(const std_custom_allocator& source): _allocator(source._allocator) {}
 
-    template <class U> std_custom_allocator(const std_custom_allocator<U, Allocator>& source): _allocator(source._allocator) {}
+    template <class U>
+    std_custom_allocator(const std_custom_allocator<U, Allocator>& source): _allocator(source._allocator) {}
 
     ~std_custom_allocator() {}
 
@@ -222,17 +224,10 @@ struct std_custom_allocator
         return std::numeric_limits<size_t>::max() / sizeof(T);
     }
 
-#ifdef CK_CPP_11_BASIC
     template<class U, class... Args> void construct(U* p, Args&&... args)
     {
         ::new((void *)p) U(std::forward<Args>(args)...);
     }
-#else
-    void construct(pointer p, const T& val)
-    {
-        new((void *)p) T(val);
-    }
-#endif
 
     void destroy(pointer p)
     {

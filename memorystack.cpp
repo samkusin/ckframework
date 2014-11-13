@@ -119,7 +119,7 @@ namespace cinek {
 
     uint8_t* MemoryStack::allocate(size_t memSize)
     {
-        if (_current->bytesAvailable() < memSize)
+        while (_current->bytesAvailable() < memSize)
         {
             node* next = _current->next;
 
@@ -160,6 +160,20 @@ namespace cinek {
             }
         }
         return false;
+    }
+
+    void MemoryStack::reset()
+    {
+        node *n = _tail;
+        if (!n)
+            return;
+        while (n->prev)
+        {
+            n->last = n->first;
+            n = n->prev;
+        }
+        n->last = n->first;
+        _current = n;
     }
 
 } /* namespace cinek */
