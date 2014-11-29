@@ -45,6 +45,7 @@ namespace cinek {
         typedef EuclidVectorType    vector_type;
 
         Value();
+        template<typename U> Value(const U& val);
         ~Value();
 
         void set(const int32_t val);
@@ -72,6 +73,14 @@ namespace cinek {
     Value<StringType, EuclidVectorType>::Value() :
         vclass(value_class::kNull)
     {
+    }
+
+    template<typename StringType, typename EuclidVectorType>
+    template<typename U>
+    Value<StringType, EuclidVectorType>::Value(const U& val) :
+        vclass(value_class::kNull)
+    {
+        set(val);
     }
 
     template<typename StringType, typename EuclidVectorType>

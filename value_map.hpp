@@ -86,6 +86,8 @@ namespace cinek {
         typedef Key                 key_type;
         typedef ValueType           value_type;
 
+        ValueMap();
+
         /**
          * Creates a ValueMap with an initial value count
          *
@@ -114,8 +116,11 @@ namespace cinek {
 
         ~ValueMap();
 
-    private:
+    public:
+        ValueMap(ValueMap&& other);
+        ValueMap& operator=(ValueMap&& other);
 
+    private:
         using entry = std::pair<key_type, value_type*>;
 
         struct entryset
@@ -138,6 +143,7 @@ namespace cinek {
         };
 
         entryset* createSet(uint32_t cnt);
+        void freeSet(entryset* set);
 
         entryset* _headSet;
 
@@ -214,19 +220,33 @@ namespace cinek {
     template<typename Key, typename ValueType>
     ValueMap<Key,ValueType>::~ValueMap()
     {
-        //  free all entries, and with each entry, free its value.
-        while(_headSet)
-        {
-            entryset* nextset = _headSet->nextSet;
-            _headSet->~entryset();
-            _allocator.free(_headSet);
-            _headSet = nextset;
-        }
+        freeSet(_headSet);
+        _headSet = nullptr;
+    }
+
+    template<typename Key, typename ValueType>
+    ValueMap<Key,ValueType>::ValueMap(ValueMap&& other) :
+        _headSet(other._headSet),
+        _allocator(std::move(other._allocator))
+    {
+        other._headSet = nullptr;
+    }
+
+    template<typename Key, typename ValueType>
+    ValueMap<Key,ValueType>& ValueMap<Key,ValueType>::operator=(ValueMap&& other)
+    {
+        freeSet(_headSet);
+        _headSet = other._headSet;
+        _allocator = std::move(other._headSet);
+        other._headSet = nullptr;
+        return *this;
     }
 
     template<typename Key, typename ValueType>
     auto ValueMap<Key,ValueType>::createSet(uint32_t cnt) -> entryset*
     {
+        if (!cnt)
+            return nullptr;
          //  allocate a block containing entryset, k/v entry pairs and a stack
         //  of value objects
         uint8_t* memBlock = reinterpret_cast<uint8_t*>(
@@ -244,13 +264,26 @@ namespace cinek {
     }
 
     template<typename Key, typename ValueType>
+    void ValueMap<Key,ValueType>::freeSet(entryset* set)
+    {
+        //  free all entries, and with each entry, free its value.
+        while(set)
+        {
+            entryset* nextset = set->nextSet;
+            set->~entryset();
+            _allocator.free(set);
+            set = nextset;
+        }
+    }
+
+    template<typename Key, typename ValueType>
     template<typename T>
     void ValueMap<Key,ValueType>::set(const Key& key, const T& val)
     {
         //  if a key exists, we're good.  if no key exists, find the entryset
         //  where we can add this key
         entryset* set = _headSet;
-        entryset* lastSet = nullptr;
+        entryset* lastSet = _headSet;
         entry* found = nullptr;
         while (set)
         {
@@ -265,8 +298,16 @@ namespace cinek {
         {
             if (!set)
             {
-                set = createSet((uint32_t)(lastSet->limit - lastSet->first));
-                lastSet->nextSet = set;
+                uint32_t sz = lastSet ? (lastSet->limit - lastSet->first) : 4;
+                set = createSet((uint32_t)(sz));
+                if (!_headSet)
+                {
+                    _headSet = set;
+                }
+                else
+                {
+                    lastSet->nextSet = set;
+                }
             }
             if (!set)
             {

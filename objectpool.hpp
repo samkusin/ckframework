@@ -46,7 +46,7 @@ namespace cinek {
         typedef _T*         pointer;
         typedef const _T*   const_pointer;
 
-        ObjectPool(size_t blockLimit, const Allocator& allocator);
+        ObjectPool(size_t blockLimit, Allocator allocator=Allocator());
         ~ObjectPool();
 
         ObjectPool(ObjectPool&& other);
@@ -71,7 +71,7 @@ namespace cinek {
     };
 
     template<typename _T>
-    ObjectPool<_T>::ObjectPool(size_t blockCount, const Allocator& allocator) :
+    ObjectPool<_T>::ObjectPool(size_t blockCount, Allocator allocator) :
         _allocator(allocator),
         _first(nullptr),
         _last(nullptr),

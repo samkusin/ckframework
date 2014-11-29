@@ -258,8 +258,6 @@ inline bool operator!=(const std_custom_allocator<T, Allocator>& lha,
 template <typename T>
 using std_allocator = std_custom_allocator<T, Allocator>;
 
-
-#ifdef CK_CPP_11_BASIC
 /**
  * @class AllocatorDeleter
  * @brief Used by std pointer types that refer to memory allocated using external
@@ -271,6 +269,8 @@ struct AllocatorDeleter
     /** @cond */
     AllocatorDeleter() {}
     AllocatorDeleter(const Allocator& allocator): _allocator(allocator) {}
+    template<typename U>
+    AllocatorDeleter(const AllocatorDeleter<U>& other): _allocator(other._allocator) {}
     void operator()(T* ptr)  {
         _allocator.deleteItem(ptr);
     }
@@ -288,9 +288,7 @@ unique_ptr<T> allocate_unique(Allocator& allocator, Args&&... args) {
     return unique_ptr<T>(ptr, allocator);
 }
 
-#endif
-
-
 }	// namespace cinek
+
 
 #endif

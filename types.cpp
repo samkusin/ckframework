@@ -21,55 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/string.cpp
+ * @file    cinek/types.cpp
  * @author  Samir Sinha
- * @date    2/22/2014
- * @brief   std::string with custom allocators
+ * @date    11/8/2014
+ * @brief   types
  * @copyright Cinekine
  */
 
 
-#include "cinek/string.hpp"
-
-#include <string>
-#include <sstream>
+#include "cinek/types.hpp"
 #include <cstring>
-
 
 namespace cinek {
 
-    std::string directoryPath(const std::initializer_list<std::string>& elements)
+    bool operator==(const UUID& l, const UUID& r)
     {
-        const char kSep = '/';
-        std::string path;
-        path.reserve(MAX_PATH);
-        auto it = elements.begin();
-        auto itEnd = elements.end();
-        if (it != itEnd)
-        {
-            path = *it;
-            if (path.back() != kSep)
-                path.push_back(kSep);
-            ++it;
-            for (; it != itEnd; ++it)
-            {
-                auto& element = *it;
-                size_t len = element.length();
-                size_t offset = 0;
-                if (element.front() == kSep)
-                {
-                    ++offset;
-                    --len;
-                }
-                path.append(element, offset, len);
-                //  this logic is almost the same as the first element
-                //  check done prior to the for loop - only that the first
-                //  path element can have a forward and back path separator
-                if (path.back() != kSep)
-                    path.push_back(kSep);
-            }
-        }
-        return path;
+        return *(uint64_t*)(&l.bytes[0]) == *(uint64_t*)(&r.bytes[0]) &&
+               *(uint64_t*)(&l.bytes[8]) == *(uint64_t*)(&r.bytes[8]);
+        //return !memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes));
+    }
+
+    bool operator!=(const UUID& l, const UUID& r)
+    {
+        return *(uint64_t*)(&l.bytes[0]) != *(uint64_t*)(&r.bytes[0]) ||
+               *(uint64_t*)(&l.bytes[8]) != *(uint64_t*)(&r.bytes[8]);
+        //return !memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes));
+    }
+
+    bool operator<(const UUID& l, const UUID& r)
+    {
+        return memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes)) < 0;
     }
 
 } /* cinekine */

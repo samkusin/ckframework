@@ -60,6 +60,8 @@ namespace cinek {
     };
 
     bool operator==(const UUID& l, const UUID& r);
+    bool operator<(const UUID& l, const UUID& r);
+    bool operator!=(const UUID& l, const UUID& r);
 
     //  Cribbed from http://stackoverflow.com/a/23815961
 

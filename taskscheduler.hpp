@@ -73,9 +73,9 @@ namespace cinek {
         /**
          * Executes tasks currently scheduled
          *
-         * @param frameTimeMs Frame time in milliseconds between updates
+         * @param timeMs Process time
          */
-        void update(uint32_t frameTimeMs);
+        void process(uint32_t timeMs);
 
     private:
         using TaskPair = std::pair<TaskHandle, unique_ptr<Task>>;
