@@ -35,6 +35,7 @@
 #include "cinek/types.hpp"
 #include "cinek/debug.hpp"
 
+#include <memory>
 #include <iterator>
 
 namespace cinek {
@@ -43,9 +44,13 @@ template<typename Object, typename IntrusiveList>
 class intrusive_list_iterator : std::iterator<std::bidirectional_iterator_tag, Object>
 {
 public:
-    typedef intrusive_list_iterator<Object, IntrusiveList> this_type;
+    typedef Object                  value_type;
     typedef Object*                 pointer;
     typedef Object&                 reference;
+    typedef Object                  type;
+    typedef intrusive_list_iterator<Object, IntrusiveList> this_type;
+    typedef std::bidirectional_iterator_tag       iterator_category;
+    typedef typename std::pointer_traits<pointer>::difference_type difference_type;
 
     //  copy-con, assign, destruct
     intrusive_list_iterator() : _ptr() {}
@@ -88,10 +93,14 @@ template<typename Object, typename IntrusiveList>
 class intrusive_list_const_iterator : std::iterator<std::bidirectional_iterator_tag, Object>
 {
 public:
+    typedef const Object                  value_type;
+    typedef const Object*                 pointer;
+    typedef const Object&                 reference;
+    typedef const Object                  type;
     typedef intrusive_list_const_iterator<Object, IntrusiveList> this_type;
     typedef intrusive_list_iterator<Object, IntrusiveList> non_const_this_type;
-    typedef const Object*               pointer;
-    typedef const Object&               reference;
+    typedef std::bidirectional_iterator_tag       iterator_category;
+    typedef typename std::pointer_traits<pointer>::difference_type difference_type;
 
     //  copy-con, assign, destruct
     intrusive_list_const_iterator() : _ptr() {}
@@ -200,7 +209,7 @@ public:
     void push_back(pointer object) {
         insert(end(), object);
     }
-    void insert(const_iterator pos, pointer object) {
+    iterator insert(const_iterator pos, pointer object) {
         CK_ASSERT(!nextNode(object) && !prevNode(object));
         pointer next = pos.ptr();
         pointer prev = prevNode(next);
@@ -212,6 +221,7 @@ public:
         setNodeNextNode(object, next);
         setNodePrevNode(object, prev);
         ++_size;
+        return iterator(object);
     }
     void pop_front() {
         erase(begin());
