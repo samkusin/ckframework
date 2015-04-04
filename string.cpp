@@ -42,7 +42,7 @@ namespace cinek {
     {
         const char kSep = '/';
         std::string path;
-        path.reserve(MAX_PATH);
+        path.reserve(256);
         auto it = elements.begin();
         auto itEnd = elements.end();
         if (it != itEnd)

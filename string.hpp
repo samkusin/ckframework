@@ -32,8 +32,6 @@
 #ifndef CINEK_STRING_HPP
 #define CINEK_STRING_HPP
 
-#include "cinek/allocator.hpp"
-
 #include <string>
 
 namespace cinek {

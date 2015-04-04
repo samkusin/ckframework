@@ -18,6 +18,10 @@ option( CINEK_CXX_EXCEPTIONS
     "Enable C++ exception handling for the SDK." OFF
 )
 
+option( CINEK_USE_GLM
+    "Enable GLM (GL Math) support." ON
+)
+
 # Used for gtest support for module testing.
 option( CINEK_GTEST "Enable testing suite." OFF )
 
@@ -32,7 +36,14 @@ endif( )
 # Used to specify location of local modules.
 set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
+# include once all options and environment variables are defined
 include( CineKSDKBuild )
+
+set( PROJECT_DEFINITIONS  )
+
+if( CINEK_USE_GLM )
+    set( PROJECT_DEFINITIONS "${PROJECT_DEFINITIONS};CINEK_GLM_ENABLED=1" )
+endif( CINEK_USE_GLM )
 
 # Define project sources and includes for the parent (if any at this level)
 #
@@ -53,6 +64,12 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/objectpool.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/task.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/taskscheduler.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/jsonstreambuf.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdo/sdo.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/message/message.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/message/messagedispatcher.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/message/messagequeue.hpp
 )
 
 set( PROJECT_SOURCES
@@ -63,16 +80,22 @@ set( PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/memorystack.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/task.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/taskscheduler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/json.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/message/messagedispatcher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/message/messagequeue.cpp
 )
 
 # Build Library
 if( CINEK_EXT_PACKAGE_DIR )
     include_directories( "${CINEK_EXT_PACKAGE_DIR}/include" )
 endif( )
+
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/.." )
+
 add_library( CKFramework STATIC ${PROJECT_INCLUDES} ${PROJECT_SOURCES} )
+
+set_target_properties( CKFramework PROPERTIES
+    COMPILE_DEFINITIONS "${PROJECT_DEFINITIONS}")
 
 # Build Tests
 add_subdirectory( tests )
-
-
