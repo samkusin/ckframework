@@ -32,11 +32,20 @@
 #include "cinek/string.hpp"
 
 #include <string>
-#include <sstream>
 #include <cstring>
 
 
 namespace cinek {
+
+    char* duplicateCString(const char* str, Allocator& allocator)
+    {
+        char* newstr = reinterpret_cast<char*>(allocator.alloc(strlen(str)+1));
+        if (newstr)
+        {
+            strcpy(newstr, str);
+        }
+        return newstr;
+    }
 
     std::string directoryPath(const std::initializer_list<std::string>& elements)
     {

@@ -1,5 +1,5 @@
 /**
- * @file    Core/FileStreamBuf.hpp
+ * @file    filestreambuf.hpp
  * @author  Samir Sinha
  * @date    8/18/2013
  * @brief   A custom streambuf implementation for the common filesystem
@@ -8,10 +8,11 @@
  *          (http://www.isc.org/downloads/software-support-policy/isc-license/)
  */
 
-#ifndef CK_Core_FileStreamBuf_hpp
-#define CK_Core_FileStreamBuf_hpp
+#ifndef CINEK_FILESTREAMBUF_HPP
+#define CINEK_FILESTREAMBUF_HPP
 
 #include "cinek/allocator.hpp"
+#include "cinek/file.hpp"
 
 #include <streambuf>
 
@@ -30,9 +31,13 @@ namespace cinek {
         CK_CLASS_NON_COPYABLE(FileStreamBuf);
 
     public:
-        FileStreamBuf(const char* pathname, std::ios_base::openmode mode = std::ios_base::in,
-                  size_t bufferSize=4096,
-                  const Allocator& allocator=Allocator());
+        FileStreamBuf
+        (
+            const char* pathname,
+            std::ios_base::openmode mode = std::ios_base::in,
+            size_t bufferSize=4096,
+            const Allocator& allocator=Allocator()
+        );
         ~FileStreamBuf();
         //  Used to check whether file opened.
         operator bool() const {
@@ -54,7 +59,7 @@ namespace cinek {
 
     private:
         Allocator _allocator;
-        void* _fileHandle;
+        FileHandle _fileHandle;
         std::ios_base::openmode _mode;
         size_t _bufferSize;
         size_t _totalSize;

@@ -53,6 +53,42 @@ namespace cinek {
     typedef uint32_t Handle;
     /** A null handle constant */
     const Handle kNullHandle = 0;
+    
+    /** A specialized handle where the offset points to a vector element */
+    struct OffsetHandle
+    {
+        uint32_t iter;  /**< Instance iteration */
+        uint32_t offs;  /**< Instance offset */
+    
+        OffsetHandle() : iter(0), offs(0) {}
+        OffsetHandle(std::nullptr_t): iter(0), offs(0) {}
+    
+        /** test operators for handle validity */
+        operator bool() const {
+            return iter != 0;
+        }
+        bool operator==(const std::nullptr_t&) const {
+            return !iter;
+        }
+        bool operator!=(const std::nullptr_t&) const {
+            return iter != 0;
+        }
+        OffsetHandle& operator=(const std::nullptr_t&) {
+            iter = offs = 0;
+            return *this;
+        }
+        OffsetHandle& operator++() {
+            ++iter;
+            if (!iter) iter = 1;
+            return *this;
+        }
+        OffsetHandle operator++(int) {
+            OffsetHandle h = *this;
+            ++(*this);
+            return h;
+        }
+    };
+    
     /** A UUID array (128-bit) */
     struct UUID
     {

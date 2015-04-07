@@ -58,20 +58,48 @@ struct cinek_memory_callbacks
  *  All applications must call this function with its own set of memory callbacks
  *  before using any CineK systems.
  *
+ *  @param  heap            The heap index mapped to the specified callback set
  *  @param  callbacks       The custom allocator defined by a series of application
  *                          defined callbacks.
  */
 void cinek_alloc_set_callbacks(
+        int heap,
         const cinek_memory_callbacks* callbacks
     );
 
 /** Returns the allocation callbacks and context supplied by
  *  cinek_alloc_set_callbacks.
  *
+ *  @param  heap      Retrieves callbacks for the specified heap index
  *  @param  callbacks Pointer to a struct to hold the memory allocation
  *                    callbacks.
  */
-void cinek_get_alloc_callbacks(cinek_memory_callbacks* callbacks);
+void cinek_get_alloc_callbacks(int heap, cinek_memory_callbacks* callbacks);
+
+/**
+ *  Allocate from the specified heap
+ *  @param  heap    The heap to allocate from
+ *  @param  sz      The amount to allocate
+ *  @return A pointer to the allocated block of memory (or NULL)
+ */
+void* cinek_alloc(int heap, size_t sz);
+
+/**
+ *  Allocate from the specified heap using an existing allocate block.  Used
+ *  for efficient management of a heap when resizing a block.
+ *  @param  heap    The heap to allocate from
+ *  @param  ptr     The allocated block to resize
+ *  @param  sz      The amount to allocate
+ *  @return A pointer to the allocated block of memory (or NULL)
+ */
+void* cinek_realloc(int heap, void* ptr, size_t sz);
+
+/**
+ *  Frees a block allocated via cinek_alloc
+ *  @param  heap    The heap to free from
+ *  @param  ptr     The allocated block to free
+ */
+void cinek_free(int heap, void* ptr);
 
 /**
  * @class Allocator
@@ -82,41 +110,38 @@ void cinek_get_alloc_callbacks(cinek_memory_callbacks* callbacks);
 class Allocator
 {
 public:
-	Allocator() {
-		cinek_get_alloc_callbacks(&_callbacks);
-	}
+	Allocator(): _heap(0) {}
     Allocator(Allocator&& other) :
-        _callbacks(other._callbacks)
+        _heap(other._heap)
     {
-        cinek_get_alloc_callbacks(&other._callbacks);
     }
     Allocator& operator=(Allocator&& other)
     {
-        _callbacks = other._callbacks;
-        cinek_get_alloc_callbacks(&other._callbacks);
+        _heap = other._heap;
+        other._heap = 0;
         return *this;
     }
     Allocator(const Allocator& other) :
-        _callbacks(other._callbacks) {}
+        _heap(other._heap) {}
     Allocator& operator=(const Allocator& other) {
-        _callbacks = other._callbacks;
+        _heap = other._heap;
         return *this;
     }
 	/**
 	 * Constructor.
-	 * @param allocCallbacks Memory allocation callbacks.
+	 * @param heap           Memory allocation heap
 	 * @param context 		 Context passed to the callbacks supplied via
 	 *                   	 allocCallbacks.
 	 */
-	Allocator(const cinek_memory_callbacks& allocCallbacks)
-		: _callbacks(allocCallbacks) {}
+	Allocator(int heap)
+		: _heap(heap) {}
 	/**
 	 * Allocates a block of memory of the supplied size.
 	 * @param  size Size of the memory block to allocate.
 	 * @return A pointer to the allocated block or nullptr.
 	 */
 	void* alloc(size_t size) {
-		return (*_callbacks.alloc)(_callbacks.context, size);
+		return cinek_alloc(_heap, size);
 	}
 	/**
 	 * Allocates and constucts instance of T.
@@ -150,22 +175,22 @@ public:
 	 * @param ptr Pointer to the memory block to free.
 	 */
 	void free(void* ptr) {
-		(*_callbacks.free)(_callbacks.context, ptr);
+        cinek_free(_heap, ptr);
 	}
 
 private:
-	cinek_memory_callbacks _callbacks;
-	friend bool operator==(const Allocator& lha, const Allocator& rha);
-	friend bool operator!=(const Allocator& lha, const Allocator& rha);
+    friend bool operator==(const Allocator& lha, const Allocator& rha);
+    friend bool operator!=(const Allocator& lha, const Allocator& rha);
+    int _heap;
 };
 /** @cond */
 inline bool operator==(const Allocator& lha, const Allocator& rha)
 {
-    return memcmp(&lha._callbacks, &rha._callbacks, sizeof(cinek_memory_callbacks))==0;
+    return lha._heap == rha._heap;
 }
 inline bool operator!=(const Allocator& lha, const Allocator& rha)
 {
-    return memcmp(&lha._callbacks, &rha._callbacks, sizeof(cinek_memory_callbacks))!=0;
+    return lha._heap != rha._heap;
 }
 /** @endcond */
 

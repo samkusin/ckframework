@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 Cinekine. All rights reserved.
 //
 
-#ifndef CK_Core_StreamBufRapidJson_hpp
-#define CK_Core_StreamBufRapidJson_hpp
+#ifndef CINEK_StreamBufRapidJson_hpp
+#define CINEK_StreamBufRapidJson_hpp
 
 #include <streambuf>
 

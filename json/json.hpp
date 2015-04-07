@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Cinekine. All rights reserved.
 //
 
-#ifndef CK_Core_JsonUtilities_hpp
-#define CK_Core_JsonUtilities_hpp
+#ifndef CINEK_JSON_HPP
+#define CINEK_JSON_HPP
 
 #include "rapidjson/document.h"
 #include <cstdlib>

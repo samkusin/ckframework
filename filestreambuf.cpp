@@ -1,5 +1,5 @@
 /**
- * @file    Core/FileStreamBuf.hpp
+ * @file    filestreambuf.hpp
  * @author  Samir Sinha
  * @date    8/18/2013
  * @brief   A custom streambuf implementation for the common filesystem
@@ -8,11 +8,12 @@
  *          (http://www.isc.org/downloads/software-support-policy/isc-license/)
  */
 
-#include "Core/FileStreamBuf.hpp"
+#include "cinek/filestreambuf.hpp"
 
-#include <SDL2/SDL_rwops.h>
 
 namespace cinek {
+
+    extern FileOps _CoreFileOps;
 
     //  Initializes the stream buffer with the contents of the file specified.
     //  Uses SDL to read from/write to files
@@ -33,13 +34,13 @@ namespace cinek {
         _totalSize(0),
         _buffer( (char*)_allocator.alloc(sizeof(char_type) * _bufferSize) )
     {
-        char fmode[4] = { 0,0,0,0 };
+        uint32_t fileAccess = 0;
         if (_mode & std::ios_base::in)
         {
             if (_mode & std::ios_base::out)         // does not support both read and write for now.
                 return;
 
-            fmode[0] = 'r';
+            fileAccess = FileOps::kReadAccess;
         }
         /*else if (_mode & std::ios_base::out)
         {
@@ -63,14 +64,14 @@ namespace cinek {
         {
             return;                 // unsupported IO
         }
-        if (_mode & std::ios_base::binary)
+        if (!(_mode & std::ios_base::binary))
         {
-            fmode[1] = 'b';
+            fileAccess = FileOps::kText;
         }
-        _fileHandle = reinterpret_cast<void*>(SDL_RWFromFile(pathname, fmode));
+        _fileHandle = _CoreFileOps.openCb(_CoreFileOps.context, pathname, fileAccess);
         if (_fileHandle)
         {
-            _totalSize = SDL_RWsize((SDL_RWops*)_fileHandle);
+            _totalSize = _CoreFileOps.sizeCb(_CoreFileOps.context, _fileHandle);
         }
     }
 
@@ -79,7 +80,7 @@ namespace cinek {
         sync();
         if (_fileHandle)
         {
-            SDL_RWclose(reinterpret_cast<SDL_RWops*>(_fileHandle));
+            _CoreFileOps.closeCb(_CoreFileOps.context, _fileHandle);
             _fileHandle = nullptr;
         }
         if (_buffer)
@@ -93,7 +94,8 @@ namespace cinek {
     {
         if (!_fileHandle)
             return 0;
-        size_t remaining = (size_t)(_totalSize - SDL_RWtell((SDL_RWops*)_fileHandle));
+        size_t remaining = _totalSize;
+        remaining -= _CoreFileOps.tellCb(_CoreFileOps.context, _fileHandle);
         return remaining;
     }
 
@@ -138,12 +140,17 @@ namespace cinek {
                 putbackLen = std::min<size_t>((egptr()-gptr())/2, 32);
             }
             memmove(eback(), egptr() - putbackLen, putbackLen*sizeof(char_type));
-            size_t readCount = SDL_RWread(reinterpret_cast<SDL_RWops*>(_fileHandle), eback() + putbackLen,
-                       1, (egptr() - eback() - putbackLen)*sizeof(char_type));
+            size_t readSize = (egptr() - eback() - putbackLen)*sizeof(char_type);
+            auto readBuf = (eback() + putbackLen);
+            size_t readCount = _CoreFileOps.readCb(_CoreFileOps.context,
+                                    _fileHandle,
+                                    (uint8_t*)readBuf,
+                                    readSize
+                                );
             if (readCount == 0)
                 return EOF;
 
-            setg(eback(), eback() + putbackLen, eback() + putbackLen + readCount/sizeof(char_type));
+            setg(eback(), readBuf, readBuf + readCount/sizeof(char_type));
         }
         return (int)((unsigned char)*gptr());
     }
@@ -176,10 +183,13 @@ namespace cinek {
         if (_fileHandle)
         {
             size_t revertCount = egptr()-gptr();
-            if (SDL_RWseek(reinterpret_cast<SDL_RWops*>(_fileHandle),
-                           -revertCount,
-                           RW_SEEK_CUR) < 0)
+            
+            if (!_CoreFileOps.seekCb(_CoreFileOps.context,
+                                     _fileHandle,
+                                     FileOps::kSeekCur,
+                                     -revertCount))
                 return -1;
+
             setg(nullptr, nullptr, nullptr);
         }
         return 0;

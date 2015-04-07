@@ -49,7 +49,6 @@ endif( CINEK_USE_GLM )
 #
 set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/ckdefs.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/rendertypes.h
     ${CMAKE_CURRENT_SOURCE_DIR}/types.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/allocator.hpp
@@ -60,12 +59,16 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/value_map.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/intrusive_list.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memorystack.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cstringstack.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/objectstack.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/objectpool.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/task.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/taskscheduler.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/file.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/filestreambuf.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/json/jsonstreambuf.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/jsoncollectionloader.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sdo/sdo.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/message/message.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/message/messagedispatcher.hpp
@@ -78,9 +81,13 @@ set( PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/allocator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/string.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memorystack.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cstringstack.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/task.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/taskscheduler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/file.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/filestreambuf.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/json/json.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/jsoncollectionloader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/message/messagedispatcher.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/message/messagequeue.cpp
 )

@@ -32,16 +32,23 @@
 #ifndef CINEK_STRING_HPP
 #define CINEK_STRING_HPP
 
+#include "cinek/allocator.hpp"
 #include <string>
 
 namespace cinek {
+
+char* duplicateCString(const char* str, Allocator& allocator);
 
 /**
  * Joins path elements from the root and returns a normalized path
  * @param  root The root path
  * @return The resulting path string
  */
-std::string directoryPath(const std::initializer_list<std::string>& elements);
+std::string directoryPath
+(
+    const std::initializer_list<std::string>& elements,
+    const std::string& filename
+);
 
 uint32_t UInt32FromString(const char* string);
 
