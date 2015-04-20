@@ -32,6 +32,7 @@
 #define CINEK_VALUE_CONVERT_HPP
 
 #include "cinek/types.hpp"
+#include "cinek/string.hpp"
 
 namespace cinek {
 
@@ -165,27 +166,6 @@ public:
     static float value(const std::string& src) { return std::stod(src); }
 };
 
-
-#if CINEK_GLM_ENABLED
-
-////////////////////////////////////////////////////////////////////////////////
-//  glm::vec(x) -> glm::vec(x)
-//
-template<> class value_convert<glm::ivec2, glm::ivec2> {
-public:
-    static glm::ivec2 value(const glm::ivec2& src) {
-        return src;
-    }
-};
-
-template<> class value_convert<glm::vec3, glm::vec3> {
-public:
-    static glm::vec3 value(const glm::vec3& src) {
-       return src;
-    }
-};
-
-#endif // CINEK_GLM_ENABLED
 
 }
 

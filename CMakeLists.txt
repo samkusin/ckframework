@@ -18,10 +18,6 @@ option( CINEK_CXX_EXCEPTIONS
     "Enable C++ exception handling for the SDK." OFF
 )
 
-option( CINEK_USE_GLM
-    "Enable GLM (GL Math) support." ON
-)
-
 # Used for gtest support for module testing.
 option( CINEK_GTEST "Enable testing suite." OFF )
 
@@ -41,22 +37,19 @@ include( CineKSDKBuild )
 
 set( PROJECT_DEFINITIONS  )
 
-if( CINEK_USE_GLM )
-    set( PROJECT_DEFINITIONS "${PROJECT_DEFINITIONS};CINEK_GLM_ENABLED=1" )
-endif( CINEK_USE_GLM )
-
 # Define project sources and includes for the parent (if any at this level)
 #
-set( PROJECT_INCLUDES
+set( MAIN_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/ckdefs.h
     ${CMAKE_CURRENT_SOURCE_DIR}/types.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/allocator.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/string.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/buffer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/map.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/value.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/value_map.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/value_convert.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/intrusive_list.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memorystack.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cstringstack.hpp
@@ -66,16 +59,8 @@ set( PROJECT_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/taskscheduler.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/filestreambuf.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/json/jsonstreambuf.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/json/jsoncollectionloader.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdo/sdo.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/message/message.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/message/messagedispatcher.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/message/messagequeue.hpp
 )
-
-set( PROJECT_SOURCES
+set( MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/types.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/allocator.cpp
@@ -86,10 +71,46 @@ set( PROJECT_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/taskscheduler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/filestreambuf.cpp
+)
+source_group( source FILES ${MAIN_SOURCES} )
+source_group( include FILES ${MAIN_INCLUDES} )
+
+set( JSON_INCLUDES
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/jsonstreambuf.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/jsoncollectionloader.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/allocators.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/document.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/encodedstream.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/encodings.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/filereadstream.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/filestream.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/filewritestream.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/prettywriter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/rapidjson.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/reader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/stringbuffer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/writer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/error/en.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/json/rapidjson/error/error.h
+)
+
+set( JSON_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/json/json.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/json/jsoncollectionloader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/message/messagedispatcher.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/message/messagequeue.cpp
+)
+source_group( source\\json FILES ${JSON_SOURCES} )
+source_group( include\\json FILES ${JSON_INCLUDES} )
+
+
+set( PROJECT_INCLUDES
+    ${MAIN_INCLUDES}
+    ${JSON_INCLUDES}
+)
+
+set( PROJECT_SOURCES
+    ${MAIN_SOURCES}
+    ${JSON_SOURCES}
 )
 
 # Build Library

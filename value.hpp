@@ -37,12 +37,11 @@
 
 namespace cinek {
 
-    template<typename StringType, typename EuclidVectorType>
+    template<typename StringType>
     class Value
     {
     public:
         typedef StringType          string_type;
-        typedef EuclidVectorType    vector_type;
 
         Value();
         template<typename U> Value(const U& val);
@@ -53,93 +52,84 @@ namespace cinek {
         void set(const float val);
         void set(const double val);
         void set(const string_type& val);
-        void set(const vector_type& val);
 
         template<typename T> T get() const;
 
     private:
         enum class value_class {
-            kNull, kInt32, kInt64, kFloat, kDouble, kString, kVector
+            kNull, kInt32, kInt64, kFloat, kDouble, kString
         };
         enum {
-            kBufSize = sizeof_max<string_type,vector_type>::size
+            kBufSize = sizeof(string_type)
         };
         value_class vclass;
         uint8_t buf[kBufSize];
     };
 
     ////////////////////////////////////////////////////////////////////////////
-    template<typename StringType, typename EuclidVectorType>
-    Value<StringType, EuclidVectorType>::Value() :
+    template<typename StringType>
+    Value<StringType>::Value() :
         vclass(value_class::kNull)
     {
     }
 
-    template<typename StringType, typename EuclidVectorType>
+    template<typename StringType>
     template<typename U>
-    Value<StringType, EuclidVectorType>::Value(const U& val) :
+    Value<StringType>::Value(const U& val) :
         vclass(value_class::kNull)
     {
         set(val);
     }
 
-    template<typename StringType, typename EuclidVectorType>
-    Value<StringType, EuclidVectorType>::~Value()
+    template<typename StringType>
+    Value<StringType>::~Value()
     {
         switch(vclass)
         {
         case value_class::kString: reinterpret_cast<string_type*>(buf)->~string_type(); break;
-        case value_class::kVector: reinterpret_cast<vector_type*>(buf)->~vector_type(); break;
         default: break;
         }
     }
 
-    template<typename StringType, typename EuclidVectorType>
-    void Value<StringType, EuclidVectorType>::set(const int32_t val)
+    template<typename StringType>
+    void Value<StringType>::set(const int32_t val)
     {
         this->~Value();
         vclass = value_class::kInt32;
         *reinterpret_cast<int32_t*>(buf) = val;
     }
-    template<typename StringType, typename EuclidVectorType>
-    void Value<StringType, EuclidVectorType>::set(const int64_t val)
+    template<typename StringType>
+    void Value<StringType>::set(const int64_t val)
     {
         this->~Value();
         vclass = value_class::kInt64;
         *reinterpret_cast<int64_t*>(buf) = val;
     }
-    template<typename StringType, typename EuclidVectorType>
-    void Value<StringType, EuclidVectorType>::set(const float val)
+    template<typename StringType>
+    void Value<StringType>::set(const float val)
     {
         this->~Value();
         vclass = value_class::kFloat;
         *reinterpret_cast<float*>(buf) = val;
     }
-    template<typename StringType, typename EuclidVectorType>
-    void Value<StringType, EuclidVectorType>::set(const double val)
+    template<typename StringType>
+    void Value<StringType>::set(const double val)
     {
         this->~Value();
         vclass = value_class::kDouble;
         *reinterpret_cast<double*>(buf) = val;
     }
-    template<typename StringType, typename EuclidVectorType>
-    void Value<StringType, EuclidVectorType>::set(const string_type& val)
+    template<typename StringType>
+    void Value<StringType>::set(const string_type& val)
     {
         this->~Value();
         vclass = value_class::kString;
         ::new(buf) string_type(val);
     }
-    template<typename StringType, typename EuclidVectorType>
-    void Value<StringType, EuclidVectorType>::set(const vector_type& val)
-    {
-        this->~Value();
-        vclass = value_class::kVector;
-        ::new(buf) vector_type(val);
-    }
 
-    template<typename StringType, typename EuclidVectorType>
+    template<typename StringType>
     template<typename T>
-    T Value<StringType, EuclidVectorType>::get() const
+    T Value<StringType>::get() const
     {
         switch (vclass)
         {
@@ -153,8 +143,6 @@ namespace cinek {
             return value_convert<double, T>::value(*reinterpret_cast<const double*>(buf));
         case value_class::kString:
             return value_convert<string_type, T>::value(*reinterpret_cast<const string_type*>(buf));
-        case value_class::kVector:
-            return value_convert<vector_type, T>::value(*reinterpret_cast<const vector_type*>(buf));
         default:
             break;
         }
