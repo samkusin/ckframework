@@ -12,9 +12,6 @@
 
 
 namespace cinek {
-
-    extern FileOps _CoreFileOps;
-
     //  Initializes the stream buffer with the contents of the file specified.
     //  Uses SDL to read from/write to files
     //  This implementation supports either read or write on an opened file, but not both.
@@ -40,7 +37,7 @@ namespace cinek {
             if (_mode & std::ios_base::out)         // does not support both read and write for now.
                 return;
 
-            fileAccess = FileOps::kReadAccess;
+            fileAccess = file::Ops::kReadAccess;
         }
         /*else if (_mode & std::ios_base::out)
         {
@@ -66,12 +63,12 @@ namespace cinek {
         }
         if (!(_mode & std::ios_base::binary))
         {
-            fileAccess = FileOps::kText;
+            fileAccess = file::Ops::kText;
         }
-        _fileHandle = _CoreFileOps.openCb(_CoreFileOps.context, pathname, fileAccess);
+        _fileHandle = file::open(pathname, fileAccess);
         if (_fileHandle)
         {
-            _totalSize = _CoreFileOps.sizeCb(_CoreFileOps.context, _fileHandle);
+            _totalSize = file::size(_fileHandle);
         }
     }
 
@@ -80,7 +77,7 @@ namespace cinek {
         sync();
         if (_fileHandle)
         {
-            _CoreFileOps.closeCb(_CoreFileOps.context, _fileHandle);
+            file::close(_fileHandle);
             _fileHandle = nullptr;
         }
         if (_buffer)
@@ -95,7 +92,7 @@ namespace cinek {
         if (!_fileHandle)
             return 0;
         size_t remaining = _totalSize;
-        remaining -= _CoreFileOps.tellCb(_CoreFileOps.context, _fileHandle);
+        remaining -= file::tell(_fileHandle);
         return remaining;
     }
 
@@ -142,8 +139,7 @@ namespace cinek {
             memmove(eback(), egptr() - putbackLen, putbackLen*sizeof(char_type));
             size_t readSize = (egptr() - eback() - putbackLen)*sizeof(char_type);
             auto readBuf = (eback() + putbackLen);
-            size_t readCount = _CoreFileOps.readCb(_CoreFileOps.context,
-                                    _fileHandle,
+            size_t readCount = file::read(_fileHandle,
                                     (uint8_t*)readBuf,
                                     readSize
                                 );
@@ -184,10 +180,7 @@ namespace cinek {
         {
             size_t revertCount = egptr()-gptr();
             
-            if (!_CoreFileOps.seekCb(_CoreFileOps.context,
-                                     _fileHandle,
-                                     FileOps::kSeekCur,
-                                     -revertCount))
+            if (!file::seek(_fileHandle, file::Ops::kSeekCur, -revertCount))
                 return -1;
 
             setg(nullptr, nullptr, nullptr);

@@ -14,10 +14,12 @@
 
 namespace cinek {
 
+namespace file
+{
 static FileHandle StdIOFOpen(void* , const char* pathname, uint32_t access)
 {
     char mode[2];
-    if ((access & FileOps::kReadAccess) != 0)
+    if ((access & Ops::kReadAccess) != 0)
     {
         mode[0] = 'r';
     }
@@ -25,7 +27,7 @@ static FileHandle StdIOFOpen(void* , const char* pathname, uint32_t access)
     {
         return nullptr;
     }
-    if ((access & FileOps::kText) != 0)
+    if ((access & Ops::kText) != 0)
     {
         mode[1] = 't';
     }
@@ -46,12 +48,12 @@ static void StdIOFClose(void* , FileHandle fh)
     fclose(reinterpret_cast<FILE*>(fh));
 }
 
-static bool StdIOFSeek(void* , FileHandle fh, FileOps::Seek seekType, long offs)
+static bool StdIOFSeek(void* , FileHandle fh, Ops::Seek seekType, long offs)
 {
     int whence = SEEK_SET;
-    if (seekType == FileOps::kSeekCur)
+    if (seekType == Ops::kSeekCur)
         whence = SEEK_CUR;
-    else if (seekType == FileOps::kSeekEnd)
+    else if (seekType == Ops::kSeekEnd)
         whence = SEEK_END;
 
     return fseek(reinterpret_cast<FILE*>(fh), offs, whence)==0;
@@ -80,9 +82,9 @@ static bool StdIOEOF(void* context, FileHandle fh)
     return feof(reinterpret_cast<FILE*>(fh)) != 0;
 }
 
-FileOps _CoreFileOps;
+Ops _CoreFileOps;
 
-void setStdIOFileOps()
+void setOpsStdio()
 {
     _CoreFileOps.context = nullptr;
     _CoreFileOps.openCb = &StdIOFOpen;
@@ -95,15 +97,51 @@ void setStdIOFileOps()
 }
 
 
-void setFileOps(const FileOps& ops)
+void setOps(const Ops& ops)
 {
     _CoreFileOps = ops;
 }
 
-const FileOps& getFileOps()
+const Ops& getOps()
 {
     return _CoreFileOps;
 }
 
+FileHandle open(const char* pathname, uint32_t access)
+{
+    return _CoreFileOps.openCb(_CoreFileOps.context, pathname, access);
+}
+
+size_t size(FileHandle fh)
+{
+    return _CoreFileOps.sizeCb(_CoreFileOps.context, fh);
+}
+
+size_t read(FileHandle fh, uint8_t* buffer, size_t cnt)
+{
+    return _CoreFileOps.readCb(_CoreFileOps.context, fh, buffer, cnt);
+}
+
+bool seek(FileHandle fh, Ops::Seek type, long offs)
+{
+    return _CoreFileOps.seekCb(_CoreFileOps.context, fh, type, offs);
+}
+
+long tell(FileHandle fh)
+{
+    return _CoreFileOps.tellCb(_CoreFileOps.context, fh);
+}
+
+bool eof(FileHandle fh)
+{
+    return _CoreFileOps.eofCb(_CoreFileOps.context, fh);
+}
+
+void close(FileHandle fh)
+{
+    _CoreFileOps.closeCb(_CoreFileOps.context, fh);
+}
+
+}
 
 }   // namespace cinek
