@@ -93,7 +93,7 @@ void TaskScheduler::cancelAll()
     }
 }
 
-void TaskScheduler::process(uint32_t timeMs)
+void TaskScheduler::update(uint32_t deltaTimeMs)
 {
     auto taskIt = _runList.begin();
 
@@ -114,7 +114,7 @@ void TaskScheduler::process(uint32_t timeMs)
         }
         if (task->_state == Task::State::kActive)
         {
-            task->onUpdate(timeMs);
+            task->onUpdate(deltaTimeMs);
         }
 
         bool killState = true;

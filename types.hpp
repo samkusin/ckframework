@@ -42,6 +42,7 @@
 #endif
 
 #include <type_traits>
+#include <inttypes.h>
 
 namespace cinek {
     class JobQueue;
@@ -55,31 +56,37 @@ namespace cinek {
     const Handle kNullHandle = 0;
     
     /** A specialized handle where the offset points to a vector element */
-    struct OffsetHandle
+    struct OffsetHandlePOD
     {
         uint32_t iter;  /**< Instance iteration */
         uint32_t offs;  /**< Instance offset */
-    
-        OffsetHandle() : iter(0), offs(0) {}
-        OffsetHandle(std::nullptr_t): iter(0), offs(0) {}
+    };
+    struct OffsetHandle
+    {
+        using pod_type = OffsetHandlePOD;
+        pod_type data;
+        
+        OffsetHandle() : data { 0, 0} {}
+        OffsetHandle(std::nullptr_t): data {0,0} {}
+        OffsetHandle(pod_type podData) : data(podData) {}
     
         /** test operators for handle validity */
         operator bool() const {
-            return iter != 0;
+            return data.iter != 0;
         }
         bool operator==(const std::nullptr_t&) const {
-            return !iter;
+            return !data.iter;
         }
         bool operator!=(const std::nullptr_t&) const {
-            return iter != 0;
+            return data.iter != 0;
         }
         OffsetHandle& operator=(const std::nullptr_t&) {
-            iter = offs = 0;
+            data.iter = data.offs = 0;
             return *this;
         }
         OffsetHandle& operator++() {
-            ++iter;
-            if (!iter) iter = 1;
+            ++data.iter;
+            if (!data.iter) data.iter = 1;
             return *this;
         }
         OffsetHandle operator++(int) {

@@ -98,7 +98,7 @@ namespace cinek {
         /** Executed when the TaskScheduler schedules this task */
         virtual void onBegin() {}
         /** Executed once during a TaskScheduler update */
-        virtual void onUpdate(uint32_t timeMs) = 0;
+        virtual void onUpdate(uint32_t deltaTimeMs) = 0;
         /** Executed upon successful completion of a task */
         virtual void onEnd() {}
         /** Executed if the task marks itself for failure */

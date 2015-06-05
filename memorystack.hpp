@@ -54,6 +54,7 @@ namespace cinek {
         CK_CLASS_NON_COPYABLE(MemoryStack);
 
     public:
+        MemoryStack();
         /**
          * Constructor initializing the memory pool.
          * @param initSize  The initial memory block count.
@@ -98,6 +99,10 @@ namespace cinek {
          * Resets the stack to the head
          */
         void reset();
+        /**
+         * @return The MemoryStack object's allocator
+         */
+        const Allocator& allocator() const { return _allocator; }
 
     private:
         Allocator _allocator;

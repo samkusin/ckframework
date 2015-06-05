@@ -63,7 +63,7 @@ namespace cinek {
         }
         if (!(_mode & std::ios_base::binary))
         {
-            fileAccess = file::Ops::kText;
+            fileAccess |= file::Ops::kText;
         }
         _fileHandle = file::open(pathname, fileAccess);
         if (_fileHandle)

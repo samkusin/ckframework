@@ -57,6 +57,8 @@ namespace cinek {
 
         template<typename... Args> pointer construct(Args&&... args);
         void destruct(pointer p);
+        
+        void destructAll();
 
     private:
         void zeroVectors();
@@ -174,6 +176,12 @@ namespace cinek {
 
         *_freelast = p;
         ++_freelast;
+    }
+    
+    template<typename _T>
+    void ObjectPool<_T>::destructAll()
+    {
+        _freelast = _freefirst;
     }
 
 } /* namespace cinek */

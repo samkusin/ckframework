@@ -75,7 +75,7 @@ namespace cinek {
          *
          * @param timeMs Process time
          */
-        void process(uint32_t timeMs);
+        void update(uint32_t timeMs);
 
     private:
         using TaskPair = std::pair<TaskHandle, unique_ptr<Task>>;

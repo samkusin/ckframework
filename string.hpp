@@ -37,6 +37,8 @@
 
 namespace cinek {
 
+using string = std::basic_string<char>;
+
 char* duplicateCString(const char* str, Allocator& allocator);
 
 /**
@@ -46,8 +48,8 @@ char* duplicateCString(const char* str, Allocator& allocator);
  */
 std::string directoryPath
 (
-    const std::initializer_list<std::string>& elements,
-    const std::string& filename
+    const std::initializer_list<string>& elements,
+    const string& filename
 );
 
 uint32_t UInt32FromString(const char* string);

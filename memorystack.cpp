@@ -32,6 +32,12 @@
 
 namespace cinek {
 
+    MemoryStack::MemoryStack() :
+        _tail(nullptr),
+        _current(nullptr)
+    {
+    }
+
     bool MemoryStack::node::alloc(size_t cnt, Allocator& allocator)
     {
         first = last = (uint8_t*)allocator.alloc(cnt);
