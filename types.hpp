@@ -80,6 +80,10 @@ namespace cinek {
         bool operator!=(const std::nullptr_t&) const {
             return data.iter != 0;
         }
+        OffsetHandle& operator=(const pod_type& podType) {
+            data = podType;
+            return *this;
+        }
         OffsetHandle& operator=(const std::nullptr_t&) {
             data.iter = data.offs = 0;
             return *this;
