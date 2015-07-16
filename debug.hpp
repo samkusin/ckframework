@@ -99,6 +99,7 @@ void cinek_debug_log(
 #define cinek_debug_log_start(_callbacks_, _context_)
 #define cinek_debug_log_flush()
 #define cinek_debug_log(...)
+#define cinek_debug_break()
 
 #define CK_LOG_TRACE(_source_, ...) 
 #define CK_LOG_DEBUG(_source_, ...) 
