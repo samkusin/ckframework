@@ -127,9 +127,29 @@ void cinek_debug_break(void);
     }                           \
 } while(0)
 
+#define CK_ASSERT_RETURN(_cond_) do { \
+    if (!(_cond_))              \
+    {                           \
+        cinek_debug_break();    \
+        return;                 \
+    }                           \
+} while(0)
+
+#define CK_ASSERT_RETURN_VALUE(_cond_, _val_) do { \
+    if (!(_cond_))              \
+    {                           \
+        cinek_debug_break();    \
+        return (_val_);         \
+    }                           \
+} while(0)
+
+
+
 #else
 
 #define CK_ASSERT(_cond_)
+#define CK_ASSERT_RETURN(_cond_) if (!(_cond_)) return
+#define CK_ASSERT_RETURN_VALUE(_cond_,_val_) if (!(_cond_)) return (_val_)
 
 #endif
 
