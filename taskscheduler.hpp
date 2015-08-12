@@ -73,7 +73,7 @@ namespace cinek {
         /**
          * Executes tasks currently scheduled
          *
-         * @param timeMs Process time
+         * @param timeMs        Process time
          */
         void update(uint32_t timeMs);
 
