@@ -10,7 +10,7 @@
 #include "jsonstreambuf.hpp"
 #include "json.hpp"
 
-#include "cinek/debug.hpp"
+#include "../debug.hpp"
 
 #include <cstring>
 

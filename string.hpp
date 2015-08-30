@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/string.hpp
+ * @file    string.hpp
  * @author  Samir Sinha
  * @date    1/6/2013
  * @brief   std::string with custom allocators
@@ -32,7 +32,7 @@
 #ifndef CINEK_STRING_HPP
 #define CINEK_STRING_HPP
 
-#include "cinek/allocator.hpp"
+#include "allocator.hpp"
 #include <string>
 
 namespace cinek {

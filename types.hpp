@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/types.hpp
+ * @file    types.hpp
  * @author  Samir Sinha
  * @date    2/17/2014
  * @brief   Common framework-level types
@@ -31,7 +31,7 @@
 #ifndef CINEK_TYPES_HPP
 #define CINEK_TYPES_HPP
 
-#include "cinek/ckdefs.h"
+#include "ckdefs.h"
 
 #if CK_COMPILER_HAS_STDINT
   #ifdef __cplusplus

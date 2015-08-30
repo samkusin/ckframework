@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/cstringstack.hpp
+ * @file    cstringstack.hpp
  * @author  Samir Sinha
  * @date    4/5/2015
  * @brief   String allocation within a pooled heap
@@ -31,8 +31,8 @@
 #ifndef CINEK_CSTRING_STACK_HPP
 #define CINEK_CSTRING_STACK_HPP
 
-#include "cinek/allocator.hpp"
-#include "cinek/memorystack.hpp"
+#include "allocator.hpp"
+#include "memorystack.hpp"
 
 namespace cinek {
     /**

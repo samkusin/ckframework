@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/map.hpp
+ * @file    map.hpp
  * @author  Samir Sinha
  * @date    1/6/2013
  * @brief   Customized std::map container with allocator
@@ -31,7 +31,7 @@
 #ifndef CINEK_MAP_HPP
 #define CINEK_MAP_HPP
 
-#include "cinek/allocator.hpp"
+#include "allocator.hpp"
 
 #include <unordered_map>
 #include <map>

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/string.cpp
+ * @file    string.cpp
  * @author  Samir Sinha
  * @date    2/22/2014
  * @brief   std::string with custom allocators
@@ -29,7 +29,7 @@
  */
 
 
-#include "cinek/string.hpp"
+#include "string.hpp"
 
 #include <string>
 #include <cstring>

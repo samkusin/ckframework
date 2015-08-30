@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/ckdefs.h
+ * @file    ckdefs.h
  * @author  Samir Sinha
  * @date    11/1/2013
  * @brief   C and C++ common macros and definitions
@@ -32,7 +32,7 @@
 #define CINEK_DEFS_H
 
 /* #ifdef CINEK_HAS_CKOPTS_H */
-#include "cinek/ckopts.h"
+#include "ckopts.h"
 /* #endif */
 
 #include <stddef.h>

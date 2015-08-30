@@ -8,7 +8,7 @@
  *          (http://www.isc.org/downloads/software-support-policy/isc-license/)
  */
 
-#include "cinek/filestreambuf.hpp"
+#include "filestreambuf.hpp"
 
 
 namespace cinek {

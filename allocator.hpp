@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/allocator.hpp
+ * @file    allocator.hpp
  * @author  Samir Sinha
  * @date    1/6/2013
  * @brief   std library allocator using custom allocation hooks
@@ -31,7 +31,7 @@
 #ifndef CINEK_ALLOC_HPP
 #define CINEK_ALLOC_HPP
 
-#include "cinek/types.hpp"
+#include "types.hpp"
 
 #include <memory>
 

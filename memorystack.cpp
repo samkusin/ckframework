@@ -21,14 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/memorystack.cpp
+ * @file    memorystack.cpp
  * @author  Samir Sinha
  * @date    4/14/2013
  * @brief   Object allocation within a pooled heap
  * @copyright Cinekine
  */
 
-#include "cinek/memorystack.hpp"
+#include "memorystack.hpp"
 
 namespace cinek {
 

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/task.hpp
+ * @file    task.hpp
  * @author  Samir Sinha
  * @date    10/29/2014
  * @brief   A Task execution object
@@ -38,8 +38,8 @@
 #ifndef CINEK_TASK_HPP
 #define CINEK_TASK_HPP
 
-#include "cinek/types.hpp"
-#include "cinek/allocator.hpp"
+#include "types.hpp"
+#include "allocator.hpp"
 
 namespace cinek {
     class TaskScheduler;

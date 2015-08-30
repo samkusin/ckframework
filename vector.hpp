@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/vector.hpp
+ * @file    vector.hpp
  * @author  Samir Sinha
  * @date    1/6/2013
  * @brief   std::vector with a custom allocator
@@ -32,7 +32,7 @@
 #ifndef CINEK_VECTOR_HPP
 #define CINEK_VECTOR_HPP
 
-#include "cinek/allocator.hpp"
+#include "allocator.hpp"
 
 #include <vector>
 

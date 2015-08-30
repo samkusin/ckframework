@@ -21,15 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/taskscheduler.cpp
+ * @file    taskscheduler.cpp
  * @author  Samir Sinha
  * @date    10/29/2014
  * @brief   A "schedule-only" interface to a JobQueue provided for Jobs
  * @copyright Cinekine
  */
 
-#include "cinek/taskscheduler.hpp"
-#include "cinek/debug.hpp"
+#include "taskscheduler.hpp"
+#include "debug.hpp"
 #include <algorithm>
 
 namespace cinek {

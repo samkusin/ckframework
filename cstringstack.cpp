@@ -21,14 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/cstringstack.cpp
+ * @file    cstringstack.cpp
  * @author  Samir Sinha
  * @date    4/5/2015
  * @brief   String allocation within a pooled heap
  * @copyright Cinekine
  */
 
-#include "cinek/cstringstack.hpp"
+#include "cstringstack.hpp"
 #include <cstring>
 
 namespace cinek {

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/value.hpp
+ * @file    value.hpp
  * @author  Samir Sinha
  * @date    9/25/2014
  * @brief   Attribute Map (Dictionary name value) definition
@@ -31,8 +31,8 @@
 #ifndef CINEK_VALUE_CONVERT_HPP
 #define CINEK_VALUE_CONVERT_HPP
 
-#include "cinek/types.hpp"
-#include "cinek/string.hpp"
+#include "types.hpp"
+#include "string.hpp"
 
 namespace cinek {
 

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/intrusive_list.hpp
+ * @file    intrusive_list.hpp
  * @author  Samir Sinha
  * @date    9/17/2014
  * @brief   STL-like intrusive_list implementation
@@ -32,8 +32,8 @@
 #ifndef CINEK_INTRUSIVE_LIST_HPP
 #define CINEK_INTRUSIVE_LIST_HPP
 
-#include "cinek/types.hpp"
-#include "cinek/debug.hpp"
+#include "types.hpp"
+#include "debug.hpp"
 
 #include <memory>
 #include <iterator>

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/memorystack.hpp
+ * @file    memorystack.hpp
  * @author  Samir Sinha
  * @date    4/14/2013
  * @brief   Object allocation within a pooled heap
@@ -31,7 +31,7 @@
 #ifndef CINEK_MEMORY_STACK_HPP
 #define CINEK_MEMORY_STACK_HPP
 
-#include "cinek/allocator.hpp"
+#include "allocator.hpp"
 
 namespace cinek {
 

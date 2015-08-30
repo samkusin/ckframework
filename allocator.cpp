@@ -6,7 +6,7 @@
  *          Copyright (c) 2013 Cinekine. All rights reserved.
  */
 
-#include "cinek/allocator.hpp"
+#include "allocator.hpp"
 #include <string.h>
 #include <stdlib.h>
 

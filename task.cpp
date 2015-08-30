@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/task.cpp
+ * @file    task.cpp
  * @author  Samir Sinha
  * @date    10/29/2014
  * @brief   A Task execution object
@@ -35,7 +35,7 @@
  * Chapter 7 ('Controlling the Main Loop')
  */
 
-#include "cinek/task.hpp"
+#include "task.hpp"
 
 namespace cinek {
 

@@ -11,7 +11,7 @@
 #ifndef CINEK_FILE_HPP
 #define CINEK_FILE_HPP
 
-#include "cinek/types.hpp"
+#include "types.hpp"
 
 namespace cinek {
 

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/taskscheduler.hpp
+ * @file    taskscheduler.hpp
  * @author  Samir Sinha
  * @date    10/29/2014
  * @brief   A Task scheduler for Task objects
@@ -31,9 +31,9 @@
 #ifndef CINEK_TASKSCHEDULER_HPP
 #define CINEK_TASKSCHEDULER_HPP
 
-#include "cinek/task.hpp"
-#include "cinek/vector.hpp"
-#include "cinek/intrusive_list.hpp"
+#include "task.hpp"
+#include "vector.hpp"
+#include "intrusive_list.hpp"
 
 namespace cinek {
 

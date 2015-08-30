@@ -11,8 +11,8 @@
 #ifndef CINEK_FILESTREAMBUF_HPP
 #define CINEK_FILESTREAMBUF_HPP
 
-#include "cinek/allocator.hpp"
-#include "cinek/file.hpp"
+#include "allocator.hpp"
+#include "file.hpp"
 
 #include <streambuf>
 

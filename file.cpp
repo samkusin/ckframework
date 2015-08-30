@@ -8,7 +8,7 @@
  *          (http://www.isc.org/downloads/software-support-policy/isc-license/)
  */
 
-#include "cinek/file.hpp"
+#include "file.hpp"
 
 #include <cstdio>
 

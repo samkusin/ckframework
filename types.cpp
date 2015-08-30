@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/types.cpp
+ * @file    types.cpp
  * @author  Samir Sinha
  * @date    11/8/2014
  * @brief   types
@@ -29,7 +29,7 @@
  */
 
 
-#include "cinek/types.hpp"
+#include "types.hpp"
 #include <cstring>
 
 namespace cinek {
