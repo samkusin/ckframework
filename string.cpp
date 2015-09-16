@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    string.cpp
+ * @file    cinek/string.cpp
  * @author  Samir Sinha
  * @date    2/22/2014
  * @brief   std::string with custom allocators

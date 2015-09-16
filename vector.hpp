@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    vector.hpp
+ * @file    cinek/vector.hpp
  * @author  Samir Sinha
  * @date    1/6/2013
  * @brief   std::vector with a custom allocator

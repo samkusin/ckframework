@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    types.hpp
+ * @file    cinek/types.hpp
  * @author  Samir Sinha
  * @date    2/17/2014
  * @brief   Common framework-level types

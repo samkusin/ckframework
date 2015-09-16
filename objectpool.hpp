@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    objectpool.hpp
+ * @file    cinek/objectpool.hpp
  * @author  Samir Sinha
  * @date    9/1/2014
  * @brief   Object allocation within a pooled heap
@@ -31,8 +31,8 @@
 #ifndef CINEK_OBJECT_POOL_HPP
 #define CINEK_OBJECT_POOL_HPP
 
-#include "allocator.hpp"
-#include "debug.hpp"
+#include "cinek/allocator.hpp"
+#include "cinek/debug.hpp"
 
 namespace cinek {
 

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    map.hpp
+ * @file    cinek/map.hpp
  * @author  Samir Sinha
  * @date    1/6/2013
  * @brief   Customized std::map container with allocator

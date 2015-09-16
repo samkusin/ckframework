@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Cinekine Media
+ * Copyright (c) 2015 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,49 +20,48 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
- * @file    task.cpp
- * @author  Samir Sinha
- * @date    10/29/2014
- * @brief   A Task execution object
- * @copyright Cinekine
  */
-
-/*
- * An extension of Mike McShaffry's example of Process based execution,
- * substituting 'Task' for 'Process' in a cooperative multitasking system.
- * For details, refer to his book "Game Coding Complete (4th edition)",
- * Chapter 7 ('Controlling the Main Loop')
- */
-
-#include "task.hpp"
+ 
+#include "entitydatatable.hpp"
 
 namespace cinek {
 
-Task::Task() :
-    _state(State::kIdle),
-    _schedulerHandle(kNullHandle)
+
+EntityDataTable::EntityDataTable
+(
+    const component::MakeDescriptor& desc,
+    const Allocator& allocator
+) :
+    _descriptor(desc.desc),
+    _entityToRow(allocator),
+    _rowset(desc.desc, desc.cnt, allocator)
 {
 }
 
-void Task::setNextTask(unique_ptr<Task>& task)
+auto EntityDataTable::allocateIndexForEntity(Entity eid) -> index_type
 {
-    _nextTask = std::move(task);
+    auto indexIt = _entityToRow.find(eid);
+    if (indexIt == _entityToRow.end())
+    {
+        auto idx = _rowset.allocate(eid);
+        _descriptor.initCb(eid, _rowset.at(idx));
+        indexIt = _entityToRow.insert(std::make_pair(eid, idx)).first;
+    }
+    return indexIt->second;
 }
 
-void Task::cancel()
+void EntityDataTable::removeDataFromEntity
+(
+    Entity eid
+)
 {
-    _state = State::kCanceled;
-}
-
-void Task::end()
-{
-    _state = State::kEnded;
-}
-
-void Task::fail()
-{
-    _state = State::kFailed;
+    auto indexIt = _entityToRow.find(eid);
+    if (indexIt == _entityToRow.end())
+        return;
+    
+    auto index = indexIt->second;
+    _entityToRow.erase(indexIt);
+    _rowset.free(index);
 }
 
 } /* namespace cinek */

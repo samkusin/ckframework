@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    buffer.hpp
+ * @file    cinek/buffer.hpp
  * @author  Samir Sinha
  * @date    4/19/2015
  * @brief   A ring buffer implementation

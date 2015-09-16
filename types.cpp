@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    types.cpp
+ * @file    cinek/types.cpp
  * @author  Samir Sinha
  * @date    11/8/2014
  * @brief   types

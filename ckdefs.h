@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    ckdefs.h
+ * @file    cinek/ckdefs.h
  * @author  Samir Sinha
  * @date    11/1/2013
  * @brief   C and C++ common macros and definitions

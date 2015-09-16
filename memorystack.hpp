@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    memorystack.hpp
+ * @file    cinek/memorystack.hpp
  * @author  Samir Sinha
  * @date    4/14/2013
  * @brief   Object allocation within a pooled heap

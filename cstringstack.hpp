@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cstringstack.hpp
+ * @file    cinek/cstringstack.hpp
  * @author  Samir Sinha
  * @date    4/5/2015
  * @brief   String allocation within a pooled heap
@@ -54,6 +54,8 @@ namespace cinek {
         CK_CLASS_NON_COPYABLE(CStringStack);
 
     public:
+        CStringStack();
+        
         /**
          * Constructor initializing the memory pool.
          * @param initSize  The initial memory block count.

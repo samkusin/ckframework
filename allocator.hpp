@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    allocator.hpp
+ * @file    cinek/allocator.hpp
  * @author  Samir Sinha
  * @date    1/6/2013
  * @brief   std library allocator using custom allocation hooks

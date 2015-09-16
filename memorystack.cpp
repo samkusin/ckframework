@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    memorystack.cpp
+ * @file    cinek/memorystack.cpp
  * @author  Samir Sinha
  * @date    4/14/2013
  * @brief   Object allocation within a pooled heap
@@ -55,10 +55,13 @@ namespace cinek {
 
     MemoryStack::MemoryStack(size_t initSize, const Allocator& allocator) :
         _allocator(allocator),
-        _tail(_allocator.newItem<node>()),
+        _tail(initSize > 0 ? _allocator.newItem<node>() : nullptr),
         _current(_tail)
     {
-        _tail->alloc(initSize, _allocator);
+        if (_tail)
+        {
+            _tail->alloc(initSize, _allocator);
+        }
     }
 
     MemoryStack::~MemoryStack()

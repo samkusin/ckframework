@@ -14,8 +14,6 @@
 #include "rapidjson/document.h"
 #include <cstdlib>
 
-#include <glm/glm.hpp>
-
 namespace cinek {
 
     int32_t parseInt(const JsonValue& value, int32_t defaultVal=0);

@@ -14,7 +14,7 @@ namespace cinek {
     int32_t parseInt(const JsonValue& value, int32_t defaultVal)
     {
         if (value.IsString())
-            return strtol(value.GetString(), NULL, 0);
+            return (int32_t)strtol(value.GetString(), NULL, 0);
         else if (value.IsInt())
             return value.GetInt();
         return defaultVal;
@@ -22,7 +22,7 @@ namespace cinek {
     uint32_t parseUint(const JsonValue& value, uint32_t defaultVal)
     {
         if (value.IsString())
-            return strtoul(value.GetString(), NULL, 0);
+            return (uint32_t)strtoul(value.GetString(), NULL, 0);
         else if (value.IsUint())
             return value.GetUint();
         return defaultVal;

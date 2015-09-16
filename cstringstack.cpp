@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cstringstack.cpp
+ * @file    cinek/cstringstack.cpp
  * @author  Samir Sinha
  * @date    4/5/2015
  * @brief   String allocation within a pooled heap
@@ -34,6 +34,11 @@
 namespace cinek {
 
     const char* CStringStack::kEmptyString = "";
+
+    CStringStack::CStringStack() :
+        _count(0)
+    {
+    }
 
     CStringStack::CStringStack(size_t initSize, const Allocator& allocator) :
         _stack(initSize, allocator),
