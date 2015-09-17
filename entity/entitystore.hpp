@@ -76,10 +76,13 @@ public:
     EntityStore(EntityIndexType numEntities,
         const vector<component::MakeDescriptor>& components,
         const vector<EntityGroupMap::MakeDescriptor>& entityGroups,
+        const EntityComponentDestroyFn& destroyCompDelegate,
         const Allocator& allocator=Allocator());
     
     EntityStore(EntityStore&& other);
     EntityStore& operator=(EntityStore&& other);
+    
+    ~EntityStore();
     
     uint32_t capacity() const { return (uint32_t)_iterations.capacity(); }
     
@@ -104,6 +107,7 @@ private:
     EntityIndexType _entityCount;
     unordered_map<ComponentId, EntityDataTable> _components;
     unordered_map<EntityGroupMapId, EntityGroupMap> _entityGroups;
+    EntityComponentDestroyFn _destroyCompDelegate;
 };
 
 template<typename Component>

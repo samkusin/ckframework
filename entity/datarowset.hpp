@@ -34,7 +34,7 @@
 #include "entity.h"
 
 #include "cinek/allocator.hpp"
-#include "cinek/types.hpp"
+#include "cinek/map.hpp"
 
 #include <iterator>
 
@@ -60,9 +60,9 @@ namespace component
         DataRowset& operator=(DataRowset&& other);
         
         index_type allocate(Entity eid);
-        void free(index_type index);
+        void free(Entity eid);
         
-        uint32_t size() const;
+        uint32_t size() const { return (uint32_t)_entityToRow.size(); }
         uint32_t capacity() const;
         
         uint8_t* operator[](index_type index);
@@ -79,21 +79,26 @@ namespace component
         index_type firstIndex(index_type idx=0) const;
         index_type nextIndex(index_type) const;
         index_type prevIndex(index_type) const;
+        index_type indexFromEntity(Entity eid) const;
+        
+        void compress();        // removes cleared entries from the array
         
     private:
+        uint32_t rowCount() const;
+        
         Allocator _allocator;
         Descriptor _header;
         
         // rows
         //  each row contains a EntityId header + data[header.recordSize]
         //  the entity id will be zero if the row is not used
+        //  the rows are sorted by EntityId for optimal search
         uint8_t* _rowstart;
         uint8_t* _rowend;
         uint8_t* _rowlimit;
-        // free list
-        uint32_t* _freestart;
-        uint32_t* _freeend;
-        uint32_t* _freelimit;
+        uint32_t _freeCnt;
+        
+        unordered_map<Entity, index_type> _entityToRow;
         
         Entity* rowAt(index_type index);
         const Entity* rowAt(index_type index) const;
@@ -116,6 +121,15 @@ namespace component
         
         return reinterpret_cast<const Component*>(at(index));
     }
+    
+    inline auto DataRowset::indexFromEntity(Entity eid) const -> index_type
+    {
+        auto it = _entityToRow.find(eid);
+        if (it == _entityToRow.end())
+            return npos;
+        return it->second;
+    }
+    
     
 } /* namespace component */
 

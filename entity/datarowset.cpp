@@ -41,10 +41,8 @@ namespace component
         _rowstart(nullptr),
         _rowend(nullptr),
         _rowlimit(nullptr),
-        _freestart(nullptr),
-        _freeend(nullptr),
-        _freelimit(nullptr)
-    
+        _freeCnt(0),
+        _entityToRow(allocator)
     {
         CK_ASSERT(rowCount != npos);
         
@@ -52,16 +50,10 @@ namespace component
         _rowstart = (uint8_t*)_allocator.alloc(_header.recordSize * rowCount);
         _rowend = _rowstart;
         _rowlimit = _rowstart + _header.recordSize*rowCount;
-        _freestart = (uint32_t*)_allocator.alloc(sizeof(uint32_t)*rowCount);
-        _freeend = _freestart;
-        _freelimit = _freestart + rowCount;
     }
     
     DataRowset::~DataRowset()
     {
-        _allocator.free(_freestart);
-        _freestart = _freeend = _freelimit = nullptr;
-        
         _allocator.free(_rowstart);
         _rowstart = _rowend = _rowlimit = nullptr;
     }
@@ -72,18 +64,15 @@ namespace component
         _rowstart(other._rowstart),
         _rowend(other._rowend),
         _rowlimit(other._rowlimit),
-        _freestart(other._freestart),
-        _freeend(other._freeend),
-        _freelimit(other._freelimit)
+        _freeCnt(other._freeCnt),
+        _entityToRow(std::move(other._entityToRow))
     {
         other._header.recordSize = 0;
         other._header.id = kEmpty;
         other._rowstart = nullptr;
         other._rowend = nullptr;
         other._rowlimit = nullptr;
-        other._freestart = nullptr;
-        other._freeend = nullptr;
-        other._freelimit = nullptr;
+        other._freeCnt = 0;
     }
     
     DataRowset& DataRowset::operator=(DataRowset&& other)
@@ -93,18 +82,15 @@ namespace component
         _rowstart = other._rowstart;
         _rowend = other._rowend;
         _rowlimit = other._rowlimit;
-        _freestart = other._freestart;
-        _freeend = other._freeend;
-        _freelimit = other._freelimit;
+        _freeCnt = other._freeCnt;
+        _entityToRow = std::move(other._entityToRow);
         
         other._header.recordSize = 0;
         other._header.id = kEmpty;
         other._rowstart = nullptr;
         other._rowend = nullptr;
         other._rowlimit = nullptr;
-        other._freestart = nullptr;
-        other._freeend = nullptr;
-        other._freelimit = nullptr;
+        other._freeCnt = 0;
         
         return *this;
     }
@@ -121,14 +107,12 @@ namespace component
         
     auto DataRowset::allocate(Entity eid) -> index_type
     {
+        auto indexIt = _entityToRow.find(eid);
+        if (indexIt != _entityToRow.end())
+            return indexIt->second;
+        
         index_type idx = npos;
-        //  remove from free list first
-        if (_freestart != _freeend)
-        {
-            --_freeend;
-            idx = *_freeend;
-        }
-        else if (_rowend != _rowlimit)
+        if (_rowend != _rowlimit)
         {
             idx = (index_type)(_rowend - _rowstart) / _header.recordSize;
             _rowend += _header.recordSize;
@@ -138,28 +122,38 @@ namespace component
             Entity* p = rowAt(idx);
             *p = eid;
             memset(p+1, 0, _header.recordSize-sizeof(uint32_t));
+            _header.initCb(eid, at(idx));
+            indexIt = _entityToRow.insert(std::make_pair(eid, idx)).first;
         }
+        
         return idx;
     }
     
-    void DataRowset::free(index_type index)
+    void DataRowset::free(Entity eid)
     {
-        if (index >= size())
+        auto indexIt = _entityToRow.find(eid);
+        if (indexIt == _entityToRow.end())
             return;
+
+        _entityToRow.erase(indexIt);
+
+        auto index = indexIt->second;
+        CK_ASSERT_RETURN(index < rowCount());
+        
         Entity* p = rowAt(index);
         if (p[0])
         {
             p[0] = 0;
-            CK_ASSERT(_freeend != _freelimit);
-            if (_freeend != _freelimit)
-            {
-                *_freeend = index;
-                ++_freeend;
-            }
+            ++_freeCnt;
         }
     }
-        
-    uint32_t DataRowset::size() const
+    
+    void DataRowset::compress()
+    {
+    
+    }
+
+    uint32_t DataRowset::rowCount() const
     {
         return (uint32_t)(_rowend - _rowstart) / _header.recordSize;
     }
@@ -186,7 +180,7 @@ namespace component
     
     const uint8_t* DataRowset::at(index_type index) const
     {
-        CK_ASSERT(index < size() && index != npos);
+        CK_ASSERT(index < rowCount() && index != npos);
         
         const Entity* p = rowAt(index);
         return p[0] ? reinterpret_cast<const uint8_t*>(p+1) : nullptr;
@@ -219,7 +213,7 @@ namespace component
     {
         if (idx != npos)
         {
-            index_type sz = size();
+            index_type sz = rowCount();
             //  indices are unsigned - so take care of the sz==0 edge case.
             //  this will allow us to iterate idx without overflow concerns
             if (!sz)
@@ -241,7 +235,7 @@ namespace component
         if (idx != npos)
         {
             //  handle edge cases
-            index_type sz = size();
+            index_type sz = rowCount();
             if (!idx || idx >= sz)
                 return npos;
   

@@ -33,21 +33,13 @@ EntityDataTable::EntityDataTable
     const Allocator& allocator
 ) :
     _descriptor(desc.desc),
-    _entityToRow(allocator),
     _rowset(desc.desc, desc.cnt, allocator)
 {
 }
 
 auto EntityDataTable::allocateIndexForEntity(Entity eid) -> index_type
 {
-    auto indexIt = _entityToRow.find(eid);
-    if (indexIt == _entityToRow.end())
-    {
-        auto idx = _rowset.allocate(eid);
-        _descriptor.initCb(eid, _rowset.at(idx));
-        indexIt = _entityToRow.insert(std::make_pair(eid, idx)).first;
-    }
-    return indexIt->second;
+    return _rowset.allocate(eid);
 }
 
 void EntityDataTable::removeDataFromEntity
@@ -55,13 +47,7 @@ void EntityDataTable::removeDataFromEntity
     Entity eid
 )
 {
-    auto indexIt = _entityToRow.find(eid);
-    if (indexIt == _entityToRow.end())
-        return;
-    
-    auto index = indexIt->second;
-    _entityToRow.erase(indexIt);
-    _rowset.free(index);
+    _rowset.free(eid);
 }
 
 } /* namespace cinek */

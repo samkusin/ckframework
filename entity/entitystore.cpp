@@ -39,16 +39,19 @@ EntityStore::EntityStore
     uint32_t numEntities,
     const vector<component::MakeDescriptor>& components,
     const vector<EntityGroupMap::MakeDescriptor>& entityGroups,
+    const EntityComponentDestroyFn& destroyCompDelegate,
     const Allocator& allocator
 ) :
     _iterations(allocator),
     _freed(allocator),
     _entityIdIteration(0),
     _entityCount(0),
-    _components(allocator)
+    _components(allocator),
+    _destroyCompDelegate(destroyCompDelegate)
 {
     _iterations.reserve(numEntities);
     _freed.reserve(numEntities);
+    
     for (auto& component : components)
     {
         EntityDataTable rowset(component, allocator);
@@ -66,9 +69,12 @@ EntityStore::EntityStore(EntityStore&& other) :
     _iterations(std::move(other._iterations)),
     _freed(std::move(other._freed)),
     _entityIdIteration(other._entityIdIteration),
-    _components(std::move(other._components))
+    _entityCount(other._entityCount),
+    _components(std::move(other._components)),
+    _destroyCompDelegate(std::move(other._destroyCompDelegate))
 {
     other._entityIdIteration = 0;
+    other._entityCount = 0;
 }
 
 EntityStore& EntityStore::operator=(EntityStore&& other)
@@ -78,11 +84,26 @@ EntityStore& EntityStore::operator=(EntityStore&& other)
     _entityIdIteration = other._entityIdIteration;
     _entityCount = other._entityCount;
     _components = std::move(other._components);
+    _destroyCompDelegate = std::move(other._destroyCompDelegate);
     
     other._entityIdIteration = 0;
     other._entityCount = 0;
     
     return *this;
+}
+
+EntityStore::~EntityStore()
+{
+    for (auto& component : _components)
+    {
+        auto& table = component.second;
+        for (auto rowIndex = table.rowset().firstIndex();
+             rowIndex != component::DataRowset::npos;
+             rowIndex = table.rowset().nextIndex(rowIndex))
+        {
+            _destroyCompDelegate(table, rowIndex);
+        }
+    }
 }
     
 Entity EntityStore::create(EntityContextType context)
@@ -109,7 +130,18 @@ void EntityStore::destroy(Entity eid)
 {
     if (eid==0)
         return;
-    
+    /*
+    //  execute component destruction methods
+    for (auto& component : _components)
+    {
+        auto& table = component.second;
+        auto rowIdx = table.rowIndexFromEntity(eid);
+        if (rowIdx != EntityDataTable::npos)
+        {
+            _destroyCompDelegate(table, rowIdx);
+        }
+    }
+    */
     auto index = cinek_entity_index(eid);
     ++_iterations[index];
     if (!_iterations[index])
@@ -127,7 +159,29 @@ bool EntityStore::valid(Entity eid) const
 
 void EntityStore::gc()
 {
-    //TODO
+    // Using BitSquid's method of lazy component destruction.
+    // At some point we'll have to differentiate between destroy immediate vs
+    // delayed for components that acquire system resources.
+    //
+    // http://bitsquid.blogspot.com/2014/09/building-data-oriented-entity-system.html
+    //
+    for (auto& component : _components)
+    {
+        auto& table = component.second;
+        
+        uint32_t consecutiveLivingRows = 0;
+        
+        /*while (table.usedCount() > 0 && consecutiveLivingRows < 4)
+        {
+            
+        for (auto rowIndex = table.rowset().firstIndex();
+             rowIndex != component::DataRowset::npos;
+             rowIndex = table.rowset().nextIndex(rowIndex))
+        {
+            _destroyCompDelegate(table, rowIndex);
+        }
+        */
+    }
 }
 
 EntityGroupTable EntityStore::entityGroupTable(EntityGroupMapId id) const

@@ -59,22 +59,17 @@ public:
     index_type allocateIndexForEntity(Entity eid);
     void removeDataFromEntity(Entity eid);
     
-    index_type usedCount() const { return (index_type)_entityToRow.size(); }
+    index_type usedCount() const { return _rowset.size(); }
     
 private:
     component::Descriptor _descriptor;
     void* _context;
-    unordered_map<Entity, index_type> _entityToRow;
     container_type _rowset;
 };
 
 inline auto EntityDataTable::rowIndexFromEntity(Entity eid) const -> index_type
 {
-    auto indexIt = _entityToRow.find(eid);
-    if (indexIt == _entityToRow.end())
-        return npos;
-    
-    return indexIt->second;
+    return rowset().indexFromEntity(eid);
 }
 
 namespace component
