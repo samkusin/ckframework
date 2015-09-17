@@ -10,8 +10,6 @@
 #include "jsonstreambuf.hpp"
 #include "json.hpp"
 
-#include "../debug.hpp"
-
 #include <cstring>
 
 namespace cinek {
@@ -37,17 +35,16 @@ bool unserializeFromJSON
 
     if (jsonDoc.HasParseError() || !jsonDoc.IsObject())
     {
-        CK_LOG_ERROR("json", "unserializeFromJSON - stream is not valid JSON");
+        RAPIDJSON_ASSERT(false);
         return false;
     }
-    
+
     if (!jsonDoc.HasMember(fieldName))
     {
-        CK_LOG_ERROR("json", "unserializeFromJSON - no collections field name %s",
-                     fieldName);
+        RAPIDJSON_ASSERT(false);
         return false;
     }
-    
+
     auto& items = jsonDoc[fieldName];
 
     int memberCount;
@@ -61,10 +58,10 @@ bool unserializeFromJSON
     }
     else
     {
-        CK_LOG_ERROR("json", "unserializeFromJSON - no valid collection");
+        RAPIDJSON_ASSERT(false);
         return false;
     }
-   
+
     //  parse the collection
     for (auto colIter = jsonDoc.MemberBegin(), colIterEnd = jsonDoc.MemberEnd();
          colIter != colIterEnd;
@@ -76,16 +73,14 @@ bool unserializeFromJSON
             continue;
         if (!handler.parseAttribute(attrKey, attribute.value))
         {
-            CK_LOG_ERROR("json", "unserializeFromJSON - %s.parseAttribute(%s) failed",
-                         collectionName, attrKey);
+            RAPIDJSON_ASSERT(false);
             return false;
         }
     }
-    
+
     if (!handler.startCollection(collectionName, memberCount))
     {
-        CK_LOG_ERROR("json", "unserializeFromJSON - %s.startCollection failed",
-                     collectionName);
+        RAPIDJSON_ASSERT(false);
         return false;
     }
 
@@ -100,8 +95,7 @@ bool unserializeFromJSON
             auto& model = *modelIter;
             if (!handler.parseModel(model.name.GetString(), model.value))
             {
-                CK_LOG_ERROR("json", "unserializeFromJSON - %s.parseModel(%s) failed",
-                             collectionName, model.name.GetString());
+                RAPIDJSON_ASSERT(false);
             }
         }
     }
@@ -114,16 +108,14 @@ bool unserializeFromJSON
             auto& model = *modelIter;
             if (!handler.parseModel("", model))
             {
-                CK_LOG_ERROR("json", "unserializeFromJSON - %s.parseModel(%u) failed",
-                             collectionName, modelIter - items.Begin());
+                RAPIDJSON_ASSERT(false);
             }
         }
     }
 
     if (!handler.endCollection())
     {
-        CK_LOG_ERROR("json", "unserializeFromJSON<> - %s.endCollection() failed",
-                     collectionName);
+        RAPIDJSON_ASSERT(false);
         return false;
     }
 

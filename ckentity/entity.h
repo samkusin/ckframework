@@ -33,22 +33,7 @@
 
 #include <stdint.h>
 
-#if CINEK_ENTITY_TYPE_64
-typedef uint64_t CKEntity;
-typedef uint16_t CKEntityIteration;
-typedef uint16_t CKEntityContext;
-typedef uint32_t CKEntityIndex;
-
-enum
-{
-    kCKEntityIndexMask      = 0x00000000ffffffff,
-    kCKEntityIndexBits      = 32,
-    kCKEntityIterationMask  = 0x0000ffff00000000,
-    kCKEntityIterationBits  = 16,
-    kCKEntityContextMask    = 0xffff000000000000,
-    kCKEntityContextBits    = 16
-};
-#else
+#if CINEK_ENTITY_TYPE_32
 typedef uint32_t CKEntity;
 typedef uint16_t CKEntityIteration;
 typedef uint8_t CKEntityContext;
@@ -62,6 +47,21 @@ enum
     kCKEntityIterationBits  = 8,
     kCKEntityContextMask    = 0xf0000000,
     kCKEntityContextBits    = 4
+};
+#else
+typedef uint64_t CKEntity;
+typedef uint16_t CKEntityIteration;
+typedef uint16_t CKEntityContext;
+typedef uint32_t CKEntityIndex;
+
+enum
+{
+    kCKEntityIndexMask      = 0x00000000ffffffff,
+    kCKEntityIndexBits      = 32,
+    kCKEntityIterationMask  = 0x0000ffff00000000,
+    kCKEntityIterationBits  = 16,
+    kCKEntityContextMask    = 0xffff000000000000,
+    kCKEntityContextBits    = 16
 };
 #endif
 
@@ -116,7 +116,7 @@ namespace cinek {
     {
         template<typename _Component, typename _Container> class Table;
     }
-    
+
     using Entity = CKEntity;
     using EntityContextType = CKEntityContext;
     using EntityIndexType = CKEntityIndex;
@@ -125,7 +125,7 @@ namespace cinek {
     using ComponentRowIndex = CKComponentRowIndex;
     using EntityGroupMapId = CKEntityGroupMapId;
     constexpr ComponentRowIndex kNullComponentRow = kCKEntityNullComponentRow;
-    
+
     using EntityComponentDestroyFn =
         std::function<void(EntityDataTable& table, ComponentRowIndex compRowIndex)>;
 
@@ -143,7 +143,7 @@ namespace cinek {
             const char* name;
             void (*initCb)(::cinek::Entity, void*);
         };
-        
+
         struct MakeDescriptor
         {
             Descriptor desc;

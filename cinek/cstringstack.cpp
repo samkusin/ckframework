@@ -67,6 +67,7 @@ namespace cinek {
         if (!buf)
             return kEmptyString;
         strcpy(buf, str);
+        ++_count;
         return buf;
     }
 

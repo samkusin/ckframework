@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Cinekine Media
+ * Copyright (c) 2014 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,20 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/cstringstack.hpp
+ * @file    cinek/memorystack.hpp
  * @author  Samir Sinha
- * @date    4/5/2015
- * @brief   String allocation within a pooled heap
+ * @date    4/14/2013
+ * @brief   Object allocation within a pooled heap
  * @copyright Cinekine
  */
 
-#ifndef CINEK_CSTRING_STACK_HPP
-#define CINEK_CSTRING_STACK_HPP
+#ifndef CINEK_MEMORY_STACK_HPP
+#define CINEK_MEMORY_STACK_HPP
 
 #include "allocator.hpp"
-#include "memorystack.hpp"
 
 namespace cinek {
+
     /**
      * @class MemoryStack
      * @brief Implements a simple stack-based memory allocation pool.
@@ -49,36 +49,46 @@ namespace cinek {
      * One can manually increase the size of the available stack memory by
      * calling growBy.
      */
-    class CStringStack
+    class MemoryStack
     {
-        CK_CLASS_NON_COPYABLE(CStringStack);
+        CK_CLASS_NON_COPYABLE(MemoryStack);
 
     public:
-        CStringStack();
-        
+        MemoryStack();
         /**
          * Constructor initializing the memory pool.
          * @param initSize  The initial memory block count.
          * @param allocator An optional custom memory allocator.
          */
-        CStringStack(size_t initSize, const Allocator& allocator = Allocator());
-
+        MemoryStack(size_t initSize, const Allocator& allocator = Allocator());
+        /**
+         * Destructor.
+         */
+        ~MemoryStack();
         /** @cond */
-        CStringStack(CStringStack&& other);
-        CStringStack& operator=(CStringStack&& other);
+        MemoryStack(MemoryStack&& other);
+        MemoryStack& operator=(MemoryStack&& other);
         /** @endcond */
         /**
-         * @return Number of strings in the pool
+         * @return The size of the stack.
          */
-        size_t count() const {
-            return _count;
-        }
+        size_t capacity() const;
+        /**
+         * Calculates the bytes allocated from the pool.
+         * @return The number of bytes allocated
+         */
+        size_t size() const;
         /**
          * Allocates a block of memory
-         * @param  str The string to copy
-         * @return Pointer to the allocated string
+         * @param  memSize The number of bytes to allocate
+         * @return Pointer to the allocated block or nullptr if out of memory
          */
-        const char* create(const char* str);
+        uint8_t* allocate(size_t memSize);
+        /**
+         * Allocate and construct a block of type T
+         * @return Pointer to the constructed object or nullptr if out of memory
+         */
+        template<typename T, typename... Args> T* newItem(Args&&... args);
         /**
          * Attempts to grow the pool by the specified block count.
          * @param cnt Byte count to grow pool by.
@@ -89,12 +99,42 @@ namespace cinek {
          * Resets the stack to the head
          */
         void reset();
+        /**
+         * @return The MemoryStack object's allocator
+         */
+        const Allocator& allocator() const { return _allocator; }
 
     private:
-        MemoryStack _stack;
-        size_t _count;
-        static const char* kEmptyString;
+        Allocator _allocator;
+
+        struct node
+        {
+            node* prev;
+            node* next;
+            uint8_t* first;
+            uint8_t* last;
+            uint8_t* limit;
+            node() = default;
+            size_t bytesAvailable() const { return limit - last; }
+            size_t byteLimit() const { return limit - first; }
+            size_t byteCount() const { return last - first; }
+            bool alloc(size_t cnt, Allocator& allocator);
+            void free(Allocator& allocator);
+        };
+        node* _tail;
+        node* _current;
+
+        void freeAll();
     };
+
+    ////////////////////////////////////////////////////////////////////////////
+    template<typename T, typename... Args>
+    T* MemoryStack::newItem(Args&&... args)
+    {
+        uint8_t* p = allocate(sizeof(T));
+        return ::new((void *)p) T(std::forward<Args>(args)...);
+    }
+
 
     ////////////////////////////////////////////////////////////////////////////
 

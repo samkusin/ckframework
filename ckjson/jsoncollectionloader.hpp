@@ -11,7 +11,7 @@
 #ifndef CINEK_JSON_COLLECTIONLOADER_HPP
 #define CINEK_JSON_COLLECTIONLOADER_HPP
 
-#include "../json/json.hpp"
+#include "json.hpp"
 #include <streambuf>
 
 namespace cinek {

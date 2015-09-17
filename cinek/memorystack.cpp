@@ -102,7 +102,7 @@ namespace cinek {
         _current = nullptr;
     }
 
-    size_t MemoryStack::limit() const
+    size_t MemoryStack::capacity() const
     {
         size_t total = 0;
         node* cur = _tail;
@@ -114,7 +114,7 @@ namespace cinek {
         return total;
     }
 
-    size_t MemoryStack::count() const
+    size_t MemoryStack::size() const
     {
         size_t total = 0;
         node* cur = _current;
@@ -137,7 +137,10 @@ namespace cinek {
                 //  create a new pool
                 //  we'll take the size of the last chunk, and request another pool
                 //  of the same size.
-                if (!growBy(_tail->byteLimit()))
+                size_t growByAmt = _tail->byteLimit();
+                if (growByAmt < memSize)
+                    growByAmt = memSize * 2;
+                if (!growBy(growByAmt))
                 {
                 //    TODO("Support exception handling for auto-grow failure (CK_CPP_EXCEPTIONS).");
                     return nullptr;
