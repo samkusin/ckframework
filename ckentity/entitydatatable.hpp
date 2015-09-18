@@ -46,21 +46,21 @@ public:
     using index_type = typename container_type::index_type;
     using id_type = ComponentId;
     static constexpr index_type npos = container_type::npos;
-    
+
     EntityDataTable(const component::MakeDescriptor& desc, const Allocator& allocator);
-    
+
     id_type id() const { return _descriptor.id; }
     const char* name() const { return _descriptor.name; }
-    
+
     const container_type& rowset() const { return _rowset; }
     container_type& rowset() { return _rowset; }
-    
+
     index_type rowIndexFromEntity(Entity eid) const;
     index_type allocateIndexForEntity(Entity eid);
     void removeDataFromEntity(Entity eid);
-    
+
     index_type usedCount() const { return _rowset.size(); }
-    
+
 private:
     component::Descriptor _descriptor;
     void* _context;
@@ -82,37 +82,37 @@ public:
     using value_type = Component;
     using container_type = Container;
     using index_type = typename Container::index_type;
-    
+
     Table() : _table(nullptr) {}
     Table(container_type* dataTable);
     Table(const Table& other) : _table(other._table) {}
     Table& operator=(const Table& other) { _table = other._table; return *this; }
-    
+
     Table(Table&& other) : _table(other._table) { other._table = nullptr; }
     Table& operator=(Table&& other) { _table = other._table; other._table = nullptr; return *this; }
-    
+
     operator bool() const { return _table != nullptr; }
-    
+
     value_type* addDataToEntity(Entity eid);
     void removeDataFromEntity(Entity eid);
 
     const value_type* dataForEntity(Entity eid) const;
     value_type* dataForEntity(Entity eid);
-    
+
     const container_type* dataTable() const { return _table; }
     container_type* dataTable() { return _table; }
-    
+
     std::pair<Entity, value_type*> dataAtIndex(index_type index);
     std::pair<Entity, const value_type*> dataAtIndex(index_type index) const;
-    
+
     index_type count() const { return _table->usedCount(); }
     index_type limit() const { return _table->rowset.capacity(); }
-    
+
     //  iterate through all objects in the DB with the specified component
     //  Function signature should be:
     //      void fn(Entity eid, Component& component);
     template<typename Fn> Fn forEach(Fn fn);
-    
+
 private:
     container_type* _table;
 };
@@ -129,7 +129,7 @@ auto Table<Component, Container>::addDataToEntity(Entity eid) -> value_type*
 {
     if (eid==0)
         return nullptr;
-    
+
     auto index = _table->allocateIndexForEntity(eid);
     return reinterpret_cast<value_type*>(_table->rowset()[index]);
 }
@@ -146,7 +146,7 @@ auto Table<Component, Container>::dataForEntity(Entity eid) const -> const value
     auto index = _table->rowIndexFromEntity(eid);
     if (index == Container::npos)
         return nullptr;
-        
+
     return reinterpret_cast<const value_type*>(_table->rowset()[index]);
 }
 

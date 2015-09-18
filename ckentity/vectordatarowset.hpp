@@ -42,35 +42,35 @@ class VectorDataRowset
 public:
     using data_type = _Data;
     using index_type = ComponentRowIndex;
-    static const index_type npos = kNullComponentRow;
-    
+    static constexpr index_type npos = kNullComponentRow;
+
     VectorDataRowset(const Allocator& allocator=Allocator());
     VectorDataRowset(uint32_t sz, const Allocator& allocator=Allocator());
     template<typename DataInitParam0>
     VectorDataRowset(uint32_t sz, const DataInitParam0& initParam,
                      const Allocator& allocator=Allocator());
-    
+
     VectorDataRowset(VectorDataRowset&& other);
     VectorDataRowset& operator=(VectorDataRowset&& other);
-        
+
     index_type allocate(Entity eid);
     void free(index_type index);
-        
+
     uint32_t size() const;
     uint32_t capacity() const;
-        
+
     data_type* operator[](index_type index);
     const data_type* operator[](index_type index) const;
-    
+
     template<typename Component=_Data> data_type* at(index_type index);
     template<typename Component=_Data> const data_type* at(index_type index) const;
-    
+
     Entity entityAt(index_type index) const;
-        
+
     index_type firstIndex(index_type idx=0) const;
     index_type nextIndex(index_type) const;
     index_type prevIndex(index_type) const;
-    
+
 private:
     vector<std::pair<Entity, data_type>> _data;
     vector<uint32_t> _freelist;
@@ -98,7 +98,7 @@ VectorDataRowset<_Data>::VectorDataRowset
     //  preallocate all memory required for the map
     _data.reserve(sz);
     _freelist.reserve(sz);
-    
+
     for (uint32_t i = 0; i < sz; ++i)
     {
         _data.emplace_back(0, data_type());
@@ -119,7 +119,7 @@ VectorDataRowset<_Data>::VectorDataRowset
     //  preallocate all memory required for the map
     _data.reserve(sz);
     _freelist.reserve(sz);
-    
+
     for (uint32_t i = 0; i < sz; ++i)
     {
         data_type data(initParam, allocator);
@@ -151,7 +151,7 @@ void VectorDataRowset<_Data>::resetData(data_type& data)
 {
     data.reset();
 }
-    
+
 template<typename _Data>
 auto VectorDataRowset<_Data>::allocate(Entity eid) -> index_type
 {
@@ -170,7 +170,7 @@ auto VectorDataRowset<_Data>::allocate(Entity eid) -> index_type
     {
         return npos;
     }
-    
+
     resetData(_data[idx].second);
     _data[idx].first = eid;
     return idx;
@@ -181,14 +181,14 @@ void VectorDataRowset<_Data>::free(index_type index)
 {
     if (index == npos)
         return;
-    
+
     CK_ASSERT_RETURN(index < _data.size() && _data[index].first);
-    
+
     _data[index].first = 0;
-    
+
     _freelist.push_back(index);
 }
-  
+
 template<typename _Data>
 uint32_t VectorDataRowset<_Data>::size() const
 {
@@ -263,7 +263,7 @@ auto VectorDataRowset<_Data>::prevIndex(index_type idx) const -> index_type
 {
     if (idx > size())
         return npos;
-    
+
     while (idx > 0)
     {
         --idx;

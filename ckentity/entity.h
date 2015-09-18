@@ -72,8 +72,8 @@ enum
 };
 
 #define cinek_make_entity(_iter_,_ctx_,_idx_) \
-    ((((Entity)(_ctx_)<<kCKEntityContextShift) & kCKEntityContextMask) | \
-     (((Entity)(_iter_)<<kCKEntityIterationShift) & kCKEntityIterationMask) | \
+    ((((CKEntity)(_ctx_)<<kCKEntityContextShift) & kCKEntityContextMask) | \
+     (((CKEntity)(_iter_)<<kCKEntityIterationShift) & kCKEntityIterationMask) | \
      ((_idx_) & kCKEntityIndexMask))
 
 #define cinek_entity_index(_eid_) \
@@ -167,6 +167,7 @@ namespace cinek {
     void initialize(::cinek::Entity entity);
 
 #define COMPONENT_TYPE_IMPL(_type_, _id_, _init_body_) \
+    static_assert(std::is_pod<_type_>::value, "Components must be POD types"); \
     void _type_::initialize(::cinek::Entity entity) { \
         _init_body_ \
     } \

@@ -5,7 +5,7 @@ project(cinek VERSION 0.2.0 LANGUAGES C CXX)
 set(CINEK_ENTITY_TYPE "64"
     CACHE STRING "CKEntity value type width (32 or 64)")
 
-set(PROJECT_CORE_SOURCES
+set(CINEK_CORE_SOURCES
     "cinek/types.cpp"
     "cinek/debug.cpp"
     "cinek/file.cpp"
@@ -16,7 +16,7 @@ set(PROJECT_CORE_SOURCES
     "cinek/string.cpp"
     )
 
-set(PROJECT_CORE_INCLUDES
+set(CINEK_CORE_INCLUDES
     "cinek/ckdefs.h"
     "cinek/ckopts.h"
     "cinek/types.hpp"
@@ -34,25 +34,25 @@ set(PROJECT_CORE_INCLUDES
     "cinek/map.hpp"
     )
 
-file(GLOB_RECURSE PROJECT_RAPIDJSON_INCLUDES
+file(GLOB_RECURSE CINEK_RAPIDJSON_INCLUDES
      RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
      ckjson/rapidjson/*.h
      )
 
-set(PROJECT_JSON_SOURCES
+set(CINEK_JSON_SOURCES
     "ckjson/json.cpp"
     "ckjson/jsoncollectionloader.cpp"
     )
 
-set(PROJECT_JSON_INCLUDES
+set(CINEK_JSON_INCLUDES
     "ckjson/jsontypes.hpp"
     "ckjson/json.hpp"
     "ckjson/jsoncollectionloader.hpp"
     "ckjson/jsonstreambuf.hpp"
-    ${PROJECT_RAPIDJSON_INCLUDES}
+    ${CINEK_RAPIDJSON_INCLUDES}
     )
 
-set(PROJECT_ENTITY_SOURCES
+set(CINEK_ENTITY_SOURCES
     "ckentity/datarowset.cpp"
     "ckentity/entitydatatable.cpp"
     "ckentity/entitygroup.cpp"
@@ -60,7 +60,7 @@ set(PROJECT_ENTITY_SOURCES
     "ckentity/entitystore.cpp"
     )
 
-set(PROJECT_ENTITY_INCLUDES
+set(CINEK_ENTITY_INCLUDES
     "ckentity/entity.h"
     "ckentity/datarowset.hpp"
     "ckentity/vectordatarowset.hpp"
@@ -71,28 +71,15 @@ set(PROJECT_ENTITY_INCLUDES
     )
 
 add_library(ckcore STATIC
-    ${PROJECT_CORE_SOURCES}
-    ${PROJECT_JSON_SOURCES}
-    ${PROJECT_ENTITY_SOURCES}
+    ${CINEK_CORE_SOURCES}
+    ${CINEK_JSON_SOURCES}
+    ${CINEK_ENTITY_SOURCES}
     )
 
 target_include_directories(ckcore PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
-
-#
-#if(CMAKE_COMPILER_IS_GNUCXX)
-#    set(PROJECT_COMPILE_OPTIONS "-std=c++11")
-#endif()
-#
-#if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-#    set(PROJECT_COMPILE_OPTIONS "-std=c++11")
-#endif()
-#
-#target_compile_options(ckcore
-#    PUBLIC ${PROJECT_COMPILE_OPTIONS}
-#)
 
 target_compile_features(ckcore
     PUBLIC
@@ -110,13 +97,28 @@ target_compile_features(ckcore
         cxx_right_angle_brackets
 )
 
-set(PROJECT_COMPILE_DEFINITIONS )
+
+set(CINEK_LOCAL_COMPILE_OPTIONS )
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CINEK_LOCAL_COMPILE_OPTIONS "-fno-exceptions")
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CINEK_LOCAL_COMPILE_OPTIONS "-fno-exceptions")
+endif()
+
+target_compile_options(ckcore
+    PRIVATE ${CINEK_LOCAL_COMPILE_OPTIONS}
+)
+
+set(CINEK_GLOBAL_COMPILE_DEFINITIONS )
 
 if("${CINEK_ENTITY_TYPE}" STREQUAL "32")
-    set(PROJECT_COMPILE_DEFINITIONS ${PROJECT_COMPILE_DEFINITIONS}
+    set(CINEK_GLOBAL_COMPILE_DEFINITIONS ${PROJECT_COMPILE_DEFINITIONS}
         "CINEK_ENTITY_TYPE_32=1")
 elseif("${CINEK_ENTITY_TYPE}" STREQUAL "64")
-    set(PROJECT_COMPILE_DEFINITIONS ${PROJECT_COMPILE_DEFINITIONS}
+    set(CINEK_GLOBAL_COMPILE_DEFINITIONS ${PROJECT_COMPILE_DEFINITIONS}
         "CINEK_ENTITY_TYPE_32=0")
 else()
     message(FATAL_ERROR "CONFIG - Specified CKEntity Type "
@@ -126,11 +128,12 @@ endif()
 message(STATUS "CONFIG - CKEntity Type is ${CINEK_ENTITY_TYPE} bits.")
 
 target_compile_definitions(ckcore
-    PUBLIC ${PROJECT_COMPILE_DEFINITIONS}
+    PUBLIC ${CINEK_GLOBAL_COMPILE_DEFINITIONS}
 )
 
 # Testing
 enable_testing()
 
 add_subdirectory(cinek/tests)
+add_subdirectory(ckentity/tests)
 

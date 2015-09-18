@@ -45,50 +45,50 @@ namespace component
     class DataRowset
     {
         CK_CLASS_NON_COPYABLE(DataRowset);
-        
+
     public:
         using index_type = ComponentRowIndex;
-        
-        static const index_type npos = kNullComponentRow;
+
+        static constexpr index_type npos = kNullComponentRow;
 
         DataRowset(const Descriptor& desc,
             uint32_t rowCount,
             const Allocator& allocator=Allocator());
         ~DataRowset();
-        
+
         DataRowset(DataRowset&& other);
         DataRowset& operator=(DataRowset&& other);
-        
+
         index_type allocate(Entity eid);
         void free(Entity eid);
-        
-        uint32_t size() const { return (uint32_t)_entityToRow.size(); }
+
+        uint32_t size() const { return rowCount(); }
         uint32_t capacity() const;
-        
+
         uint8_t* operator[](index_type index);
         const uint8_t* operator[](index_type index) const;
-        
+
         template<typename Component> Component* at(index_type index);
         template<typename Component> const Component* at(index_type index) const;
-        
+
         uint8_t* at(index_type index);
         const uint8_t* at(index_type index) const;
-        
+
         Entity entityAt(index_type index) const;
-        
+
         index_type firstIndex(index_type idx=0) const;
         index_type nextIndex(index_type) const;
         index_type prevIndex(index_type) const;
         index_type indexFromEntity(Entity eid) const;
-        
+
         void compress();        // removes cleared entries from the array
-        
+
     private:
         uint32_t rowCount() const;
-        
+
         Allocator _allocator;
         Descriptor _header;
-        
+
         // rows
         //  each row contains a EntityId header + data[header.recordSize]
         //  the entity id will be zero if the row is not used
@@ -97,9 +97,9 @@ namespace component
         uint8_t* _rowend;
         uint8_t* _rowlimit;
         uint32_t _freeCnt;
-        
+
         unordered_map<Entity, index_type> _entityToRow;
-        
+
         Entity* rowAt(index_type index);
         const Entity* rowAt(index_type index) const;
     };
@@ -109,7 +109,7 @@ namespace component
     {
         if (_header.id != Component::kComponentId)
             return nullptr;
-        
+
         return reinterpret_cast<Component*>(at(index));
     }
 
@@ -118,10 +118,10 @@ namespace component
     {
         if (_header.id != Component::kComponentId)
             return nullptr;
-        
+
         return reinterpret_cast<const Component*>(at(index));
     }
-    
+
     inline auto DataRowset::indexFromEntity(Entity eid) const -> index_type
     {
         auto it = _entityToRow.find(eid);
@@ -129,8 +129,8 @@ namespace component
             return npos;
         return it->second;
     }
-    
-    
+
+
 } /* namespace component */
 
 } /* namespace cinek */

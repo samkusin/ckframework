@@ -26,10 +26,15 @@
 
 #include "cinek/debug.hpp"
 
+//  for memmove
+#include <cstring>
+
 namespace cinek {
 
 namespace component
 {
+    constexpr DataRowset::index_type DataRowset::npos;
+
     DataRowset::DataRowset
     (
         const Descriptor& desc,
@@ -45,19 +50,19 @@ namespace component
         _entityToRow(allocator)
     {
         CK_ASSERT(rowCount != npos);
-        
+
         _header.recordSize += sizeof(Entity); // flags included in record
         _rowstart = (uint8_t*)_allocator.alloc(_header.recordSize * rowCount);
         _rowend = _rowstart;
         _rowlimit = _rowstart + _header.recordSize*rowCount;
     }
-    
+
     DataRowset::~DataRowset()
     {
         _allocator.free(_rowstart);
         _rowstart = _rowend = _rowlimit = nullptr;
     }
-        
+
     DataRowset::DataRowset(DataRowset&& other) :
         _allocator(std::move(other._allocator)),
         _header(std::move(other._header)),
@@ -74,7 +79,7 @@ namespace component
         other._rowlimit = nullptr;
         other._freeCnt = 0;
     }
-    
+
     DataRowset& DataRowset::operator=(DataRowset&& other)
     {
         _allocator = std::move(other._allocator);
@@ -84,33 +89,33 @@ namespace component
         _rowlimit = other._rowlimit;
         _freeCnt = other._freeCnt;
         _entityToRow = std::move(other._entityToRow);
-        
+
         other._header.recordSize = 0;
         other._header.id = kEmpty;
         other._rowstart = nullptr;
         other._rowend = nullptr;
         other._rowlimit = nullptr;
         other._freeCnt = 0;
-        
+
         return *this;
     }
-    
+
     Entity* DataRowset::rowAt(index_type index)
     {
         return const_cast<Entity*>(static_cast<const DataRowset*>(this)->rowAt(index));
     }
-    
+
     const Entity* DataRowset::rowAt(index_type index) const
     {
         return reinterpret_cast<const Entity*>(_rowstart + index*_header.recordSize);
     }
-        
+
     auto DataRowset::allocate(Entity eid) -> index_type
     {
         auto indexIt = _entityToRow.find(eid);
         if (indexIt != _entityToRow.end())
             return indexIt->second;
-        
+
         index_type idx = npos;
         if (_rowend != _rowlimit)
         {
@@ -125,10 +130,10 @@ namespace component
             _header.initCb(eid, at(idx));
             indexIt = _entityToRow.insert(std::make_pair(eid, idx)).first;
         }
-        
+
         return idx;
     }
-    
+
     void DataRowset::free(Entity eid)
     {
         auto indexIt = _entityToRow.find(eid);
@@ -139,7 +144,7 @@ namespace component
 
         auto index = indexIt->second;
         CK_ASSERT_RETURN(index < rowCount());
-        
+
         Entity* p = rowAt(index);
         if (p[0])
         {
@@ -147,50 +152,96 @@ namespace component
             ++_freeCnt;
         }
     }
-    
+
     void DataRowset::compress()
     {
-    
+        //  run through our vector, compressing it until no empty rows remain
+        uint8_t* row = _rowstart;
+        uint8_t* rowLeft = nullptr;
+        uint8_t* rowRight = nullptr;
+        uint8_t* origRowEnd = _rowend;
+
+        while (row < _rowend)
+        {
+            Entity* p = reinterpret_cast<Entity*>(row);
+            if (!p[0] && !rowLeft)
+            {
+                rowLeft = row;
+            }
+            else if (p[0] && rowLeft)
+            {
+                //  shift contents to the left, shrinking our rowset
+                //  our left/right range detection allows us to *slightly*
+                //  optimize our compression if there are multiple zero row
+                //  ranges within the set.
+                rowRight = row;
+                memmove(rowLeft, rowRight, rowRight - _rowend);
+                _rowend -= (rowRight - rowLeft);
+                row = rowLeft;
+                p = reinterpret_cast<Entity*>(row);
+                rowLeft = nullptr;
+                rowRight = nullptr;
+            }
+            if (p[0] && origRowEnd != _rowend)
+            {
+                //  we need to update the entity's row index
+                //  checking if we've compressed the rowset, which tells us we
+                //  need to change successive entity row indices.
+                //  this is done as an optimization so we don't have to perform
+                //  map lookups for every entity in the rowset (though the worse
+                //  case - first rows were empty - will force lookups for every
+                //  entity in our entity->row map.)
+                _entityToRow[p[0]] = row - _rowstart;
+            }
+            row += _header.recordSize;
+        }
+
+        if (rowLeft && !rowRight)
+        {
+            //  edge case - trailing empty rows - no changes to existing
+            //  entity row indices.
+            _rowend = rowLeft;
+        }
     }
 
     uint32_t DataRowset::rowCount() const
     {
         return (uint32_t)(_rowend - _rowstart) / _header.recordSize;
     }
-    
+
     uint32_t DataRowset::capacity() const
     {
         return (uint32_t)(_rowlimit - _rowstart) / _header.recordSize;
     }
-        
+
     uint8_t* DataRowset::operator[](index_type index)
     {
         return at(index);
     }
-    
+
     const uint8_t* DataRowset::operator[](index_type index) const
     {
         return at(index);
     }
-        
+
     uint8_t* DataRowset::at(index_type index)
     {
         return const_cast<uint8_t*>(static_cast<const DataRowset*>(this)->at(index));
     }
-    
+
     const uint8_t* DataRowset::at(index_type index) const
     {
         CK_ASSERT(index < rowCount() && index != npos);
-        
+
         const Entity* p = rowAt(index);
         return p[0] ? reinterpret_cast<const uint8_t*>(p+1) : nullptr;
     }
-    
+
     Entity DataRowset::entityAt(index_type index) const
     {
         return { *rowAt(index) };
     }
-    
+
     auto DataRowset::firstIndex(index_type idx) const -> index_type
     {
         //  return the first valid component data row (might not be the first
@@ -202,13 +253,13 @@ namespace component
                 const Entity* row = rowAt(0);
                 if (row[0])
                     return 0;
-                
+
                 return nextIndex(idx);
             }
         }
         return npos;
     }
-        
+
     auto DataRowset::nextIndex(index_type idx) const -> index_type
     {
         if (idx != npos)
@@ -218,7 +269,7 @@ namespace component
             //  this will allow us to iterate idx without overflow concerns
             if (!sz)
                 return npos;
-            
+
             while (idx < sz-1)
             {
                 ++idx;
@@ -229,7 +280,7 @@ namespace component
         }
         return npos;
     }
-    
+
     auto DataRowset::prevIndex(index_type idx) const -> index_type
     {
         if (idx != npos)
@@ -238,7 +289,7 @@ namespace component
             index_type sz = rowCount();
             if (!idx || idx >= sz)
                 return npos;
-  
+
             while (idx > 0)
             {
                 --idx;
@@ -249,7 +300,7 @@ namespace component
         }
         return npos;
     }
-    
+
 } /* namespace component */
 
 } /* namespace cinek */
