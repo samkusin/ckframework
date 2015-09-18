@@ -175,7 +175,7 @@ namespace component
                 //  optimize our compression if there are multiple zero row
                 //  ranges within the set.
                 rowRight = row;
-                memmove(rowLeft, rowRight, rowRight - _rowend);
+                memmove(rowLeft, rowRight, _rowend - rowRight);
                 _rowend -= (rowRight - rowLeft);
                 row = rowLeft;
                 p = reinterpret_cast<Entity*>(row);
