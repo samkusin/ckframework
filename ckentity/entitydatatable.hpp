@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/entity/entitydatatable
+ * @file    ckentity/entitydatatable
  * @author  Samir Sinha
  * @date    6/19/15
  * @brief   ECS Framework Component Templates

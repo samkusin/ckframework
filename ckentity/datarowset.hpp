@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/entity/datarowset.hpp
+ * @file    ckentity/datarowset.hpp
  * @author  Samir Sinha
  * @date    5/18/15
  * @brief   ECS Framework Component Data lookup container

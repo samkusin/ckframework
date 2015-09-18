@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/entity/entity.h
+ * @file    ckentity/entity.h
  * @author  Samir Sinha
  * @date    9/9/2015
  * @brief   ECS Framework Types Header
@@ -167,7 +167,7 @@ namespace cinek {
     void initialize(::cinek::Entity entity);
 
 #define COMPONENT_TYPE_IMPL(_type_, _id_, _init_body_) \
-    static_assert(std::is_pod<_type_>::value, "Components must be POD types"); \
+    static_assert(std::is_standard_layout<_type_>::value, "Component type must have a standard layout (C++1x)"); \
     void _type_::initialize(::cinek::Entity entity) { \
         _init_body_ \
     } \
