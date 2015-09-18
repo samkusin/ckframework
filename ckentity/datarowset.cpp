@@ -141,27 +141,35 @@ namespace component
             return;
 
         _entityToRow.erase(indexIt);
-
-        if (_rowend != _rowstart)
-        {
-            auto index = indexIt->second;
-            CK_ASSERT_RETURN(index < rowCount());
-
-            auto lastIndex = ((_rowend - _rowstart) / _header.recordSize)-1;
-            if (index != lastIndex)
-            {
-                //  fill our freed row with data from the end of the
-                //  rowset, shrinking our array by 1 row
-                memcpy(rowAt(index), rowAt(lastIndex), _header.recordSize);
-                Entity* p = rowAt(index);
-                indexIt = _entityToRow.find(p[0]);
-                CK_ASSERT(indexIt != _entityToRow.end());
-                indexIt->second = index;
-            }
-            _rowend -= _header.recordSize;
-        }
+        
+        freeRowWithIndexInternal(indexIt->second);
     }
-
+    
+    void DataRowset::freeWithIndex(index_type rowIndex)
+    {
+        CK_ASSERT_RETURN(rowIndex < rowCount());
+        Entity* p = rowAt(rowIndex);
+        free(p[0]);
+    }
+    
+    void DataRowset::freeRowWithIndexInternal(index_type rowIndex)
+    {
+        CK_ASSERT_RETURN(rowIndex < rowCount());
+        
+        index_type lastIndex = rowCount()-1;
+        if (rowIndex != lastIndex)
+        {
+            //  fill our freed row with data from the end of the
+            //  rowset, shrinking our array by 1 row
+            memcpy(rowAt(rowIndex), rowAt(lastIndex), _header.recordSize);
+            Entity* p = rowAt(rowIndex);
+            auto indexIt = _entityToRow.find(p[0]);
+            CK_ASSERT(indexIt != _entityToRow.end());
+            indexIt->second = rowIndex;
+        }
+        _rowend -= _header.recordSize;
+    }
+    
     /*
     void DataRowset::compress()
     {

@@ -47,7 +47,8 @@ EntityStore::EntityStore
     _entityIdIteration(0),
     _entityCount(0),
     _components(allocator),
-    _destroyCompDelegate(destroyCompDelegate)
+    _destroyCompDelegate(destroyCompDelegate),
+    _gcrandom(32128791)
 {
     _iterations.reserve(numEntities);
     _freed.reserve(numEntities);
@@ -71,7 +72,8 @@ EntityStore::EntityStore(EntityStore&& other) :
     _entityIdIteration(other._entityIdIteration),
     _entityCount(other._entityCount),
     _components(std::move(other._components)),
-    _destroyCompDelegate(std::move(other._destroyCompDelegate))
+    _destroyCompDelegate(std::move(other._destroyCompDelegate)),
+    _gcrandom(std::move(other._gcrandom))
 {
     other._entityIdIteration = 0;
     other._entityCount = 0;
@@ -85,6 +87,7 @@ EntityStore& EntityStore::operator=(EntityStore&& other)
     _entityCount = other._entityCount;
     _components = std::move(other._components);
     _destroyCompDelegate = std::move(other._destroyCompDelegate);
+    _gcrandom = std::move(other._gcrandom);
     
     other._entityIdIteration = 0;
     other._entityCount = 0;
@@ -171,16 +174,18 @@ void EntityStore::gc()
         
         uint32_t consecutiveLivingRows = 0;
         
-        /*while (table.usedCount() > 0 && consecutiveLivingRows < 4)
+        while (table.usedCount() > 0 && consecutiveLivingRows < 4)
         {
-            
-        for (auto rowIndex = table.rowset().firstIndex();
-             rowIndex != component::DataRowset::npos;
-             rowIndex = table.rowset().nextIndex(rowIndex))
-        {
-            _destroyCompDelegate(table, rowIndex);
+            component::DataRowset::index_type idx = _gcrandom() % table.usedCount();
+            Entity eid = table.rowset().entityAt(idx);
+            if (valid(eid))
+            {
+                ++consecutiveLivingRows;
+                continue;
+            }
+            consecutiveLivingRows = 0;
+            table.rowset().freeWithIndex(idx);
         }
-        */
     }
 }
 

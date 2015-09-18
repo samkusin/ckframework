@@ -39,6 +39,8 @@
 #include "cinek/map.hpp"
 #include "cinek/allocator.hpp"
 
+#include <random>
+
 namespace cinek {
 
 struct EntityDiagnostics
@@ -108,6 +110,8 @@ private:
     unordered_map<ComponentId, EntityDataTable> _components;
     unordered_map<EntityGroupMapId, EntityGroupMap> _entityGroups;
     EntityComponentDestroyFn _destroyCompDelegate;
+    
+    std::minstd_rand _gcrandom;
 };
 
 template<typename Component>

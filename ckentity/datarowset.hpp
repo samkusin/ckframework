@@ -61,6 +61,7 @@ namespace component
 
         index_type allocate(Entity eid);
         void free(Entity eid);
+        void freeWithIndex(index_type rowIndex);
 
         uint32_t size() const { return rowCount(); }
         uint32_t capacity() const;
@@ -101,6 +102,7 @@ namespace component
 
         Entity* rowAt(index_type index);
         const Entity* rowAt(index_type index) const;
+        void freeRowWithIndexInternal(index_type rowIndex);
     };
 
     template<typename Component>

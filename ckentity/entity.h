@@ -80,10 +80,10 @@ enum
     ((CKEntityIndex)((_eid_) & kCKEntityIndexMask))
 
 #define cinek_entity_context(_eid_) \
-    ((CKEntityContext)((_eid_) & kCKEntityContextMask))
+    ((CKEntityContext)(((_eid_) & kCKEntityContextMask)>>kCKEntityContextShift))
 
 #define cinek_entity_iteration(_eid_) \
-    ((CKEntityIteration)((_eid_) & kCKEntityIterationMask))
+    ((CKEntityIteration)(((_eid_) & kCKEntityIterationMask)>>kCKEntityIterationShift))
 
 typedef uint32_t CKComponentId;
 typedef uint32_t CKComponentRowIndex;
