@@ -142,17 +142,27 @@ namespace component
 
         _entityToRow.erase(indexIt);
 
-        auto index = indexIt->second;
-        CK_ASSERT_RETURN(index < rowCount());
-
-        Entity* p = rowAt(index);
-        if (p[0])
+        if (_rowend != _rowstart)
         {
-            p[0] = 0;
-            ++_freeCnt;
+            auto index = indexIt->second;
+            CK_ASSERT_RETURN(index < rowCount());
+
+            auto lastIndex = ((_rowend - _rowstart) / _header.recordSize)-1;
+            if (index != lastIndex)
+            {
+                //  fill our freed row with data from the end of the
+                //  rowset, shrinking our array by 1 row
+                memcpy(rowAt(index), rowAt(lastIndex), _header.recordSize);
+                Entity* p = rowAt(index);
+                indexIt = _entityToRow.find(p[0]);
+                CK_ASSERT(indexIt != _entityToRow.end());
+                indexIt->second = index;
+            }
+            _rowend -= _header.recordSize;
         }
     }
 
+    /*
     void DataRowset::compress()
     {
         //  run through our vector, compressing it until no empty rows remain
@@ -203,6 +213,7 @@ namespace component
             _rowend = rowLeft;
         }
     }
+    */
 
     uint32_t DataRowset::rowCount() const
     {

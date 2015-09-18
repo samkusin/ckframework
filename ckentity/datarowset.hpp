@@ -81,7 +81,6 @@ namespace component
         index_type prevIndex(index_type) const;
         index_type indexFromEntity(Entity eid) const;
 
-        void compress();        // removes cleared entries from the array
 
     private:
         uint32_t rowCount() const;

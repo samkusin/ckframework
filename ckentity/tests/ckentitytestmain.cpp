@@ -139,17 +139,8 @@ TEST_CASE("DataRowset returns correct state after allocating row")
     {
         rowset.free(entity);
 
-        //  freeing does not change the size (compression does)
-        REQUIRE(rowset.at(rowIndex) == nullptr);
-        REQUIRE(rowset.size() == 1);
-        REQUIRE(rowset.firstIndex() == component::DataRowset::npos);
-    }
-
-    SECTION("compressing an empty rowset")
-    {
-        rowset.free(entity);
-        rowset.compress();
         REQUIRE(rowset.size() == 0);
+        REQUIRE(rowset.firstIndex() == component::DataRowset::npos);
     }
 }
 
@@ -222,170 +213,24 @@ TEST_CASE("DataRowset allocation and freeing of rows")
         REQUIRE(idx == component::DataRowset::npos);
     }
 
-    SECTION("allocating after free before compression fails")
+    SECTION("allocating after free succeeds")
     {
         Entity eid = rowset.entityAt(rowset.size()/2);
         REQUIRE(eid != 0);
 
         rowset.free(eid);
         component::DataRowset::index_type idx = rowset.allocate(eid);
-        REQUIRE(idx == component::DataRowset::npos);
-    }
-
-    SECTION("allocated after free with compression succeeds")
-    {
-        uint32_t initialSize = rowset.size();
-        component::DataRowset::index_type indexToFree = initialSize/2;
-        Entity eid = rowset.entityAt(indexToFree);
-        rowset.free(eid);
-        rowset.compress();
-        REQUIRE(rowset.size() == initialSize-1);
-        component::DataRowset::index_type idx = rowset.allocate(eid);
         REQUIRE(idx != component::DataRowset::npos);
-        REQUIRE(rowset.size() == initialSize);
-    }
-
-    SECTION("free row and compress maintains valid rowset data")
-    {
-        uint32_t initialSize = rowset.size();
-        component::DataRowset::index_type indexToFree = initialSize/2;
-
-        auto compData = rowset.at<TestComponent>(indexToFree+1);
-        strncpy(compData->propString, "Lorem Ipsum", sizeof(compData->propString));
-
-        Entity eid = rowset.entityAt(indexToFree);
-        rowset.free(eid);
-        rowset.compress();
-        //  erase entity for entities vector to maintain order equivalence
-        //  between rowset and our test data
-        entities.erase(entities.begin() + indexToFree);
-
-        REQUIRE(indexToFree < rowset.size());
-        REQUIRE(rowset.entityAt(indexToFree) == entities[indexToFree]);
-        compData = rowset.at<TestComponent>(indexToFree);
-        REQUIRE(!strncmp(compData->propString, "Lorem Ipsum", sizeof(compData->propString)));
-    }
-}
-
-TEST_CASE("DataRowset compression maintains valid rowset data")
-{
-    component::DataRowset rowset(TestComponent::kComponentType, kRowsetCapacity);
-    const float kPI = 3.14159f;
-    const TestComponent kTestCompData = { 1234, kPI, true, "Test" };
-
-    std::vector<Entity> entities;
-
-    populateDataRowset(rowset, kRowsetCapacity, entities);
-    populateDataRowsetComponents<TestComponent>(rowset, kTestCompData);
-    REQUIRE(rowset.size() == kRowsetCapacity);
-
-    SECTION("Erasing first half of rowset")
-    {
-        uint32_t initialSize = entities.size();
-        component::DataRowset::index_type midIndex = initialSize/2;
-
-        uint32_t startIndex = 0;
-        while (startIndex < midIndex)
-        {
-            rowset.free(entities[startIndex]);
-            ++startIndex;
-        }
-        entities.erase(entities.begin(), entities.begin() + startIndex);
-        REQUIRE(rowset.size() == initialSize);
-        rowset.compress();
-        REQUIRE(rowset.size() == entities.size());
-
-        bool failed = false;
-        for (startIndex = rowset.firstIndex();
-             !failed && startIndex != component::DataRowset::npos;
-             startIndex = rowset.nextIndex(startIndex))
-        {
-            if (startIndex >= entities.size())
-                failed = true;
-            else if (entities[startIndex] != rowset.entityAt(startIndex))
-                failed = true;
-        }
-
-        REQUIRE(!failed);
-    }
-
-    SECTION("Erasing last half of rowset")
-    {
-        uint32_t initialSize = entities.size();
-        component::DataRowset::index_type midIndex = initialSize/2;
-
-        uint32_t startIndex = midIndex;
-        while (startIndex < initialSize)
-        {
-            rowset.free(entities[startIndex]);
-            ++startIndex;
-        }
-        entities.erase(entities.begin() + midIndex, entities.begin() + startIndex);
-        REQUIRE(rowset.size() == initialSize);
-        rowset.compress();
-        REQUIRE(rowset.size() == entities.size());
-
-        bool failed = false;
-        for (startIndex = rowset.firstIndex();
-             !failed && startIndex != component::DataRowset::npos;
-             startIndex = rowset.nextIndex(startIndex))
-        {
-            if (startIndex >= entities.size())
-                failed = true;
-            else if (entities[startIndex] != rowset.entityAt(startIndex))
-                failed = true;
-        }
-
-        REQUIRE(!failed);
     }
 
     SECTION("Erase all rows")
     {
-        for (auto idx = rowset.firstIndex();
-             idx != component::DataRowset::npos;
-             idx = rowset.nextIndex(idx))
+        for (auto it = entities.begin(); it != entities.end(); ++it)
         {
-            rowset.free(rowset.entityAt(idx));
+            rowset.free(*it);
         }
-        rowset.compress();
         REQUIRE(rowset.size() == 0);
     }
-
-    SECTION("Erasing every other row of rowset (worst case)")
-    {
-        entities.clear();
-
-        for (auto idx = rowset.firstIndex();
-             idx != component::DataRowset::npos;
-             idx = rowset.nextIndex(idx))
-        {
-            Entity eid = rowset.entityAt(idx);
-            if ((idx % 2) == 0)
-            {
-                rowset.free(eid);
-            }
-            else
-            {
-                entities.push_back(eid);
-            }
-        }
-
-        rowset.compress();
-        REQUIRE(rowset.size() == entities.size());
-
-        auto it = entities.begin();
-
-        for (auto idx = rowset.firstIndex();
-             idx != component::DataRowset::npos;
-             idx = rowset.nextIndex(idx))
-        {
-            Entity eid = rowset.entityAt(idx);
-            if (*it != eid)
-                break;
-            ++it;
-        }
-
-        REQUIRE(it == entities.end());
-    }
 }
+
 
