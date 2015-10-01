@@ -1,5 +1,5 @@
 /**
- * \file    debug.hpp
+ * \file    debug.h
  *
  *
  * \note    Created by Samir Sinha on 1/5/13.
@@ -13,8 +13,8 @@
    Try to mimic ckdefs.h if we need preprocessor ifdef checks for including one 
    header vs. another.
 */
-#include <cstdarg>
-#include <cstddef>
+#include <stdarg.h>
+#include <stddef.h>
 
 #ifndef NDEBUG
     #ifndef CK_DEBUG_LOGGING
@@ -59,6 +59,10 @@ cinek_log_callbacks;
 
 #if CK_DEBUG_LOGGING
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Starts the logging system, with an option to specify a custom log provider 
  *  for debugging cinek systems.
  *
@@ -88,6 +92,10 @@ void cinek_debug_log(
         ... 
     );
 
+#ifdef __cplusplus
+}
+#endif
+
 #define CK_LOG_TRACE(_source_, ...) cinek_debug_log(kCinekLogLevel_Trace, _source_, __VA_ARGS__)
 #define CK_LOG_DEBUG(_source_, ...) cinek_debug_log(kCinekLogLevel_Debug, _source_, __VA_ARGS__)
 #define CK_LOG_INFO(_source_, ...) cinek_debug_log(kCinekLogLevel_Info, _source_, __VA_ARGS__)
@@ -111,10 +119,18 @@ void cinek_debug_log(
 
 #if CK_DEBUG_ASSERT
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Triggers a break using the defined break handler (see cinek_debug_set_break_handler.)
  */
 void cinek_debug_break(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 /**
  * \def CK_ASSERT(_cond_)

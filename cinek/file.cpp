@@ -16,10 +16,20 @@ namespace cinek {
 
 namespace file
 {
-static FileHandle StdIOFOpen(void* , const char* pathname, uint32_t access)
+
+typedef struct
 {
+    QueryResult lastOpResult;
+    QueryExtra lastOpExtra;
+}
+StdFileContext;
+
+static FileHandle StdIOFOpen(void* ctx_, const char* pathname, uint32_t access)
+{
+    StdFileContext* ctx = reinterpret_cast<StdFileContext*>(ctx_);
+    
     char mode[2];
-    if ((access & Ops::kReadAccess) != 0)
+    if ((access & kReadAccess) != 0)
     {
         mode[0] = 'r';
     }
@@ -27,7 +37,7 @@ static FileHandle StdIOFOpen(void* , const char* pathname, uint32_t access)
     {
         return nullptr;
     }
-    if ((access & Ops::kText) != 0)
+    if ((access & kText) != 0)
     {
         mode[1] = 't';
     }
@@ -35,31 +45,44 @@ static FileHandle StdIOFOpen(void* , const char* pathname, uint32_t access)
     {
         mode[1] = 'b';
     }
-    return reinterpret_cast<FileHandle>(fopen(pathname, mode));
+    
+    FILE* fp = fopen(pathname, mode);
+    ctx->lastOpExtra.longResult = 0;
+    return fp;
 }
 
-static size_t StdIOFRead(void* , FileHandle fh, uint8_t* buffer, size_t cnt)
+static size_t StdIOFRead(void* ctx_, FileHandle fh, uint8_t* buffer, size_t cnt)
 {
-    return fread(buffer, 1, cnt, reinterpret_cast<FILE*>(fh));
+    StdFileContext* ctx = reinterpret_cast<StdFileContext*>(ctx_);
+    FILE* fp = reinterpret_cast<FILE*>(fh);
+    size_t sz = fread(buffer, 1, cnt, fp);
+    ctx->lastOpExtra.sizeResult = sz;
+    return ctx->lastOpExtra.sizeResult;
 }
 
-static void StdIOFClose(void* , FileHandle fh)
+static void StdIOFClose(void* ctx_, FileHandle fh)
 {
-    fclose(reinterpret_cast<FILE*>(fh));
+    StdFileContext* ctx = reinterpret_cast<StdFileContext*>(ctx_);
+    FILE* fp = reinterpret_cast<FILE*>(fh);
+    fclose(fp);
+    ctx->lastOpExtra.longResult = 0;
 }
 
-static bool StdIOFSeek(void* , FileHandle fh, Ops::Seek seekType, long offs)
+static bool StdIOFSeek(void* ctx_, FileHandle fh, Seek seekType, long offs)
 {
     int whence = SEEK_SET;
-    if (seekType == Ops::kSeekCur)
+    if (seekType == kSeekCur)
         whence = SEEK_CUR;
-    else if (seekType == Ops::kSeekEnd)
+    else if (seekType == kSeekEnd)
         whence = SEEK_END;
 
-    return fseek(reinterpret_cast<FILE*>(fh), offs, whence)==0;
+    StdFileContext* ctx = reinterpret_cast<StdFileContext*>(ctx_);
+    FILE* fp = reinterpret_cast<FILE*>(fh);
+    ctx->lastOpExtra.longResult = 0;
+    return fseek(fp, offs, whence)==0;
 }
 
-static size_t StdIOFSize(void* , FileHandle fh)
+static size_t StdIOFSize(void* ctx_, FileHandle fh)
 {
     FILE* fp = reinterpret_cast<FILE*>(fh);
     long pos = ftell(fp);
@@ -67,26 +90,52 @@ static size_t StdIOFSize(void* , FileHandle fh)
         return 0;
     fseek(fp, 0, SEEK_END);
 
+    StdFileContext* ctx = reinterpret_cast<StdFileContext*>(ctx_);
     size_t sz = ftell(fp);
+    ctx->lastOpExtra.sizeResult = sz;
     fseek(fp, pos, SEEK_SET);
+    
     return sz;
 }
 
-static long StdIOFTell(void* context, FileHandle fh)
+static long StdIOFTell(void* ctx_, FileHandle fh)
 {
-    return ftell(reinterpret_cast<FILE*>(fh));
+    StdFileContext* ctx = reinterpret_cast<StdFileContext*>(ctx_);
+    FILE* fp = reinterpret_cast<FILE*>(fh);
+
+    ctx->lastOpExtra.longResult = ftell(fp);
+    return ctx->lastOpExtra.longResult;
 }
 
-static bool StdIOEOF(void* context, FileHandle fh)
+static bool StdIOEOF(void* ctx_, FileHandle fh)
 {
-    return feof(reinterpret_cast<FILE*>(fh)) != 0;
+    StdFileContext* ctx = reinterpret_cast<StdFileContext*>(ctx_);
+    FILE* fp = reinterpret_cast<FILE*>(fh);
+    ctx->lastOpExtra.longResult = 0;
+    return feof(fp) != 0;
+}
+
+static QueryResult StdIOQuery(void* ctx_, FileHandle fh, QueryExtra* extra)
+{
+    StdFileContext* ctx = reinterpret_cast<StdFileContext*>(ctx_);
+    FILE* fp = reinterpret_cast<FILE*>(fh);
+    if (extra) {
+         *extra = ctx->lastOpExtra;
+    }
+    return ferror(fp) != 0 ? kQuerySuccess : kQueryFailed;
+}
+
+static void StdIOCancel(void* , FileHandle )
+{
 }
 
 Ops _CoreFileOps;
+StdFileContext _StdFileContext;
+
 
 void setOpsStdio()
 {
-    _CoreFileOps.context = nullptr;
+    _CoreFileOps.context = &_StdFileContext;
     _CoreFileOps.openCb = &StdIOFOpen;
     _CoreFileOps.readCb = &StdIOFRead;
     _CoreFileOps.closeCb = &StdIOFClose;
@@ -94,6 +143,8 @@ void setOpsStdio()
     _CoreFileOps.tellCb = &StdIOFTell;
     _CoreFileOps.sizeCb = &StdIOFSize;
     _CoreFileOps.eofCb = &StdIOEOF;
+    _CoreFileOps.queryCb = &StdIOQuery;
+    _CoreFileOps.cancelCb = &StdIOCancel;
 }
 
 
@@ -122,7 +173,7 @@ size_t read(FileHandle fh, uint8_t* buffer, size_t cnt)
     return _CoreFileOps.readCb(_CoreFileOps.context, fh, buffer, cnt);
 }
 
-bool seek(FileHandle fh, Ops::Seek type, long offs)
+bool seek(FileHandle fh, Seek type, long offs)
 {
     return _CoreFileOps.seekCb(_CoreFileOps.context, fh, type, offs);
 }
@@ -140,6 +191,16 @@ bool eof(FileHandle fh)
 void close(FileHandle fh)
 {
     _CoreFileOps.closeCb(_CoreFileOps.context, fh);
+}
+
+QueryResult queryRequest(FileHandle fh, QueryExtra* extra)
+{
+    return _CoreFileOps.queryCb(_CoreFileOps.context, fh, extra);
+}
+
+void cancelRequest(FileHandle fh)
+{
+    return _CoreFileOps.cancelCb(_CoreFileOps.context, fh);
 }
 
 }

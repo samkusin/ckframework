@@ -24,7 +24,7 @@
 
 #include "datarowset.hpp"
 
-#include "cinek/debug.hpp"
+#include "cinek/debug.h"
 
 //  for memmove
 #include <cstring>

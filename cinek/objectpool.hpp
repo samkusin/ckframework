@@ -31,8 +31,9 @@
 #ifndef CINEK_OBJECT_POOL_HPP
 #define CINEK_OBJECT_POOL_HPP
 
+#include "cinek/debug.h"
 #include "cinek/allocator.hpp"
-#include "cinek/debug.hpp"
+
 
 namespace cinek {
 
@@ -46,6 +47,7 @@ namespace cinek {
         typedef _T*         pointer;
         typedef const _T*   const_pointer;
 
+        ObjectPool();
         ObjectPool(size_t blockLimit, Allocator allocator=Allocator());
         ~ObjectPool();
 
@@ -59,6 +61,8 @@ namespace cinek {
         void destruct(pointer p);
         
         void destructAll();
+        
+        template<typename Fn> void forEach(Fn fn);
 
     private:
         void zeroVectors();
@@ -71,6 +75,17 @@ namespace cinek {
         pointer* _freelast;
         pointer* _freelimit;
     };
+    
+    template<typename _T>
+    ObjectPool<_T>::ObjectPool() :
+        _first(nullptr),
+        _last(nullptr),
+        _limit(nullptr),
+        _freefirst(nullptr),
+        _freelast(nullptr),
+        _freelimit(nullptr)
+    {
+    }
 
     template<typename _T>
     ObjectPool<_T>::ObjectPool(size_t blockCount, Allocator allocator) :
@@ -183,7 +198,106 @@ namespace cinek {
     {
         _freelast = _freefirst;
     }
+    
+    template<typename _T>
+    template <typename Fn>
+    void ObjectPool<_T>::forEach(Fn fn)
+    {
+        for (pointer p = _first; p != _last; ++p) {
+            fn(*p);
+        }
+    }
+    
+    template<typename _Object, typename _Derived>
+    class ManagedObjectPoolBase
+    {
+        CK_CLASS_NON_COPYABLE(ManagedObjectPoolBase);
+        
+    public:
+        using Value = _Object;
+        using Handle = ManagedHandle<_Object, _Derived>;
+        using Derived = _Derived;
+        
+        struct Record
+        {
+            // must be first member of the Record to support ManagedHandle
+            Value object;
+            int refcnt;
+            Derived* owner;
+        };
+        
+        ManagedObjectPoolBase() = default;
+        ManagedObjectPoolBase(size_t count);
+        ManagedObjectPoolBase(ManagedObjectPoolBase&& other) noexcept;
+        ManagedObjectPoolBase& operator=(ManagedObjectPoolBase&& other) noexcept;
+        
+    protected:
+        Record* add(Value&& obj);
+        Record* add();
+    
+        void releaseRecord(Record* record);
+        void fixupRecords();
+        
+    private:
+        ObjectPool<Record> _recordsPool;
+    };
 
+    template<typename _Object, typename _Delegate>
+    class ManagedObjectPool :
+        public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate>>
+    {
+        CK_CLASS_NON_COPYABLE(ManagedObjectPool);
+        
+    public:
+        using BaseType = ManagedObjectPoolBase<_Object,ManagedObjectPool<_Object, _Delegate>>;
+        using Handle = typename BaseType::Handle;
+        using Value = typename BaseType::Value;
+        
+        ManagedObjectPool() = default;
+        ManagedObjectPool(size_t count, const _Delegate& del);
+        ManagedObjectPool(ManagedObjectPool&& other) noexcept;
+        ManagedObjectPool& operator=(ManagedObjectPool&& other) noexcept;
+
+        void setDelegate(const _Delegate& del);
+        void clearDelegate();
+        
+        Handle add(Value&& obj);
+        Handle add();
+        
+    private:
+        friend Handle;
+    
+        void releaseRecord(typename BaseType::Record* record);
+        
+        _Delegate _delegate;
+    };
+    
+
+    template<typename _Object>
+    class ManagedObjectPool<_Object, void> :
+        public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void>>
+    {
+        CK_CLASS_NON_COPYABLE(ManagedObjectPool);
+        
+    public:
+        using BaseType = ManagedObjectPoolBase<_Object,ManagedObjectPool<_Object, void>>;
+        using Handle = typename BaseType::Handle;
+        using Value = typename BaseType::Value;
+        
+        ManagedObjectPool() = default;
+        ManagedObjectPool(size_t count);
+        ManagedObjectPool(ManagedObjectPool&& other) noexcept;
+        ManagedObjectPool& operator=(ManagedObjectPool&& other) noexcept;
+        
+        Handle add(Value&& obj);
+        Handle add();
+        
+    private:
+        friend Handle;
+        
+        void releaseRecord(typename BaseType::Record* record);
+    };
+    
 } /* namespace cinek */
 
 #endif

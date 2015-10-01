@@ -35,8 +35,6 @@
 #include "ckopts.h"
 /* #endif */
 
-#include <stddef.h>
-
 /**
  *  \name Compiler Defines
  *  Defines properties related to the build compiler system.
@@ -234,6 +232,19 @@
  */
 #define MAX_PATH 256
 /**@}*/
+#endif
+
+
+#if CK_COMPILER_HAS_STDINT
+  #ifdef __cplusplus
+    #include <cstddef>
+    #include <cstdint>
+    #include <cinttypes>
+  #else
+    #include <stddef.h>
+    #include <stdint.h>
+    #include <inttypes.h>
+  #endif
 #endif
 
 /* CINEK_DEFS_H */

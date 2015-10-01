@@ -33,19 +33,11 @@
 
 #include "ckdefs.h"
 
-#if CK_COMPILER_HAS_STDINT
-  #ifdef __cplusplus
-    #include <cstdint>
-  #else
-    #include <stdint.h>
-  #endif
-#endif
-
 #include <type_traits>
-#include <inttypes.h>
 
 namespace cinek {
-    class JobQueue;
+    template<typename _T> class ObjectPool;
+    template<typename _Object, typename _Delegate> class ManagedObjectPool;
 }
 
 namespace cinek {
@@ -54,51 +46,6 @@ namespace cinek {
     typedef uint32_t Handle;
     /** A null handle constant */
     const Handle kNullHandle = 0;
-    
-    /** A specialized handle where the offset points to a vector element */
-    struct OffsetHandlePOD
-    {
-        uint32_t iter;  /**< Instance iteration */
-        uint32_t offs;  /**< Instance offset */
-    };
-    struct OffsetHandle
-    {
-        using pod_type = OffsetHandlePOD;
-        pod_type data;
-        
-        OffsetHandle() : data { 0, 0} {}
-        OffsetHandle(std::nullptr_t): data {0,0} {}
-        OffsetHandle(pod_type podData) : data(podData) {}
-    
-        /** test operators for handle validity */
-        operator bool() const {
-            return data.iter != 0;
-        }
-        bool operator==(const std::nullptr_t&) const {
-            return !data.iter;
-        }
-        bool operator!=(const std::nullptr_t&) const {
-            return data.iter != 0;
-        }
-        OffsetHandle& operator=(const pod_type& podType) {
-            data = podType;
-            return *this;
-        }
-        OffsetHandle& operator=(const std::nullptr_t&) {
-            data.iter = data.offs = 0;
-            return *this;
-        }
-        OffsetHandle& operator++() {
-            ++data.iter;
-            if (!data.iter) data.iter = 1;
-            return *this;
-        }
-        OffsetHandle operator++(int) {
-            OffsetHandle h = *this;
-            ++(*this);
-            return h;
-        }
-    };
     
     /** A UUID array (128-bit) */
     struct UUID
@@ -110,38 +57,75 @@ namespace cinek {
     bool operator<(const UUID& l, const UUID& r);
     bool operator!=(const UUID& l, const UUID& r);
 
-    //  Cribbed from http://stackoverflow.com/a/23815961
-
-    /**
-     * Varadic min function (compile-time deduced)
-     */
-    template <typename T0, typename T1>
-    constexpr typename std::common_type<T0, T1>::type multi_min(T0&& v0, T1&& v1)
+    template<typename _HandleValue, typename _HandleOwner>
+    class ManagedHandle
     {
-        return v0 < v1 ? std::forward<T0>(v0) : std::forward<T1>(v1);
-    }
+        friend _HandleOwner;
+        
+    public:
+        using value_type = _HandleValue;
+        
+        ManagedHandle(std::nullptr_t) noexcept : _resource(nullptr) {}
+        ManagedHandle() noexcept : _resource(nullptr) {}
+        ~ManagedHandle() {
+            releaseInt();
+        }
+        ManagedHandle(const ManagedHandle& other) noexcept : _resource(other._resource) {
+            acquire();
+        }
+        ManagedHandle& operator=(const ManagedHandle& other) noexcept {
+            _resource = other._resource;
+            acquire();
+            return *this;
+        }
+        ManagedHandle(ManagedHandle&& other) noexcept : _resource(other._resource) {
+            other._resource = nullptr;
+        }
+        ManagedHandle& operator=(ManagedHandle&& other) noexcept {
+            _resource = other._resource;
+            other._resource = nullptr;
+            return *this;
+        }
+        ManagedHandle& operator=(std::nullptr_t) {
+            releaseInt();
+            return *this;
+        }
+        
+        operator bool() const {
+            return _resource != nullptr;
+        }
+        
+        value_type& operator*() const {
+            return *_resource;
+        }
+        
+        value_type* operator->() const {
+            return _resource;
+        }
+        
+        value_type* resource() {
+            return _resource;
+        }
+        const value_type* resource() const {
+            return _resource;
+        }
+        
+    private:
+        ManagedHandle(value_type* _resource) : _resource(_resource) {
+            acquire();
+        }
+        
+        void releaseInt() {
+            release();
+            _resource = nullptr;
+        }
+        
+        void acquire();
+        void release();
+        
+        value_type* _resource;
+    };
 
-
-    template <typename T, typename... Ts>
-    constexpr typename std::common_type<T, Ts...>::type multi_min(T&& v, Ts&&... vs)
-    {
-        return multi_min(std::forward<T>(v), multi_min(std::forward<Ts>(vs)...));
-    }
-
-    /**
-     * Varadic max function (compile-tile deduced)
-     */
-    template <typename T0, typename T1>
-    constexpr typename std::common_type<T0, T1>::type multi_max(T0&& v0, T1&& v1)
-    {
-        return v0 < v1 ? std::forward<T1>(v1) : std::forward<T0>(v0);
-    }
-
-    template <typename T, typename... Ts>
-    constexpr typename std::common_type<T, Ts...>::type multi_max(T&& v, Ts&&... vs)
-    {
-        return multi_max(std::forward<T>(v), multi_max(std::forward<Ts>(vs)...));
-    }
 
     template<typename... Ts>
     struct sizeof_max;

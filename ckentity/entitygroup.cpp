@@ -23,7 +23,7 @@
  */
 
 #include "entitygroup.hpp"
-#include "cinek/debug.hpp"
+#include "cinek/debug.h"
 
 namespace cinek {
 

@@ -22,7 +22,7 @@ set(CINEK_CORE_INCLUDES
     "cinek/types.hpp"
     "cinek/circular_queue.hpp"
     "cinek/buffer.hpp"
-    "cinek/debug.hpp"
+    "cinek/debug.h"
     "cinek/file.hpp"
     "cinek/allocator.hpp"
     "cinek/memorystack.hpp"

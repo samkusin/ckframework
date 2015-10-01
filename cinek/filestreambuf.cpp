@@ -37,7 +37,7 @@ namespace cinek {
             if (_mode & std::ios_base::out)         // does not support both read and write for now.
                 return;
 
-            fileAccess = file::Ops::kReadAccess;
+            fileAccess = file::kReadAccess;
         }
         /*else if (_mode & std::ios_base::out)
         {
@@ -63,7 +63,7 @@ namespace cinek {
         }
         if (!(_mode & std::ios_base::binary))
         {
-            fileAccess |= file::Ops::kText;
+            fileAccess |= file::kText;
         }
         _fileHandle = file::open(pathname, fileAccess);
         if (_fileHandle)
@@ -180,7 +180,7 @@ namespace cinek {
         {
             size_t revertCount = egptr()-gptr();
             
-            if (!file::seek(_fileHandle, file::Ops::kSeekCur, -revertCount))
+            if (!file::seek(_fileHandle, file::kSeekCur, -revertCount))
                 return -1;
 
             setg(nullptr, nullptr, nullptr);

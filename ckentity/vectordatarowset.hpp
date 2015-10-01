@@ -31,7 +31,7 @@
 #ifndef CINEK_ENTITY_VECTORDATAROWSET_HPP
 #define CINEK_ENTITY_VECTORDATAROWSET_HPP
 
-#include "cinek/debug.hpp"
+#include "cinek/debug.h"
 #include "cinek/vector.hpp"
 
 namespace cinek {
