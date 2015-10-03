@@ -34,7 +34,7 @@ namespace cinek {
         FileStreamBuf
         (
             const char* pathname,
-            std::ios_base::openmode mode = std::ios_base::in,
+            std::ios_base::openmode mode = std::ios_base::in | std::ios_base::binary,
             size_t bufferSize=4096,
             const Allocator& allocator=Allocator()
         );

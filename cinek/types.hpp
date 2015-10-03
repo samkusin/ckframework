@@ -63,7 +63,7 @@ namespace cinek {
         friend _HandleOwner;
         
     public:
-        using value_type = _HandleValue;
+        using Value = _HandleValue;
         
         ManagedHandle(std::nullptr_t) noexcept : _resource(nullptr) {}
         ManagedHandle() noexcept : _resource(nullptr) {}
@@ -94,24 +94,30 @@ namespace cinek {
         operator bool() const {
             return _resource != nullptr;
         }
-        
-        value_type& operator*() const {
+   
+        /*
+        Value& operator*() const {
             return *_resource;
         }
+        */
         
-        value_type* operator->() const {
+        void setValue(Value&& v) {
+            *_resource = std::move(v);
+        }
+        
+        Value* operator->() const {
             return _resource;
         }
         
-        value_type* resource() {
+        Value* resource() {
             return _resource;
         }
-        const value_type* resource() const {
+        const Value* resource() const {
             return _resource;
         }
         
     private:
-        ManagedHandle(value_type* _resource) : _resource(_resource) {
+        ManagedHandle(Value* _resource) : _resource(_resource) {
             acquire();
         }
         
@@ -123,7 +129,7 @@ namespace cinek {
         void acquire();
         void release();
         
-        value_type* _resource;
+        Value* _resource;
     };
 
 

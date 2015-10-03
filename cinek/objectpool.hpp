@@ -59,10 +59,6 @@ namespace cinek {
 
         template<typename... Args> pointer construct(Args&&... args);
         void destruct(pointer p);
-        
-        void destructAll();
-        
-        template<typename Fn> void forEach(Fn fn);
 
     private:
         void zeroVectors();
@@ -193,21 +189,6 @@ namespace cinek {
         ++_freelast;
     }
     
-    template<typename _T>
-    void ObjectPool<_T>::destructAll()
-    {
-        _freelast = _freefirst;
-    }
-    
-    template<typename _T>
-    template <typename Fn>
-    void ObjectPool<_T>::forEach(Fn fn)
-    {
-        for (pointer p = _first; p != _last; ++p) {
-            fn(*p);
-        }
-    }
-    
     template<typename _Object, typename _Derived>
     class ManagedObjectPoolBase
     {
@@ -218,12 +199,22 @@ namespace cinek {
         using Handle = ManagedHandle<_Object, _Derived>;
         using Derived = _Derived;
         
+        struct OwnerRef
+        {
+            Derived* owner;
+        };
+        
         struct Record
         {
             // must be first member of the Record to support ManagedHandle
             Value object;
             int refcnt;
-            Derived* owner;
+            // links in the Record list, used for cleanup and traversal
+            Record* next;
+            Record* prev;
+            // points to a persistant reference object for the owner.  This is
+            // mainly for move operations
+            OwnerRef* ownerRef;
         };
         
         ManagedObjectPoolBase() = default;
@@ -231,15 +222,21 @@ namespace cinek {
         ManagedObjectPoolBase(ManagedObjectPoolBase&& other) noexcept;
         ManagedObjectPoolBase& operator=(ManagedObjectPoolBase&& other) noexcept;
         
+        ~ManagedObjectPoolBase();
+        
     protected:
         Record* add(Value&& obj);
         Record* add();
     
-        void releaseRecord(Record* record);
-        void fixupRecords();
+        void releaseRecordInternal(Record* record);
+    
+        ObjectPool<Record> _recordsPool;
+        Record* _head;
+        
+        void setOwnerRef(_Derived* owner);
         
     private:
-        ObjectPool<Record> _recordsPool;
+        OwnerRef* _ownerRef;
     };
 
     template<typename _Object, typename _Delegate>
@@ -253,8 +250,9 @@ namespace cinek {
         using Handle = typename BaseType::Handle;
         using Value = typename BaseType::Value;
         
-        ManagedObjectPool() = default;
-        ManagedObjectPool(size_t count, const _Delegate& del);
+        ManagedObjectPool();
+        ~ManagedObjectPool();
+        ManagedObjectPool(size_t count);
         ManagedObjectPool(ManagedObjectPool&& other) noexcept;
         ManagedObjectPool& operator=(ManagedObjectPool&& other) noexcept;
 
@@ -263,6 +261,8 @@ namespace cinek {
         
         Handle add(Value&& obj);
         Handle add();
+        
+        void destructAll();
         
     private:
         friend Handle;
@@ -285,12 +285,15 @@ namespace cinek {
         using Value = typename BaseType::Value;
         
         ManagedObjectPool() = default;
+        ~ManagedObjectPool();
         ManagedObjectPool(size_t count);
         ManagedObjectPool(ManagedObjectPool&& other) noexcept;
         ManagedObjectPool& operator=(ManagedObjectPool&& other) noexcept;
         
         Handle add(Value&& obj);
         Handle add();
+        
+        void destructAll();
         
     private:
         friend Handle;
