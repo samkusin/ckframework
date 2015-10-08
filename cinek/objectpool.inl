@@ -9,6 +9,13 @@
 namespace cinek {
 
     template<typename _Object, typename _Derived>
+    ManagedObjectPoolBase<_Object, _Derived>::ManagedObjectPoolBase() :
+        _head(nullptr),
+        _ownerRef(nullptr)
+    {
+    }
+
+    template<typename _Object, typename _Derived>
     ManagedObjectPoolBase<_Object, _Derived>::ManagedObjectPoolBase(size_t count) :
         _recordsPool(count),
         _head(nullptr),

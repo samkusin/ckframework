@@ -217,7 +217,7 @@ namespace cinek {
             OwnerRef* ownerRef;
         };
         
-        ManagedObjectPoolBase() = default;
+        ManagedObjectPoolBase();
         ManagedObjectPoolBase(size_t count);
         ManagedObjectPoolBase(ManagedObjectPoolBase&& other) noexcept;
         ManagedObjectPoolBase& operator=(ManagedObjectPoolBase&& other) noexcept;
