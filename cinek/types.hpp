@@ -64,6 +64,7 @@ namespace cinek {
         
     public:
         using Value = _HandleValue;
+        using Owner = _HandleOwner;
         
         ManagedHandle(std::nullptr_t) noexcept : _resource(nullptr) {}
         ManagedHandle() noexcept : _resource(nullptr) {}
