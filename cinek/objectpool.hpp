@@ -239,6 +239,14 @@ namespace cinek {
         OwnerRef* _ownerRef;
     };
 
+    
+    /**
+     *  @class ManagedObjectPool
+     *
+     *  _Delegate must implement the following concept:
+     *
+     *      void onReleaseManagedObject(Node& node);
+     */
     template<typename _Object, typename _Delegate>
     class ManagedObjectPool :
         public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate>>
