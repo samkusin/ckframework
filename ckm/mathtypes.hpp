@@ -7,8 +7,8 @@
 /// @license    The MIT License
 
 
-#ifndef Overview_Engine_Math_Types_hpp
-#define Overview_Engine_Math_Types_hpp
+#ifndef CINEK_MATH_TYPES_HPP
+#define CINEK_MATH_TYPES_HPP
 
 #include <cinek/types.hpp>
 

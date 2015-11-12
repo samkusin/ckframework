@@ -116,6 +116,7 @@ namespace cinek {
     {
         template<typename _Component, typename _Container> class Table;
     }
+    using EntityGroupTable = component::Table<EntityGroup, EntityGroupMap>;
 
     using Entity = CKEntity;
     using EntityContextType = CKEntityContext;

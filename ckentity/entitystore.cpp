@@ -36,10 +36,7 @@ EntityStore::EntityStore() :
 
 EntityStore::EntityStore
 (
-    uint32_t numEntities,
-    const vector<component::MakeDescriptor>& components,
-    const vector<EntityGroupMap::MakeDescriptor>& entityGroups,
-    const EntityComponentDestroyFn& destroyCompDelegate,
+    const InitParams& params,
     const Allocator& allocator
 ) :
     _iterations(allocator),
@@ -47,18 +44,18 @@ EntityStore::EntityStore
     _entityIdIteration(0),
     _entityCount(0),
     _components(allocator),
-    _destroyCompDelegate(destroyCompDelegate),
-    _gcrandom(32128791)
+    _destroyCompDelegate(std::move(params.destroyCompDelegate)),
+    _gcrandom(params.randomSeed)
 {
-    _iterations.reserve(numEntities);
-    _freed.reserve(numEntities);
+    _iterations.reserve(params.numEntities);
+    _freed.reserve(params.numEntities);
     
-    for (auto& component : components)
+    for (auto& component : params.components)
     {
         EntityDataTable rowset(component, allocator);
         _components.emplace(component.desc.id, std::move(rowset));
     }
-    for (auto& group : entityGroups)
+    for (auto& group : params.entityGroups)
     {
         EntityGroupMap rowset(group, allocator);
         _entityGroups.emplace(group.id, std::move(rowset));

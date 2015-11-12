@@ -41,7 +41,7 @@ namespace cinek {
 
 //  The EntityGroup is a convenience container organizing entities into roles
 //  and slots.   This is an alternative organization model to the Transform's
-//  compoennt hierarchy model.
+//  component hierarchy model.
 //
 //  Several examples of EntityGroups are the Party (in an RPG), a Sports Team,
 //  or a ship's crew:

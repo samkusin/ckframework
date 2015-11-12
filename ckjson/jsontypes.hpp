@@ -22,6 +22,8 @@ namespace cinek {
         rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>> JsonDocument;
     typedef rapidjson::GenericValue<rapidjson::UTF8<char>,
         rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>> JsonValue;
+    
+    namespace json = rapidjson;
 }
 
 #endif

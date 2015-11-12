@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 Cinekine. All rights reserved.
 //
 
-#ifndef Overview_Engine_Geometry_hpp
-#define Overview_Engine_Geometry_hpp
+#ifndef CINEK_MATH_GEOMETRY_HPP
+#define CINEK_MATH_GEOMETRY_HPP
 
 #include "mathtypes.hpp"
 

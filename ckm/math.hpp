@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 Cinekine. All rights reserved.
 //
 
-#ifndef Overview_Engine_Math_hpp
-#define Overview_Engine_Math_hpp
+#ifndef CINEK_MATH_HPP
+#define CINEK_MATH_HPP
 
 #include "mathtypes.hpp"
 
@@ -17,8 +17,9 @@ template<typename scalar> scalar epsilon();
 template<typename scalar> scalar pi();
 template<typename type> type zero();
 
-template<typename vec> vec cross(vec const& x, vec const& y);
-template<typename vec> typename vec::value_type dot(vec const& v0, vec const& v1);
+template<typename vec_type> vec_type cross(vec_type const& x, vec_type const& y);
+template<typename vec_type> typename vec_type::value_type dot(vec_type const& v0,vec_type const& v1);
+template<typename vec_type> typename vec_type::value_type vectorLength(vec_type const& v);
 
 template<typename scalar> scalar cos(scalar r);
 template<typename scalar> scalar acos(scalar a);
@@ -26,10 +27,9 @@ template<typename scalar> scalar sin(scalar r);
 template<typename scalar> scalar asin(scalar a);
 template<typename scalar> scalar radians(scalar degrees);
 template<typename scalar> scalar degrees(scalar radians);
-template<typename mat> mat inverse(mat const& m);
+template<typename val_type> val_type inverse(val_type const& m);
+template<typename val_type> val_type normalize(val_type const& v);
 
-template<typename vec> vec normalize(vec const& v);
-template<typename vec> typename vec::value_type vectorLength(vec const& v);
 
 //  quaternion math
 /*
@@ -71,6 +71,13 @@ template<typename vec> typename vec::value_type vectorLength(vec const& v);
     //  The returned quaternion is normalized.
     //
     quat quatFromUnitVectors(vec3 const& v0, vec3 const& v1);
+    
+    mat4 mtx4x4RotateFromAngleAndAxis
+    (
+        mat4 const& m,
+        scalar angle,
+        vec3 const& axis
+    );
 */
 }
 

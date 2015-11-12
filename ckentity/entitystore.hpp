@@ -75,11 +75,16 @@ class EntityStore
 public:
     EntityStore();
     
-    EntityStore(EntityIndexType numEntities,
-        const vector<component::MakeDescriptor>& components,
-        const vector<EntityGroupMap::MakeDescriptor>& entityGroups,
-        const EntityComponentDestroyFn& destroyCompDelegate,
-        const Allocator& allocator=Allocator());
+    struct InitParams
+    {
+        EntityIndexType numEntities;
+        vector<component::MakeDescriptor> components;
+        vector<EntityGroupMap::MakeDescriptor> entityGroups;
+        EntityComponentDestroyFn destroyCompDelegate;
+        int randomSeed;
+    };
+    
+    EntityStore(const InitParams& params, const Allocator& allocator=Allocator());
     
     EntityStore(EntityStore&& other);
     EntityStore& operator=(EntityStore&& other);

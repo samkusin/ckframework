@@ -46,6 +46,15 @@ template<> float degrees<float>(float radians) {
         return normalize(q);
     }
 
+    mat4 mtx4x4RotateFromAngleAndAxis
+    (
+        mat4 const& m,
+        scalar angle,
+        vec3 const& axis
+    )
+    {
+        return glm::rotate(m, angle, axis);
+    }
 */
 
 #endif
