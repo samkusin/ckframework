@@ -35,7 +35,7 @@ public:
     void destroyEndpoint(Address endp);
     
     uint32_t send(Message&& msg, Address receiver,
-                  const uint8_t* payload, uint32_t payloadSize,
+                  const Payload* payload,
                   uint32_t seqId=0);
     
     void transmit(Address sender);

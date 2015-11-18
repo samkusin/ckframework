@@ -42,7 +42,12 @@ void Server<_DelegateType>::on
         [](const typename decltype(_classDelegates)::value_type& p, ClassId cid) -> bool {
             return p.first < cid;
         });
-    _classDelegates.emplace(classId, std::move(delegate));
+    if (it != _classDelegates.end() && it->first == classId) {
+        it->second = std::move(delegate);
+    }
+    else {
+        _classDelegates.emplace(it, std::move(delegate));
+    }
 }
 
 template<typename _DelegateType>
@@ -50,23 +55,43 @@ void Server<_DelegateType>::receive()
 {
     Message msg;
     Payload payload;
-    while ((msg = _messenger->receive(_endpoint, payload))) {
     
+    while ((msg = _messenger->receive(_endpoint, payload))) {
+        auto it = std::lower_bound(_classDelegates.begin(), _classDelegates.end(),
+            msg.type(),
+            [](const typename decltype(_classDelegates)::value_type& p, ClassId cid) -> bool {
+                return p.first < cid;
+            });
+        if (it != _classDelegates.end() && it->first == msg.type()) {
+            //  pass incoming messages to their respective class delegates
+            //  register the incoming sequence for replying
+            ServerRequestId reqId { msg.sequenceId(), msg.type() };
+            _activeRequests.emplace(reqId, msg.sender());
+            it->second(reqId, &payload);
+        }
     }
 }
 
 template<typename _DelegateType>
 void Server<_DelegateType>::reply
 (
-    uint32_t seqId,
+    ServerRequestId reqId,
     const Payload* payload
 )
 {
+    auto it = _activeRequests.find(reqId);
+    if (it != _activeRequests.end()) {
+        Message msg(_endpoint, reqId.classId);
+    
+        _messenger->send(std::move(msg), it->second, payload, reqId.seqId);
+        _activeRequests.erase(it);
+    }
 }
 
 template<typename _DelegateType>
 void Server<_DelegateType>::transmit()
 {
+    _messenger->transmit(_endpoint);
 }
 
 

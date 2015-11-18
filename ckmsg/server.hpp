@@ -30,7 +30,29 @@ struct ServerRequestId
 {
     uint32_t seqId;
     ClassId classId;
+
+    bool operator==(const ServerRequestId& other) const {
+        return seqId == other.seqId && classId == other.classId;
+    }
 };
+
+}   /* namespace ckmsg */
+
+namespace std {
+
+template<> struct hash<ckmsg::ServerRequestId>
+{
+    size_t operator()(const ckmsg::ServerRequestId& r) const
+    {
+        //  collisions with classId are extremely unlikely, so just use
+        //  our seqId as the hash
+        return std::hash<uint32_t>()(r.seqId);
+    }
+};
+
+}
+
+namespace ckmsg {
 
 /**
  *  @class Server
@@ -74,10 +96,10 @@ public:
     /**
      *  Reply to an active request.
      *
-     *  @param  seqId   The request to reply to.
+     *  @param  reqId   The request to reply to.
      *  @param  payload (Optional) The payload included in the reply
      */
-    void reply(uint32_t seqId, const Payload* payload = nullptr);
+    void reply(ServerRequestId reqId, const Payload* payload = nullptr);
     /**
      *  Transmits any pending messages to their targets (flushes the message
      *  queue if it still has messages.)  Invoke once per receive.
@@ -89,7 +111,7 @@ private:
     Address _endpoint;
     
     std::vector<std::pair<ClassId, _DelegateType>> _classDelegates;
-    std::unordered_map<uint32_t, ClassId> _activeRequests;
+    std::unordered_map<ServerRequestId, Address> _activeRequests;
 };
 
 } /* namespace ckmsg */

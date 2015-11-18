@@ -63,7 +63,7 @@ uint32_t Messenger::send
 (
     Message&& msg,
     Address receiver,
-    const uint8_t* payload, uint32_t payloadSize,
+    const Payload* payload,
     uint32_t seqId
 )
 {
@@ -81,8 +81,8 @@ uint32_t Messenger::send
         return 0;
     
     uint8_t* outPayload = nullptr;
-    if (payload && payloadSize>0) {
-        outPayload = sendBuffer.writep(payloadSize + sizeof(uint32_t));
+    if (payload && payload->size()>0) {
+        outPayload = sendBuffer.writep(payload->size() + sizeof(uint32_t));
         if (!outPayload) {
             sendBuffer.revertWrite();
             return 0;
@@ -93,8 +93,8 @@ uint32_t Messenger::send
     outMsg->receiver = receiver;
     
     if (outPayload) {
-        *reinterpret_cast<uint32_t*>(outPayload) = payloadSize;
-        memcpy(outPayload+sizeof(uint32_t), payload, payloadSize);
+        *reinterpret_cast<uint32_t*>(outPayload) = payload->size();
+        memcpy(outPayload+sizeof(uint32_t), payload->data(), payload->size());
         outMsg->msg.setFlags(Message::kHasPayload);
     }
     

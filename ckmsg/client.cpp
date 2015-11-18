@@ -63,7 +63,12 @@ void Client<_DelegateType>::on(ClassId classId, _DelegateType delegate)
         [](const typename decltype(_classDelegates)::value_type& p, ClassId cid) -> bool {
             return p.first < cid;
         });
-    _classDelegates.emplace(classId, std::move(delegate));
+    if (it != _classDelegates.end() && it->first == classId) {
+        it->second = std::move(delegate);
+    }
+    else {
+        _classDelegates.emplace(it, std::move(delegate));
+    }
 }
 
 template<typename _Delegate>
