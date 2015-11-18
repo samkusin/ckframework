@@ -56,7 +56,7 @@ void Server<_DelegateType>::receive()
     Message msg;
     Payload payload;
     
-    while ((msg = _messenger->receive(_endpoint, payload))) {
+    while ((msg = _messenger->pollReceive(_endpoint, payload))) {
         auto it = std::lower_bound(_classDelegates.begin(), _classDelegates.end(),
             msg.type(),
             [](const typename decltype(_classDelegates)::value_type& p, ClassId cid) -> bool {
@@ -70,6 +70,8 @@ void Server<_DelegateType>::receive()
             it->second(reqId, &payload);
         }
     }
+    
+    _messenger->pollEnd(_endpoint);
 }
 
 template<typename _DelegateType>

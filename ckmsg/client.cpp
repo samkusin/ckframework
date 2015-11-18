@@ -81,9 +81,37 @@ void Client<_Delegate>::transmit()
 template<typename _Delegate>
 void Client<_Delegate>::receive()
 {
+    Message msg;
+    Payload payload;
+    
+    while ((msg = _messenger->pollReceive(_endpoint, payload))) {
+        //  if a reply, check sequence delegates
+        if (msg.queryFlag(Message::kIsReply)) {
+            auto it = std::lower_bound(_sequenceDelegates.begin(), _sequenceDelegates.end(),
+                msg.sequenceId(),
+                [](const typename decltype(_sequenceDelegates)::value_type& p, uint32_t seqId) -> bool {
+                    return p.first < seqId;
+                });
+            if (it != _sequenceDelegates.end() && it->first == msg.sequenceId()) {
+                it->second(msg.sequenceId(), msg.type(), &payload);
+            }
+        }
+        else {
+            auto it = std::lower_bound(_classDelegates.begin(), _classDelegates.end(),
+                msg.type(),
+                [](const typename decltype(_classDelegates)::value_type& p, ClassId cid) -> bool {
+                    return p.first < cid;
+                });
+            if (it != _classDelegates.end() && it->first == msg.type()) {
+                //  pass incoming messages to their respective class delegates
+                //  register the incoming sequence for replying
+                it->second(msg.sequenceId(), msg.type(), &payload);
+            }
+        }
+    }
+    
+    _messenger->pollEnd(_endpoint);
 }
-
-
 
 }   /* namespace ckmsg */
 

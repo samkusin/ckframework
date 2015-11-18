@@ -41,6 +41,10 @@ struct EndpointInitParams
     uint32_t recvSize;
 };
 
+
+const uint32_t kNullSequenceId = 0;
+const uint32_t kAssignSequenceId = 0xffffffff;
+
 /**
  *  @class Payload
  *  @brief Defines a packet of data associated with messages
@@ -53,14 +57,14 @@ class Payload
 {
 public:
     Payload() : _data(nullptr), _size(0) {}
-    Payload(uint8_t* data, uint32_t size) :
+    Payload(const uint8_t* data, uint32_t size) :
         _data(data), _size(size) {}
     
     const uint8_t* data() const { return _data; }
     uint32_t size() const { return _size; }
     
 private:
-    uint8_t* _data;
+    const uint8_t* _data;
     uint32_t _size;
 };
 

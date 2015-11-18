@@ -12,11 +12,23 @@
 
 namespace ckmsg {
 
-struct MessagePacket
-{
-    Message msg;
-    Address receiver;
-};
+
+static const size_t kEncodedHeaderSize = 4;
+static const uint8_t kEncodedMessageHeader[kEncodedHeaderSize] = { 'm','e','s','g' };
+
+inline void encodeHeader(uint8_t* target, const uint8_t hdr[]) {
+    target[0] = hdr[0];
+    target[1] = hdr[1];
+    target[2] = hdr[2];
+    target[3] = hdr[3];
+}
+
+inline bool checkHeader(const uint8_t* input, const uint8_t hdr[]) {
+    return input[0]==hdr[0] &&
+           input[1]==hdr[1] &&
+           input[2]==hdr[2] &&
+           input[3]==hdr[3];
+}
 
 /*
     The Messenger collects messages into various send queues and dispatches
@@ -38,6 +50,10 @@ Address Messenger::createEndpoint(EndpointInitParams initParams)
         Buffer<Allocator>(initParams.recvSize),
         0
     };
+    
+    //  receiver holds for this endpoint.  perhaps we need to make this
+    //  capacity configurable?
+    endpoint.senderReceiveHoldList.reserve(32);
     
     Address result { 0 };
     {
@@ -71,44 +87,57 @@ uint32_t Messenger::send
     auto it = _endpoints.find(msg.sender().id);
     if (it == _endpoints.end())
         return 0;
-    
+ 
+    //  todo - buffers that are full, call transmit to make space
     auto& sendPoint = it->second;
     auto& sendBuffer = sendPoint.sendBuffer;
     
-    //  verify we can send out this payload
-    MessagePacket* outMsg = reinterpret_cast<MessagePacket*>(sendBuffer.writep(sizeof(MessagePacket)));
-    if (!outMsg)
+    //  verify we can send out the message packet
+    uint8_t* packet = sendBuffer.writep(kEncodedHeaderSize +
+                                        sizeof(Address) +
+                                        sizeof(Message));
+    if (!packet)
         return 0;
     
+    encodeHeader(packet, kEncodedMessageHeader);
+    memcpy(packet + kEncodedHeaderSize, &receiver, sizeof(Address));
+    auto outMsg = reinterpret_cast<Message*>(packet + kEncodedHeaderSize + sizeof(Address));
+    *outMsg = std::move(msg);
+    
     uint8_t* outPayload = nullptr;
-    if (payload && payload->size()>0) {
-        outPayload = sendBuffer.writep(payload->size() + sizeof(uint32_t));
+    uint32_t payloadSize = payload->size();
+    if (payload && payloadSize>0) {
+        outPayload = sendBuffer.writep(sizeof(uint32_t) +
+                                       payload->size());
         if (!outPayload) {
             sendBuffer.revertWrite();
             return 0;
         }
+        outMsg->setFlags(Message::kHasPayload);
+        
+        memcpy(outPayload, &payloadSize, sizeof(uint32_t));
+        memcpy(outPayload+sizeof(uint32_t), payload, payload->size());
     }
     
-    outMsg->msg = std::move(msg);
-    outMsg->receiver = receiver;
-    
-    if (outPayload) {
-        *reinterpret_cast<uint32_t*>(outPayload) = payload->size();
-        memcpy(outPayload+sizeof(uint32_t), payload->data(), payload->size());
-        outMsg->msg.setFlags(Message::kHasPayload);
-    }
-    
-    if (seqId == 0) {
+    if (seqId == kAssignSequenceId) {
+        //  reserve 0 and (uint32_t)(-1) (see message.hpp constants.)
         ++sendPoint.thisSeqId;
-        if (!sendPoint.thisSeqId)
+        if (sendPoint.thisSeqId == kAssignSequenceId)
             sendPoint.thisSeqId = 1;
         seqId = sendPoint.thisSeqId;
     }
-    else {
-        outMsg->msg.setFlags(Message::kIsReply);
+    else if (seqId != kNullSequenceId) {
+        outMsg->setFlags(Message::kIsReply);
     }
-    outMsg->msg.setSequenceId(seqId);
     
+    outMsg->setSequenceId(seqId);
+    
+    //  finish write (note, we could've updated two times, message and payload.)
+    //  since we don't yet support transmitting during send to free send space
+    //  we want to perform the write in one sequence.
+    //
+    //  note, this doesn't mean much yet without multithreading.
+    //
     sendBuffer.updateWrite();
     
     return seqId;
@@ -122,62 +151,120 @@ void Messenger::transmit(Address sender)
     
     //  iterate through all messages on the sender's send list and dispatch
     //  to every message's receiver
+    
     auto& sendPoint = endpIt->second;
     auto& sendBuffer = sendPoint.sendBuffer;
     
-    while (sendBuffer.readSizeContiguous() >= sizeof(Message)) {
-        //  read all message and attached data.  if there's a valid message
-        //  there will be valid attachement data, so checking for message
-        //  objects by itself should be enough to indicate whether there
-        //  are messages on the send buffer
-        
-        const MessagePacket* inMsg = reinterpret_cast<const MessagePacket*>(
-            sendBuffer.readp(sizeof(MessagePacket))
+    //  clear out receive holds for our sender left over from last frame
+    //  receive holds will be populated below if needed
+    sendPoint.senderReceiveHoldList.clear();
+    
+    //  use the encoded header to determine current send/transmit state
+    //  our goal is to fill the receive buffer with whole objects
+    //  a 'whole' object is defined as a 4-byte encoded header and its
+    //  attached data.
+    //  this way, we can divide transmitted data into chunks and maximize
+    //  memory efficiency - keep all buffers as full as possible.
+    //
+    //  the receiver will handle incoming data accordingly by packets.
+    //
+    while (sendBuffer.readSizeContiguous() >= (kEncodedHeaderSize + sizeof(Address))) {
+      
+        const uint8_t* hdrpacket = sendBuffer.readp(kEncodedHeaderSize);
+        const Address& address = *reinterpret_cast<const Address*>(
+            sendBuffer.readp(sizeof(Address))
         );
-        const uint8_t* payloadData = nullptr;
-        uint32_t payloadSize = 0;
-        if (inMsg->msg.queryFlag(Message::kHasPayload)) {
-            payloadSize =  *reinterpret_cast<const uint32_t*>(
-                                sendBuffer.readp(sizeof(uint32_t))
-                            );
-            payloadData = sendBuffer.readp(payloadSize);
-        }
         
-        sendBuffer.updateRead();
+        const uint8_t* datapacket = nullptr;
+        uint32_t datasize = 0;
         
-        //  output to endpoint
-        auto endpRecvIt = _endpoints.find(inMsg->receiver.id);
-        if (endpRecvIt != _endpoints.end()) {
-            auto& recvPoint = endpRecvIt->second;
+        if (checkHeader(hdrpacket, kEncodedMessageHeader)) {
+            datapacket = sendBuffer.readp(sizeof(Message));
+            if (datapacket) {
+                const Message& inMsg = *reinterpret_cast<const Message*>(datapacket);
+                datasize = sizeof(Message);
             
-            Message* outMsg = reinterpret_cast<Message*>(
-                recvPoint.recvBuffer.writep(sizeof(Message))
-            );
-            if (outMsg && payloadData) {
-                uint8_t* outPayload =
-                    recvPoint.recvBuffer.writep(payloadSize + sizeof(uint32_t));
-                if (outPayload) {
-                    *reinterpret_cast<uint32_t*>(outPayload) = payloadSize;
-                    memcpy(outPayload + sizeof(uint32_t), payloadData, payloadSize - sizeof(uint32_t));
-                }
-                else {
-                    outMsg = nullptr;   // no room, dump message
+                if (inMsg.queryFlag(Message::kHasPayload)) {
+                    const uint8_t* p = sendBuffer.readp(sizeof(uint32_t));
+                    if (p) {
+                        uint32_t payloadSize = *reinterpret_cast<const uint32_t*>(p);
+                        datasize += sizeof(uint32_t);
+                        if (payloadSize) {
+                            const uint8_t* payloadData = sendBuffer.readp(payloadSize);
+                            if (payloadData) {
+                                datasize += payloadSize;
+                            }
+                            else {
+                                datapacket = nullptr;
+                            }
+                        }
+                    }
+                    else {
+                        datapacket = nullptr;
+                    }
                 }
             }
-            if (outMsg) {
-                *outMsg = inMsg->msg;
-                recvPoint.recvBuffer.updateWrite();
+        }
+        
+        //  the while condition verifies that we have a valid header + address
+        //  but check edge cases where we don't have any data associated with
+        //  the packet.  in such cases, we must drop the packet as our system
+        //  requires that packets are submitted in whole to the send buffer.
+        //  non-data packets in this case indicate that we're not sending
+        //  packets properly.
+        
+        //  valid datapackets are transmitted to the target address's endpoint
+        //  receive buffer.
+        bool consumePacket = true;
+        if (datapacket) {
+            //  we have a whole packet to transmit.  if there's room on the
+            //  target's receiver queue, then copy it over.  otherwise we hold
+            //  further transmission to this receiver for this remainder of this
+            //  transmission pass
+            
+            if (std::find(sendPoint.senderReceiveHoldList.begin(),
+                      sendPoint.senderReceiveHoldList.end(),
+                      address.id) == sendPoint.senderReceiveHoldList.end()) {
+            
+                auto endpRecvIt = _endpoints.find(address.id);
+                if (endpRecvIt != _endpoints.end()) {
+                    auto& recvPoint = endpRecvIt->second;
+                    auto& recvBuffer = recvPoint.recvBuffer;
+                    if (recvBuffer.writeSizeContiguous() >= kEncodedHeaderSize + datasize) {
+                        uint8_t* hdrout = recvBuffer.writep(kEncodedHeaderSize);
+                        encodeHeader(hdrout, hdrpacket);
+                        uint8_t* dataout = recvBuffer.writep(datasize);
+                        memcpy(dataout, datapacket, datasize);
+                        recvBuffer.updateWrite();
+                    }
+                    else {
+                        sendPoint.senderReceiveHoldList.push_back(endpRecvIt->first);
+                        consumePacket = false;
+                    }
+                }
+                /*
+                else {
+                    //  dropped - no endpoint found.
+                }
+                */
             }
             else {
-                assert(outMsg);
-                recvPoint.recvBuffer.revertWrite();
+                consumePacket = false;
             }
         }
+        /*
+        else {
+            //  corrupt data - remove.
+        }
+        */
         
+        if (consumePacket) {
+            sendBuffer.updateRead();
+        }
     }
 }
 
-Message Messenger::receive
+Message Messenger::pollReceive
 (
     Address receiver,
     Payload& payload
@@ -185,9 +272,43 @@ Message Messenger::receive
 {
     Message msg;
     
-    
+    auto endpIt = _endpoints.find(receiver.id);
+    if (endpIt != _endpoints.end()) {
+        auto& recvBuffer = endpIt->second.recvBuffer;
+        while (recvBuffer.readSizeContiguous() >= kEncodedHeaderSize) {
+            
+            const uint8_t* hdrpacket = recvBuffer.readp(kEncodedHeaderSize);
+            
+            if (checkHeader(hdrpacket, kEncodedMessageHeader)) {
+                const Message* pkt = reinterpret_cast<const Message*>(
+                    recvBuffer.readp(sizeof(Message))
+                );
+                if (pkt) {
+                    const uint8_t* payloadData = nullptr;
+                    uint32_t payloadSize = 0;
+                    if (pkt->queryFlag(Message::kHasPayload)) {
+                        const uint8_t* p = recvBuffer.readp(sizeof(uint32_t));
+                        if (p) {
+                            payloadSize =  *reinterpret_cast<const uint32_t*>(p);
+                            payloadData = recvBuffer.readp(payloadSize);
+                        }
+                        payload = std::move(Payload(payloadData, payloadSize));
+                    }
+                    msg = *pkt;
+                }
+            }
+        }
+    }
     
     return msg;
+}
+
+void Messenger::pollEnd(Address receiver)
+{
+    auto endpIt = _endpoints.find(receiver.id);
+    if (endpIt != _endpoints.end()) {
+        endpIt->second.recvBuffer.updateRead();
+    }
 }
 
 } /* namespace ckmsg */
