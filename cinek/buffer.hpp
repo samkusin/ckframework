@@ -34,7 +34,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <utility>
 #include <cstring>
 
 namespace cinek {
