@@ -69,12 +69,6 @@ private:
         Buffer<Allocator> recvBuffer;
         
         uint32_t thisSeqId;
-        
-        //  if a sender can't send a packet to a receiver, prevent that sender
-        //  from sending other queued packets to that receiver until there's
-        //  room.
-        //  this list is cleared at the end of a transmit.
-        std::vector<uint32_t> senderReceiveHoldList;
     };
     
     std::unordered_map<uint32_t, Endpoint> _endpoints;

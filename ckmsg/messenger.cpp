@@ -9,6 +9,7 @@
 #include "messenger.hpp"
 
 #include <cassert>
+#include <cstdlib>
 
 namespace ckmsg {
 
@@ -28,6 +29,17 @@ inline bool checkHeader(const uint8_t* input, const uint8_t hdr[]) {
            input[1]==hdr[1] &&
            input[2]==hdr[2] &&
            input[3]==hdr[3];
+}
+
+
+uint8_t* Allocator::allocate(size_t sz)
+{
+    return (uint8_t*)std::malloc(sz);
+}
+
+void Allocator::free(uint8_t* p)
+{
+    std::free(p);
 }
 
 /*
@@ -50,10 +62,6 @@ Address Messenger::createEndpoint(EndpointInitParams initParams)
         Buffer<Allocator>(initParams.recvSize),
         0
     };
-    
-    //  receiver holds for this endpoint.  perhaps we need to make this
-    //  capacity configurable?
-    endpoint.senderReceiveHoldList.reserve(32);
     
     Address result { 0 };
     {
@@ -94,29 +102,37 @@ uint32_t Messenger::send
     
     //  verify we can send out the message packet
     uint8_t* packet = sendBuffer.writep(kEncodedHeaderSize +
-                                        sizeof(Address) +
-                                        sizeof(Message));
+                                        sizeof(Address));
     if (!packet)
         return 0;
     
     encodeHeader(packet, kEncodedMessageHeader);
     memcpy(packet + kEncodedHeaderSize, &receiver, sizeof(Address));
-    auto outMsg = reinterpret_cast<Message*>(packet + kEncodedHeaderSize + sizeof(Address));
+    
+    auto outMsg = reinterpret_cast<Message*>(sendBuffer.writep(sizeof(Message)));
+    if (!outMsg) {
+        sendBuffer.revertWrite();
+        return 0;
+    }
+    
     *outMsg = std::move(msg);
     
-    uint8_t* outPayload = nullptr;
-    uint32_t payloadSize = payload->size();
-    if (payload && payloadSize>0) {
-        outPayload = sendBuffer.writep(sizeof(uint32_t) +
-                                       payload->size());
+    if (payload && payload->size()>0) {
+        uint32_t payloadSize = payload->size();
+        uint8_t* outPayload = sendBuffer.writep(sizeof(uint32_t));
+        if (!outPayload) {
+            sendBuffer.revertWrite();
+            return 0;
+        }
+        memcpy(outPayload, &payloadSize, sizeof(uint32_t));
+        outPayload = sendBuffer.writep(payloadSize);
         if (!outPayload) {
             sendBuffer.revertWrite();
             return 0;
         }
         outMsg->setFlags(Message::kHasPayload);
         
-        memcpy(outPayload, &payloadSize, sizeof(uint32_t));
-        memcpy(outPayload+sizeof(uint32_t), payload, payload->size());
+        memcpy(outPayload, payload->data(), payloadSize);
     }
     
     if (seqId == kAssignSequenceId) {
@@ -155,111 +171,138 @@ void Messenger::transmit(Address sender)
     auto& sendPoint = endpIt->second;
     auto& sendBuffer = sendPoint.sendBuffer;
     
-    //  clear out receive holds for our sender left over from last frame
-    //  receive holds will be populated below if needed
-    sendPoint.senderReceiveHoldList.clear();
-    
-    //  use the encoded header to determine current send/transmit state
-    //  our goal is to fill the receive buffer with whole objects
-    //  a 'whole' object is defined as a 4-byte encoded header and its
-    //  attached data.
-    //  this way, we can divide transmitted data into chunks and maximize
-    //  memory efficiency - keep all buffers as full as possible.
+    //  take send buffer input and copy it to the receiver's output buffer
+    //  - confirm we have a valid send buffer packet first (the while guard)
+    //  - the remaining logic ingests the send buffer packet based on type
+    //      - implementation is a state machine since packet content relies on
+    //        the encoded header string.
+    //      - missing data results in a corrupt packet, which is thrown out
+    //      - a full receive buffer results in an 'out of room' state
     //
-    //  the receiver will handle incoming data accordingly by packets.
-    //
-    while (sendBuffer.readSizeContiguous() >= (kEncodedHeaderSize + sizeof(Address))) {
+    while (sendBuffer.readSizeContiguous(kEncodedHeaderSize + sizeof(Address))) {
       
-        const uint8_t* hdrpacket = sendBuffer.readp(kEncodedHeaderSize);
+        const uint8_t* hdrpacket = sendBuffer.readp(kEncodedHeaderSize + sizeof(Address));
         const Address& address = *reinterpret_cast<const Address*>(
-            sendBuffer.readp(sizeof(Address))
+            hdrpacket+kEncodedHeaderSize
         );
         
-        const uint8_t* datapacket = nullptr;
-        uint32_t datasize = 0;
-        
-        if (checkHeader(hdrpacket, kEncodedMessageHeader)) {
-            datapacket = sendBuffer.readp(sizeof(Message));
-            if (datapacket) {
-                const Message& inMsg = *reinterpret_cast<const Message*>(datapacket);
-                datasize = sizeof(Message);
+        auto endpRecvIt = _endpoints.find(address.id);
+        if (endpRecvIt != _endpoints.end()) {
+            auto& recvPoint = endpRecvIt->second;
+            auto& recvBuffer = recvPoint.recvBuffer;
             
-                if (inMsg.queryFlag(Message::kHasPayload)) {
-                    const uint8_t* p = sendBuffer.readp(sizeof(uint32_t));
-                    if (p) {
-                        uint32_t payloadSize = *reinterpret_cast<const uint32_t*>(p);
-                        datasize += sizeof(uint32_t);
-                        if (payloadSize) {
-                            const uint8_t* payloadData = sendBuffer.readp(payloadSize);
-                            if (payloadData) {
-                                datasize += payloadSize;
-                            }
-                            else {
-                                datapacket = nullptr;
-                            }
+            enum
+            {
+                kStartPacket,
+                kMessage,
+                kMessagePayloadSize,
+                kMessagePayload,
+                kCompleted,
+                kCorrupted,
+                kOutOfRoom
+            }
+            inputState = kStartPacket;
+            
+            uint32_t datasize = 0;
+            while (inputState < kCompleted) {
+                const uint8_t* inp = nullptr;
+                uint8_t* outp = nullptr;
+            
+                switch (inputState)
+                {
+                case kStartPacket:
+                    inp = hdrpacket;
+                    datasize = kEncodedHeaderSize;
+                    break;
+                case kMessage:
+                    datasize = sizeof(Message);
+                    break;
+                case kMessagePayloadSize:
+                    datasize = sizeof(uint32_t);
+                    break;
+                case kMessagePayload:
+                    //  datasize already set in kMessagePayloadSize state
+                    break;
+                default:
+                    assert(false);  // logic error
+                    datasize = 0;
+                    break;
+                }
+                
+                if (!inp) {
+                    inp = sendBuffer.readp(datasize);
+                }
+                outp = recvBuffer.writep(datasize);
+                if (!inp) {
+                    inputState = kCorrupted;
+                }
+                else if (!outp) {
+                    inputState = kOutOfRoom;
+                }
+                else {
+                    memcpy(outp, inp, datasize);
+                }
+                
+                switch (inputState)
+                {
+                case kStartPacket:
+                    if (checkHeader(inp, kEncodedMessageHeader)) {
+                        inputState = kMessage;
+                    }
+                    else {
+                        inputState = kCorrupted;
+                    }
+                    break;
+                case kMessage: {
+                        auto& msg = *reinterpret_cast<const Message*>(inp);
+                        if (msg.queryFlag(Message::kHasPayload)) {
+                            inputState = kMessagePayloadSize;
+                        }
+                        else {
+                            inputState = kCompleted;
                         }
                     }
-                    else {
-                        datapacket = nullptr;
+                    break;
+                case kMessagePayloadSize: {
+                        datasize = *reinterpret_cast<const uint32_t*>(inp);
+                        inputState = kMessagePayload;
                     }
+                    break;
+                case kMessagePayload: {
+                        inputState = kCompleted;
+                    }
+                    break;
+                default:
+                    break;
                 }
+            }   //  end packet state machine
+            
+            if (inputState == kOutOfRoom) {
+                //  Full receive buffer.  since our sender must publish packets
+                //  in-order, we can't transmit until there's room.
+                //
+                //  Buffers store packets sequentially and we can't skip packets
+                //  in the buffer to continue reading.)
+                recvBuffer.revertWrite();
+                sendBuffer.revertRead();
+                return;
             }
-        }
-        
-        //  the while condition verifies that we have a valid header + address
-        //  but check edge cases where we don't have any data associated with
-        //  the packet.  in such cases, we must drop the packet as our system
-        //  requires that packets are submitted in whole to the send buffer.
-        //  non-data packets in this case indicate that we're not sending
-        //  packets properly.
-        
-        //  valid datapackets are transmitted to the target address's endpoint
-        //  receive buffer.
-        bool consumePacket = true;
-        if (datapacket) {
-            //  we have a whole packet to transmit.  if there's room on the
-            //  target's receiver queue, then copy it over.  otherwise we hold
-            //  further transmission to this receiver for this remainder of this
-            //  transmission pass
-            
-            if (std::find(sendPoint.senderReceiveHoldList.begin(),
-                      sendPoint.senderReceiveHoldList.end(),
-                      address.id) == sendPoint.senderReceiveHoldList.end()) {
-            
-                auto endpRecvIt = _endpoints.find(address.id);
-                if (endpRecvIt != _endpoints.end()) {
-                    auto& recvPoint = endpRecvIt->second;
-                    auto& recvBuffer = recvPoint.recvBuffer;
-                    if (recvBuffer.writeSizeContiguous() >= kEncodedHeaderSize + datasize) {
-                        uint8_t* hdrout = recvBuffer.writep(kEncodedHeaderSize);
-                        encodeHeader(hdrout, hdrpacket);
-                        uint8_t* dataout = recvBuffer.writep(datasize);
-                        memcpy(dataout, datapacket, datasize);
-                        recvBuffer.updateWrite();
-                    }
-                    else {
-                        sendPoint.senderReceiveHoldList.push_back(endpRecvIt->first);
-                        consumePacket = false;
-                    }
-                }
-                /*
-                else {
-                    //  dropped - no endpoint found.
-                }
-                */
+            else if (inputState == kCorrupted) {
+                //  input packet is incomplete - likely due to implementation
+                //  errors inside send().  we'll continue to ingest our send
+                //  buffer, but dump any contents sent to the receiver.
+                recvBuffer.revertWrite();
+                sendBuffer.updateRead();
+            }
+            else if (inputState == kCompleted) {
+                recvBuffer.updateWrite();
+                sendBuffer.updateRead();
             }
             else {
-                consumePacket = false;
+                //  this shouldn't happen unless there's an implementation
+                //  error above
+                assert(false);
             }
-        }
-        /*
-        else {
-            //  corrupt data - remove.
-        }
-        */
-        
-        if (consumePacket) {
-            sendBuffer.updateRead();
         }
     }
 }
@@ -275,8 +318,7 @@ Message Messenger::pollReceive
     auto endpIt = _endpoints.find(receiver.id);
     if (endpIt != _endpoints.end()) {
         auto& recvBuffer = endpIt->second.recvBuffer;
-        while (recvBuffer.readSizeContiguous() >= kEncodedHeaderSize) {
-            
+        if (recvBuffer.readSizeContiguous(kEncodedHeaderSize)) {
             const uint8_t* hdrpacket = recvBuffer.readp(kEncodedHeaderSize);
             
             if (checkHeader(hdrpacket, kEncodedMessageHeader)) {

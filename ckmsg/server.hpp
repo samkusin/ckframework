@@ -105,6 +105,10 @@ public:
      *  queue if it still has messages.)  Invoke once per receive.
      */
     void transmit();
+    /**
+     *  @return returns the address for this server.
+     */
+    Address address() const { return _endpoint; }
 
 private:
     Messenger* _messenger;

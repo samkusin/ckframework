@@ -46,7 +46,7 @@ void Server<_DelegateType>::on
         it->second = std::move(delegate);
     }
     else {
-        _classDelegates.emplace(it, std::move(delegate));
+        _classDelegates.emplace(it, classId, std::move(delegate));
     }
 }
 
@@ -99,4 +99,4 @@ void Server<_DelegateType>::transmit()
 
 } /* namespace ckmsg */
 
-template<> class ckmsg::Server<std::function<void(ckmsg::ServerRequestId, const ckmsg::Payload*)>>;
+template class ckmsg::Server<std::function<void(ckmsg::ServerRequestId, const ckmsg::Payload*)>>;

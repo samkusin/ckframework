@@ -41,7 +41,20 @@ uint32_t Client<_Delegate>::send
     _Delegate delegate
 )
 {
-    uint32_t seqId = _messenger->send(_endpoint, target, classId);
+    return send(target, classId, Payload(), delegate);
+}
+
+template<typename _Delegate>
+uint32_t Client<_Delegate>::send
+(
+    Address target,
+    ClassId classId,
+    const Payload& payload,
+    _Delegate delegate
+)
+{
+    Message msg(_endpoint, classId);
+    uint32_t seqId = _messenger->send(std::move(msg), target, &payload, kAssignSequenceId);
     if (seqId && delegate) {
         auto it = std::lower_bound(_sequenceDelegates.begin(), _sequenceDelegates.end(),
             seqId,
@@ -50,7 +63,7 @@ uint32_t Client<_Delegate>::send
             });
         //  sanity check, but this assertion should never fail in a real app
         assert(it == _sequenceDelegates.end() || it->first != seqId);
-        _sequenceDelegates.emplace(seqId, std::move(delegate));
+        _sequenceDelegates.emplace(it, seqId, std::move(delegate));
     }
     return seqId;
 }
@@ -67,7 +80,8 @@ void Client<_DelegateType>::on(ClassId classId, _DelegateType delegate)
         it->second = std::move(delegate);
     }
     else {
-        _classDelegates.emplace(it, std::move(delegate));
+        _classDelegates.emplace(it, classId,
+        std::move(delegate));
     }
 }
 
@@ -94,6 +108,7 @@ void Client<_Delegate>::receive()
                 });
             if (it != _sequenceDelegates.end() && it->first == msg.sequenceId()) {
                 it->second(msg.sequenceId(), msg.type(), &payload);
+                _sequenceDelegates.erase(it);
             }
         }
         else {
@@ -115,4 +130,4 @@ void Client<_Delegate>::receive()
 
 }   /* namespace ckmsg */
 
-template<> class ckmsg::Client<std::function<void(uint32_t, ckmsg::ClassId, const ckmsg::Payload*)>>;
+template class ckmsg::Client<std::function<void(uint32_t, ckmsg::ClassId, const ckmsg::Payload*)>>;

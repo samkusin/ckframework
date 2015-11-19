@@ -54,6 +54,21 @@ public:
      */
     uint32_t send(Address target, ClassId classId,
                   _DelegateType delegate=_DelegateType());
+    
+    /**
+     *  Sends a message with payload to the target with an optional callback
+     *  on response from the server.
+     *
+     *  @param  target          The destination for the message
+     *  @param  classId         The message class
+     *  @param  payload         The message payload
+     *  @param  delegate        The callback invoked upon response from the
+     *                          server of the sent message
+     *  @return A sequence ID or 0 (failed)
+     */
+    uint32_t send(Address target, ClassId classId,
+                  const Payload& payload,
+                  _DelegateType delegate=_DelegateType());
     /**
      *  Cancels a delegate specified in the send() call.
      *
@@ -87,6 +102,10 @@ public:
      *                  message with the specified class.
      */
     void on(ClassId classId, _DelegateType delegate);
+    /**
+     *  @return returns the address for this client.
+     */
+    Address address() const { return _endpoint; }
     
 private:
     Messenger* _messenger;

@@ -40,9 +40,9 @@ public:
     
     size_t size() const;
     size_t readSize() const;
-    size_t readSizeContiguous() const;
+    bool readSizeContiguous(size_t sz) const;
     size_t writeSize() const;
-    size_t writeSizeContiguous() const;
+    bool writeSizeContiguous(size_t sz) const;
     
     uint8_t* writep(size_t cnt);
     void updateWrite();
@@ -126,9 +126,18 @@ size_t Buffer<Alloc>::readSize() const
 }
 
 template<typename Alloc>
-size_t Buffer<Alloc>::readSizeContiguous() const
+bool Buffer<Alloc>::readSizeContiguous(size_t sz) const
 {
-    return (_writeHead>=_head) ? (_writeHead-_head) : (_limit-_head);
+    if (_writeHead >= _head) {
+        return (_writeHead - _head) >= sz;
+    }
+    else if (_limit - _head >= sz) {
+        return true;
+    }
+    else if (_writeHead - _start >= sz) {
+        return true;
+    }
+    return false;
 }
 
 template<typename Alloc>
@@ -138,9 +147,18 @@ size_t Buffer<Alloc>::writeSize() const
 }
 
 template<typename Alloc>
-size_t Buffer<Alloc>::writeSizeContiguous() const
+bool Buffer<Alloc>::writeSizeContiguous(size_t sz) const
 {
-    return (_readHead > _tail) ? (_readHead - _tail) - 1 : (_limit - _tail);
+    if (_readHead > _tail) {
+        return (_readHead - _tail - 1) >= sz;
+    }
+    else if (_limit - _tail >= sz) {
+        return true;
+    }
+    else if (_readHead - _start >= sz) {
+        return true;
+    }
+    return false;
 }
 
 template<typename Alloc>
