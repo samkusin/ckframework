@@ -129,5 +129,3 @@ void Client<_Delegate>::receive()
 }
 
 }   /* namespace ckmsg */
-
-template class ckmsg::Client<std::function<void(uint32_t, ckmsg::ClassId, const ckmsg::Payload*)>>;

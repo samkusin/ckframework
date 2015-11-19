@@ -99,4 +99,3 @@ void Server<_DelegateType>::transmit()
 
 } /* namespace ckmsg */
 
-template class ckmsg::Server<std::function<void(ckmsg::ServerRequestId, const ckmsg::Payload*)>>;
