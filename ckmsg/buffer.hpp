@@ -13,7 +13,6 @@
  * - Allocator scheme changed
  * - Reads and write chunks must remain contiguous in memory (no wraparound of
  *   of data from end to start
- * - U
  */
 
 #ifndef CINEK_MSG_BUFFER_HPP

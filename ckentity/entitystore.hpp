@@ -104,6 +104,9 @@ public:
     template<typename Component> component::Table<Component> table() const;
     EntityGroupTable entityGroupTable(EntityGroupMapId id) const;
     
+    const EntityDataTable* entityTable(ComponentId compId) const;
+    EntityDataTable* entityTable(ComponentId compId);
+    
     void diagnostics(EntityDiagnostics& diagnostics);
     
 private:
@@ -122,11 +125,10 @@ private:
 template<typename Component>
 component::Table<Component> EntityStore::table() const
 {
-    auto componentIt = _components.find(Component::kComponentId);
-    if (componentIt == _components.end())
+    const EntityDataTable* dataTable = entityTable(Component::kComponentId);
+    if (!dataTable)
         return nullptr;
-    const EntityDataTable& table = componentIt->second;
-    return component::Table<Component>(const_cast<EntityDataTable*>(&table));
+    return component::Table<Component>(const_cast<EntityDataTable*>(dataTable));
 }
 
 } /* namespace cinek */

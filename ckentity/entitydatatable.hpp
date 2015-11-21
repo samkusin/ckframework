@@ -56,6 +56,7 @@ public:
     container_type& rowset() { return _rowset; }
 
     index_type rowIndexFromEntity(Entity eid) const;
+    bool hasEntity(Entity eid) const;
     index_type allocateIndexForEntity(Entity eid);
     void removeDataFromEntity(Entity eid);
 

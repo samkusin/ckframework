@@ -196,6 +196,22 @@ EntityGroupTable EntityStore::entityGroupTable(EntityGroupMapId id) const
     return EntityGroupTable(const_cast<EntityGroupMap*>(&entityGroupMap));
 }
 
+const EntityDataTable* EntityStore::entityTable(ComponentId compId) const
+{
+    auto componentIt = _components.find(compId);
+    if (componentIt == _components.end())
+        return nullptr;
+    const EntityDataTable& table = componentIt->second;
+    return &table;
+}
+
+EntityDataTable* EntityStore::entityTable(ComponentId compId)
+{
+    return const_cast<EntityDataTable*>(
+        static_cast<const EntityStore*>(this)->entityTable(compId)
+    );
+}
+
 void EntityStore::diagnostics(EntityDiagnostics& diagnostics)
 {
     diagnostics.components.reserve(_components.size());

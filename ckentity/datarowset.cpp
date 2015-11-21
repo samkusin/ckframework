@@ -260,6 +260,11 @@ namespace component
     {
         return { *rowAt(index) };
     }
+    
+    bool DataRowset::hasEntity(Entity eid) const
+    {
+        return _entityToRow.find(eid) != _entityToRow.end();
+    }
 
     auto DataRowset::firstIndex(index_type idx) const -> index_type
     {

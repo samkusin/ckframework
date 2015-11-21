@@ -76,6 +76,7 @@ namespace component
         const uint8_t* at(index_type index) const;
 
         Entity entityAt(index_type index) const;
+        bool hasEntity(Entity eid) const;
 
         index_type firstIndex(index_type idx=0) const;
         index_type nextIndex(index_type) const;

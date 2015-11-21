@@ -50,4 +50,11 @@ void EntityDataTable::removeDataFromEntity
     _rowset.free(eid);
 }
 
+
+bool EntityDataTable::hasEntity(Entity eid) const
+{
+    return _rowset.hasEntity(eid);
+}
+
+
 } /* namespace cinek */
