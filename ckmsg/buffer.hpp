@@ -48,6 +48,8 @@ public:
     void revertWrite();
     
     const uint8_t* readp(size_t cnt);
+    const uint8_t* peekp(size_t cnt) const;
+    
     void updateRead();
     void revertRead();
     
@@ -167,16 +169,15 @@ uint8_t* Buffer<Alloc>::writep(size_t cnt)
     size_t avail;
     
     //  enforce that write requests must be contiguous (in memory) blocks
-    if (_tail >= _head) {
+    if (_tail >= _readHead) {
         avail = _limit - _tail;
         if (avail < cnt) {
-            if (_start < _readHead)
-                p = _start;
+            p = _start;
         }
     }
-    if (p < _readHead) {
-        avail = _readHead - p - 1;
-        if (avail < cnt)
+    if (p <= _readHead) {
+        avail = _readHead - p;
+        if (avail <= cnt)       // wraparound, tail == head is overflow
             return nullptr;
     }
     _tail = p + cnt;
@@ -198,24 +199,43 @@ void Buffer<Alloc>::revertWrite()
 template<typename Alloc>
 const uint8_t* Buffer<Alloc>::readp(size_t cnt)
 {
-    uint8_t* p = _head;
-    size_t avail;
-    //  enforce that read requests are for contiguous memory
-    if (_head >= _tail+1) {
-        avail = _limit - _head;
-        if (avail < cnt) {
-            if (_start < _writeHead)
-                p = _start;
-        }
-    }
-    if (p < _writeHead) {
-        avail = _writeHead - p;
-        if (avail < cnt)
-            return nullptr;
-    }
-    _head = p + cnt;
+    const uint8_t* p = peekp(cnt);
+    if (!p)
+        return nullptr;
+    
+    _head = const_cast<uint8_t*>(p) + cnt;
     return p;
 }
+
+/*
+const uint8_t* calcHead(size_t offset)
+{
+    const uint8_t* head = _head + offset;
+    if (head > _limit) {
+        head = _start + (head )
+}
+*/
+
+template<typename Alloc>
+const uint8_t* Buffer<Alloc>::peekp(size_t cnt) const
+{
+    const uint8_t* p = _head;
+    ssize_t avail;
+    //  enforce that read requests are for contiguous memory
+    if (_head > _writeHead) {
+        avail = _limit - _head;
+        if (avail < cnt) {
+            p = _start;
+        }
+    }
+    if (p <= _writeHead) {
+        avail = _writeHead - p;
+        if (avail < cnt)        // head < tail always means available read data
+            return nullptr;
+    }
+    return p;
+}
+
 
 template<typename Alloc>
 void Buffer<Alloc>::updateRead()

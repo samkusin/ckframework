@@ -88,11 +88,13 @@ public:
      */
     void on(ClassId classId, _DelegateType delegate);
     /**
-     *  Receives incoming messages targeted for this client (via localAddress).
-     *  Clients should call this method regularly to poll for incoming messages.
+     *  Receives a single message targeted for this client (via localAddress).
+     *  Servers should call this method regularly to poll for incoming messages.
      *  This method may invoke message handlers before returning.
+     *
+     *  @return False if there are no more messages on the receive buffer
      */
-    void receive();
+    bool receive();
     /**
      *  Reply to an active request.
      *

@@ -93,12 +93,12 @@ void Client<_Delegate>::transmit()
 
 
 template<typename _Delegate>
-void Client<_Delegate>::receive()
+bool Client<_Delegate>::receive()
 {
-    Message msg;
     Payload payload;
-    
-    while ((msg = _messenger->pollReceive(_endpoint, payload))) {
+    Message msg = _messenger->pollReceive(_endpoint, payload);
+    if (msg)
+    {
         //  if a reply, check sequence delegates
         if (msg.queryFlag(Message::kIsReply)) {
             auto it = std::lower_bound(_sequenceDelegates.begin(), _sequenceDelegates.end(),
@@ -124,8 +124,9 @@ void Client<_Delegate>::receive()
             }
         }
     }
+    _messenger->pollEnd(_endpoint, true);
     
-    _messenger->pollEnd(_endpoint);
+    return (msg)==true;
 }
 
 }   /* namespace ckmsg */

@@ -345,11 +345,16 @@ Message Messenger::pollReceive
     return msg;
 }
 
-void Messenger::pollEnd(Address receiver)
+void Messenger::pollEnd(Address receiver, bool consume)
 {
     auto endpIt = _endpoints.find(receiver.id);
     if (endpIt != _endpoints.end()) {
-        endpIt->second.recvBuffer.updateRead();
+        if (consume) {
+            endpIt->second.recvBuffer.updateRead();
+        }
+        else {
+            endpIt->second.recvBuffer.revertRead();
+        }
     }
 }
 

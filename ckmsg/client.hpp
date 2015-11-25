@@ -31,7 +31,11 @@ namespace ckmsg {
  *  The Client's _Delegate must be a callable object that conforms to the
  *  following signature:
  *
- *  void callback(ResultType result, ClassId classId, const Payload* payload);
+ *  bool callback(ResultType result, ClassId classId, const Payload* payload);
+ *      ; returns true if message handled, false if it's kept on the queue
+ *      ; returning false will hold the client's receive queue until it
+ *      ; processes the message.
+ *
  *  operator bool()
  *  support move
  */
@@ -81,11 +85,13 @@ public:
      */
     void transmit();
     /**
-     *  Receives incoming messages targeted for this client (via localAddress).
+     *  Receives a single message targeted for this client (via localAddress).
      *  Clients should call this method regularly to poll for incoming messages.
      *  This method may invoke message handlers before returning.
+     *
+     *  @return False is the receive buffer is empty
      */
-    void receive();
+    bool receive();
     /**
      *  Registers a notification handler for the specified class.  Only one
      *  handler is allowed per notifcation.  Calls that specify a class with

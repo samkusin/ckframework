@@ -59,8 +59,9 @@ public:
      *  through pollReceive become undefined.
      *
      *  @param  receiver    End polling for the receiver.
+     *  @param  consume     If false, the message is kept on the receive buffer
      */
-    void pollEnd(Address receiver);
+    void pollEnd(Address receiver, bool consume);
 
 private:
     struct Endpoint
