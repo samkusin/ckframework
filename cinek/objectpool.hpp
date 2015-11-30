@@ -260,7 +260,7 @@ namespace cinek {
         
         ManagedObjectPool();
         ~ManagedObjectPool();
-        ManagedObjectPool(size_t count);
+        explicit ManagedObjectPool(size_t count);
         ManagedObjectPool(ManagedObjectPool&& other) noexcept;
         ManagedObjectPool& operator=(ManagedObjectPool&& other) noexcept;
 

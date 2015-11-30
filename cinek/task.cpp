@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Cinekine Media
+ * Copyright (c) 2014 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,47 +21,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/types.cpp
+ * @file    cinek/task.cpp
  * @author  Samir Sinha
- * @date    11/8/2014
- * @brief   types
+ * @date    10/29/2014
+ * @brief   A Task execution object
  * @copyright Cinekine
  */
 
+/*
+ * An extension of Mike McShaffry's example of Process based execution,
+ * substituting 'Task' for 'Process' in a cooperative multitasking system.
+ * For details, refer to his book "Game Coding Complete (4th edition)",
+ * Chapter 7 ('Controlling the Main Loop')
+ */
 
-#include "types.hpp"
-#include <cstring>
+#include "cinek/task.hpp"
 
 namespace cinek {
 
-    UUID UUID::kNull = {
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    };
-    
-    bool operator==(const UUID& l, const UUID& r)
-    {
-        return *(uint64_t*)(&l.bytes[0]) == *(uint64_t*)(&r.bytes[0]) &&
-               *(uint64_t*)(&l.bytes[8]) == *(uint64_t*)(&r.bytes[8]);
-        //return !memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes));
-    }
+Task::Task() :
+    _state(State::kIdle),
+    _schedulerHandle(kNullHandle)
+{
+}
 
-    bool operator!=(const UUID& l, const UUID& r)
-    {
-        return *(uint64_t*)(&l.bytes[0]) != *(uint64_t*)(&r.bytes[0]) ||
-               *(uint64_t*)(&l.bytes[8]) != *(uint64_t*)(&r.bytes[8]);
-        //return !memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes));
-    }
+void Task::setNextTask(unique_ptr<Task>&& task)
+{
+    _nextTask = std::move(task);
+}
 
-    bool operator<(const UUID& l, const UUID& r)
-    {
-        return memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes)) < 0;
-    }
-    
-    bool operator!(const UUID& l)
-    {
-        return memcmp(&UUID::kNull.bytes, &l.bytes, sizeof(UUID::bytes)) != 0;
-    }
+void Task::cancel()
+{
+    _state = State::kCanceled;
+}
 
+void Task::end()
+{
+    _state = State::kEnded;
+}
 
-} /* cinekine */
+void Task::fail()
+{
+    _state = State::kFailed;
+}
+
+} /* namespace cinek */

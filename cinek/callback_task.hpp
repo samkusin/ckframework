@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Cinekine Media
+ * Copyright (c) 2014 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,47 +21,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/types.cpp
+ * @file    cinek/task.hpp
  * @author  Samir Sinha
- * @date    11/8/2014
- * @brief   types
+ * @date    11/29/2015
+ * @brief   A Task execution object
  * @copyright Cinekine
  */
 
+#ifndef CINEK_CALLBACK_TASK_HPP
+#define CINEK_CALLBACK_TASK_HPP
 
-#include "types.hpp"
-#include <cstring>
+#include "cinek/task.hpp"
+#include <functional>
 
 namespace cinek {
 
-    UUID UUID::kNull = {
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    /**
+     * @class CallbackTask
+     * @brief A unit of execution managed by the TaskScheduler
+     */
+    template<typename _TaskName>
+    class CallbackTask : public Task
+    {
+    public:
+        CallbackTask(std::function<void(Task::State, _TaskName&)> cb) :
+            _cb(std::move(cb))
+        {
+        }
+
+    protected:
+        virtual void onFail() override {
+            if (_cb) {
+                _cb(Task::State::kFailed, *static_cast<_TaskName*>(this));
+            }
+            Task::onFail();
+        }
+        virtual void onEnd(Task* next) override {
+            if (_cb) {
+                _cb(Task::State::kEnded, *static_cast<_TaskName*>(this));
+            }
+            
+            Task::onEnd(next);
+        }
+        
+        std::function<void(Task::State, _TaskName&)> _cb;
     };
-    
-    bool operator==(const UUID& l, const UUID& r)
-    {
-        return *(uint64_t*)(&l.bytes[0]) == *(uint64_t*)(&r.bytes[0]) &&
-               *(uint64_t*)(&l.bytes[8]) == *(uint64_t*)(&r.bytes[8]);
-        //return !memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes));
-    }
 
-    bool operator!=(const UUID& l, const UUID& r)
-    {
-        return *(uint64_t*)(&l.bytes[0]) != *(uint64_t*)(&r.bytes[0]) ||
-               *(uint64_t*)(&l.bytes[8]) != *(uint64_t*)(&r.bytes[8]);
-        //return !memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes));
-    }
-
-    bool operator<(const UUID& l, const UUID& r)
-    {
-        return memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes)) < 0;
-    }
-    
-    bool operator!(const UUID& l)
-    {
-        return memcmp(&UUID::kNull.bytes, &l.bytes, sizeof(UUID::bytes)) != 0;
-    }
+} /* namespace cinek */
 
 
-} /* cinekine */
+#endif

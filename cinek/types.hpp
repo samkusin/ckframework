@@ -51,11 +51,14 @@ namespace cinek {
     struct UUID
     {
         uint8_t bytes[16];
+        
+        static UUID kNull;
     };
 
     bool operator==(const UUID& l, const UUID& r);
     bool operator<(const UUID& l, const UUID& r);
     bool operator!=(const UUID& l, const UUID& r);
+    bool operator!(const UUID& l);
 
     template<typename _HandleValue, typename _HandleOwner>
     class ManagedHandle
@@ -132,7 +135,6 @@ namespace cinek {
         
         Value* _resource;
     };
-
 
     template<typename... Ts>
     struct sizeof_max;
