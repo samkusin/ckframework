@@ -99,6 +99,16 @@ void ckio_close(ckio_handle* handle)
     }
 }
 
+void ckio_cancel(ckio_handle* handle)
+{
+    if (handle && handle->fd >= 0) {
+        if ((handle->flags & CKIO_HANDLE_FLAG_ASYNC)!=0) {
+            aio_cancel(handle->fd, &handle->aio);
+            handle->flags |= CKIO_HANDLE_FLAG_CANCELED;
+        }
+    }
+}
+
 size_t ckio_read
 (
     ckio_handle* handle,
@@ -153,15 +163,7 @@ ckio_status ckio_get_status
     else if ((handle->flags & CKIO_HANDLE_FLAG_CANCELED) != 0)
         return kCKIO_Canceled;
     
-    if (result) {
-        *result = handle->lastresult;
-    }
-    
-    if (handle->aio.aio_fildes < 0) {
-        /* synchronous IO */
-        return kCKIO_Success;
-    }
-    else {
+    if (handle->aio.aio_fildes >= 0) {
         /* asynchronous IO */
         int res;
         res = aio_error(&handle->aio);
@@ -181,9 +183,12 @@ ckio_status ckio_get_status
                 return kCKIO_Error;
             }
         }
-        
-        return kCKIO_Success;
+    }    
+    if (result) {
+        *result = handle->lastresult;
     }
+
+    return kCKIO_Success;
 }
 
 size_t ckio_get_info(ckio_handle* handle, ckio_info* info)

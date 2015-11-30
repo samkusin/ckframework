@@ -63,6 +63,12 @@ ckio_handle* ckio_open
  */
 void ckio_close(ckio_handle* handle);
 /**
+ *  Cancels a pending request (for asynchronous I/O.)
+ *
+ *  @param  handle  The handle opened via ckio_open
+ */
+void ckio_cancel(ckio_handle* handle);
+/**
  *  Reads contents of a file into the supplied buffer.
  *
  *  @param  handle  The IO file handle
