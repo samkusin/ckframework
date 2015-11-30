@@ -125,6 +125,26 @@ private:
     uint16_t _flags;
 };
 
+/**
+ *  Identifies a request tracker.  
+ *  
+ *  A Server's main mission is to reply to client requests.  Incoming requests
+ *  must always be replied to.  Because requests might take some time to finish,
+ *  responses are often delayed until the request has completed processing.
+ *  
+ *  In an asynchronous server, we'd then need to track requests, so that 
+ *  repsonses contain the correct response class and sequence ID.
+ */
+struct ServerRequestId
+{
+    uint32_t seqId;
+    ClassId classId;
+
+    bool operator==(const ServerRequestId& other) const {
+        return seqId == other.seqId && classId == other.classId;
+    }
+};
+
 }   /* namespace ckmsg */
 
 
