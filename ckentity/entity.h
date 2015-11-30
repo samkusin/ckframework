@@ -98,7 +98,6 @@ enum
 #ifdef __cplusplus
 
 #include <cstddef>
-#include <functional>
 
 namespace cinek {
 
@@ -126,9 +125,6 @@ namespace cinek {
     using ComponentRowIndex = CKComponentRowIndex;
     using EntityGroupMapId = CKEntityGroupMapId;
     constexpr ComponentRowIndex kNullComponentRow = kCKEntityNullComponentRow;
-
-    using EntityComponentDestroyFn =
-        std::function<void(EntityDataTable& table, ComponentRowIndex compRowIndex)>;
 
     constexpr ComponentId MakeComponentId(uint16_t category, uint16_t id)
     {

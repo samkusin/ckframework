@@ -44,7 +44,6 @@ EntityStore::EntityStore
     _entityIdIteration(0),
     _entityCount(0),
     _components(allocator),
-    _destroyCompDelegate(std::move(params.destroyCompDelegate)),
     _gcrandom(params.randomSeed)
 {
     _iterations.reserve(params.numEntities);
@@ -69,7 +68,6 @@ EntityStore::EntityStore(EntityStore&& other) :
     _entityIdIteration(other._entityIdIteration),
     _entityCount(other._entityCount),
     _components(std::move(other._components)),
-    _destroyCompDelegate(std::move(other._destroyCompDelegate)),
     _gcrandom(std::move(other._gcrandom))
 {
     other._entityIdIteration = 0;
@@ -83,7 +81,6 @@ EntityStore& EntityStore::operator=(EntityStore&& other)
     _entityIdIteration = other._entityIdIteration;
     _entityCount = other._entityCount;
     _components = std::move(other._components);
-    _destroyCompDelegate = std::move(other._destroyCompDelegate);
     _gcrandom = std::move(other._gcrandom);
     
     other._entityIdIteration = 0;
@@ -94,16 +91,6 @@ EntityStore& EntityStore::operator=(EntityStore&& other)
 
 EntityStore::~EntityStore()
 {
-    for (auto& component : _components)
-    {
-        auto& table = component.second;
-        for (auto rowIndex = table.rowset().firstIndex();
-             rowIndex != component::DataRowset::npos;
-             rowIndex = table.rowset().nextIndex(rowIndex))
-        {
-            _destroyCompDelegate(table, rowIndex);
-        }
-    }
 }
     
 Entity EntityStore::create(EntityContextType context)
@@ -130,18 +117,7 @@ void EntityStore::destroy(Entity eid)
 {
     if (eid==0)
         return;
-    /*
-    //  execute component destruction methods
-    for (auto& component : _components)
-    {
-        auto& table = component.second;
-        auto rowIdx = table.rowIndexFromEntity(eid);
-        if (rowIdx != EntityDataTable::npos)
-        {
-            _destroyCompDelegate(table, rowIdx);
-        }
-    }
-    */
+
     auto index = cinek_entity_index(eid);
     ++_iterations[index];
     if (!_iterations[index])
@@ -157,7 +133,7 @@ bool EntityStore::valid(Entity eid) const
     return (_iterations[cinek_entity_index(eid)] == cinek_entity_iteration(eid));
 }
 
-void EntityStore::gc()
+void EntityStore::gc(const EntityComponentDestroyFn& fn)
 {
     // Using BitSquid's method of lazy component destruction.
     // At some point we'll have to differentiate between destroy immediate vs
@@ -181,6 +157,7 @@ void EntityStore::gc()
                 continue;
             }
             consecutiveLivingRows = 0;
+            fn(table, idx);
             table.rowset().freeWithIndex(idx);
         }
     }

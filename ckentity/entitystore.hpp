@@ -40,6 +40,7 @@
 #include "cinek/allocator.hpp"
 
 #include <random>
+#include <functional>
 
 namespace cinek {
 
@@ -65,6 +66,9 @@ struct EntityDiagnostics
     uint32_t entityLimit;
 };
 
+using EntityComponentDestroyFn =
+        std::function<void(EntityDataTable& table, ComponentRowIndex compRowIndex)>;
+
 // using techniques from:
 // http://bitsquid.blogspot.com/2014/08/building-data-oriented-entity-system.html
 //
@@ -80,7 +84,6 @@ public:
         EntityIndexType numEntities;
         vector<component::MakeDescriptor> components;
         vector<EntityGroupMap::MakeDescriptor> entityGroups;
-        EntityComponentDestroyFn destroyCompDelegate;
         int randomSeed;
     };
     
@@ -99,7 +102,7 @@ public:
     bool valid(Entity eid) const;
     
     //  garbage collects unused components - run once per frame
-    void gc();
+    void gc(const EntityComponentDestroyFn& fn);
 
     template<typename Component> component::Table<Component> table() const;
     EntityGroupTable entityGroupTable(EntityGroupMapId id) const;
@@ -117,7 +120,6 @@ private:
     EntityIndexType _entityCount;
     unordered_map<ComponentId, EntityDataTable> _components;
     unordered_map<EntityGroupMapId, EntityGroupMap> _entityGroups;
-    EntityComponentDestroyFn _destroyCompDelegate;
     
     std::minstd_rand _gcrandom;
 };
