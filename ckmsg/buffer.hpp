@@ -166,7 +166,7 @@ template<typename Alloc>
 uint8_t* Buffer<Alloc>::writep(size_t cnt)
 {
     uint8_t* p = _tail;
-    size_t avail;
+    size_t avail = 0;
     
     //  enforce that write requests must be contiguous (in memory) blocks
     if (_tail >= _readHead) {
@@ -175,7 +175,7 @@ uint8_t* Buffer<Alloc>::writep(size_t cnt)
             p = _start;
         }
     }
-    if (p <= _readHead) {
+    if (avail < cnt && p <= _readHead) {
         avail = _readHead - p;
         if (avail <= cnt)       // wraparound, tail == head is overflow
             return nullptr;
@@ -220,7 +220,7 @@ template<typename Alloc>
 const uint8_t* Buffer<Alloc>::peekp(size_t cnt) const
 {
     const uint8_t* p = _head;
-    ssize_t avail;
+    ssize_t avail = 0;
     //  enforce that read requests are for contiguous memory
     if (_head > _writeHead) {
         avail = _limit - _head;
@@ -228,7 +228,7 @@ const uint8_t* Buffer<Alloc>::peekp(size_t cnt) const
             p = _start;
         }
     }
-    if (p <= _writeHead) {
+    if (avail < cnt && p <= _writeHead) {
         avail = _writeHead - p;
         if (avail < cnt)        // head < tail always means available read data
             return nullptr;

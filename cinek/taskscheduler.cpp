@@ -120,7 +120,7 @@ void TaskScheduler::update(uint32_t deltaTimeMs)
         case Task::State::kEnded:
             {
                 //  advance to next task in the chain
-                task->onEnd(task->_nextTask.get());
+                task->onEnd();
                 auto nextTask = std::move(task->_nextTask);
                 if (nextTask)
                 {

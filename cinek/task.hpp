@@ -41,6 +41,8 @@
 #include "cinek/types.hpp"
 #include "cinek/allocator.hpp"
 
+#include <functional>
+
 namespace cinek {
     class TaskScheduler;
 }
@@ -66,22 +68,7 @@ namespace cinek {
     class Task : public TaskListNode
     {
     public:
-        Task();
-        virtual ~Task() = default;
-
-        /**
-         * Attach the task to be executed when this Task successfully completes.
-         *
-         * @param task The pointer to the next task.  This task will own the
-         *             supplied task.
-         */
-        void setNextTask(unique_ptr<Task>&& task);
-        /**
-         * Cancels execution of a task.  The Task's onCancel() method will be
-         * called upon the next scheduler update
-         */
-        void cancel();
-
+    
         /** Task States */
         enum class State
         {
@@ -92,6 +79,34 @@ namespace cinek {
             kFailed,    /**< Task has failed as a result of calling fail() */
             kCanceled   /**< Task was canceled */
         };
+        
+        using EndCallback = std::function<void(State, Task&)>;
+        
+        Task(EndCallback _cb=0);
+        virtual ~Task() = default;
+        
+        /**
+         *  @param  cb      The callback executed upon an end or fail result.
+         */
+        void setCallback(EndCallback cb) { _endCb = std::move(cb); }
+
+        /**
+         * Attach the task to be executed when this Task successfully completes.
+         *
+         * @param task The pointer to the next task.  This task will own the
+         *             supplied task.
+         */
+        void setNextTask(unique_ptr<Task>&& task);
+        /**
+         *  @return The next task in the chain
+         */
+        Task* getNextTask() { return _nextTask.get(); }
+        /**
+         * Cancels execution of a task.  The Task's onCancel() method will be
+         * called upon the next scheduler update
+         */
+        void cancel();
+
         /** @return The task's state.  See State for more information */
         State state() const { return _state; }
         
@@ -106,9 +121,9 @@ namespace cinek {
         /** Executed once during a TaskScheduler update */
         virtual void onUpdate(uint32_t /* deltaTimeMs */) = 0;
         /** Executed upon successful completion of a task */
-        virtual void onEnd(Task* ) {}
+        virtual void onEnd();
         /** Executed if the task marks itself for failure */
-        virtual void onFail() {}
+        virtual void onFail();
         /** Executed if the task has been canceled by a scheduler */
         virtual void onCancel() {}
 
@@ -123,6 +138,11 @@ namespace cinek {
          * invoke any subsequent task on this task's chain.
          */
         void fail();
+        /**
+         *  @return The next task to be executed or nullptr if there's none
+         *          scheduled.
+         */
+        Task* nextTask() { return _nextTask.get(); }
 
     private:
         friend class TaskScheduler;
@@ -130,6 +150,7 @@ namespace cinek {
         State _state;
         TaskId _schedulerHandle;
         unique_ptr<Task> _nextTask;
+        EndCallback _endCb;
     };
 
 } /* namespace cinek */
