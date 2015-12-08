@@ -109,12 +109,8 @@ namespace ckm {
         /// Generate vertices from this AABB
         /// @param verts An array of vertices to be filled in
         ///
-        void generateVertices(std::array<point_type, 8>& verts);
-        /// Rotates, generating a new AABB bounding the rotated box
-        /// @param mtxRot Rotation and Translation matrix
-        ///
-        template<class _Matrix>
-        void rotate(const _Matrix& mtxRot);
+        void generateVertices(std::array<point_type, 8>& verts) const;
+        
         /// Merges another AABB with this AABB.  The result is stored in this
         /// @param  aabb  The AABB to merge
         /// @return A reference to this AABB
@@ -129,7 +125,7 @@ namespace ckm {
             return val*val;
         }
     };
-   
+    
     ////////////////////////////////////////////////////////////////////////////
     template<class _Point>
     AABB<_Point>::AABB()
@@ -242,7 +238,7 @@ namespace ckm {
     }
     
     template<class _Point>
-    void AABB<_Point>::generateVertices(std::array<point_type, 8>& verts)
+    void AABB<_Point>::generateVertices(std::array<point_type, 8>& verts) const
     {
         //  -y vertices
         verts[0].x = min.x;     // v0 (-x,-y,-z)
@@ -273,6 +269,7 @@ namespace ckm {
         verts[7].z = min.z;
     }
 
+    /*
     template<class _Point>
     template<class _Matrix>
     void AABB<_Point>::rotate(const _Matrix& mtxRot)
@@ -303,6 +300,7 @@ namespace ckm {
                 max.z = pt.z;
         }
     }
+    */
     
     template<class _Point>
     AABB<_Point>& AABB<_Point>::merge(const AABB<_Point>& aabb)
