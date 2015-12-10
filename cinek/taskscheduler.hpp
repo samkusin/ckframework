@@ -61,7 +61,7 @@ namespace cinek {
          * @param  task Job pointer
          * @return      Handle to the scheduled Task
          */
-        TaskId schedule(unique_ptr<Task>&& task);
+        TaskId schedule(unique_ptr<Task>&& task, void* context=nullptr);
         /**
          * Cancels a scheduled task.
          *
@@ -69,19 +69,30 @@ namespace cinek {
          */
         void cancel(TaskId taskHandle);
         /**
-         * Cancel all scheduled tasks.
+         * Cancels task by a context pointer.  If nullptr is specified, then
+         * all tasks are cancelled.
+         *
+         * @param   context The context pointer specified during schedule (if
+         *                  any.)
          */
-        void cancelAll();
+        void cancelAll(void* context=nullptr);
         /**
          * Executes tasks currently scheduled
          *
          * @param timeMs Delta time in milliseconds since last update
          */
         void update(uint32_t timeMs);
+        /**
+         *  Queries whether a task is currently active by handle.
+         *
+         *  @param  taskHandle  The task handle returned from schedule()
+         *  @return True if the task is still active
+         */
+        bool isActive(TaskId taskHandle);
 
     private:
         intrusive_list<TaskListNode> _runList;
-        vector<unique_ptr<Task>> _tasks;
+        vector<std::pair<unique_ptr<Task>, void*>> _tasks;
         TaskId _currentHandle;
     };
 

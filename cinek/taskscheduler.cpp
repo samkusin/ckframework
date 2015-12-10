@@ -35,9 +35,9 @@
 
 namespace cinek {
 
-bool operator<(const unique_ptr<Task>& l, TaskId r)
+bool operator<(const std::pair<unique_ptr<Task>, void*>& l, TaskId r)
 {
-    return l->id() < r;
+    return l.first->id() < r;
 }
 
 TaskScheduler::TaskScheduler(uint32_t taskLimit, const Allocator& allocator) :
@@ -47,7 +47,7 @@ TaskScheduler::TaskScheduler(uint32_t taskLimit, const Allocator& allocator) :
     _tasks.reserve(taskLimit);
 }
 
-TaskId TaskScheduler::schedule(unique_ptr<Task>&& task)
+TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
 {
     ++_currentHandle;
     if (!_currentHandle)
@@ -56,7 +56,7 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task)
     auto it = std::lower_bound(_tasks.begin(), _tasks.end(), _currentHandle);
     if (it != _tasks.end())
     {
-        if ((*it)->id() == _currentHandle)
+        if (it->first->id() == _currentHandle)
         {
             CK_LOG_ERROR("TaskScheduler", "Handle %u already exists in task list!",
                          _currentHandle);
@@ -68,7 +68,7 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task)
     task->_state = Task::State::kStaged;
     task->_schedulerHandle = _currentHandle;
     //  place owned reference onto our searchable list
-    _tasks.emplace(it, std::move(task));
+    _tasks.emplace(it, std::move(task), context);
 
     return _currentHandle;
 }
@@ -76,17 +76,19 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task)
 void TaskScheduler::cancel(TaskId taskHandle)
 {
     auto it = std::lower_bound(_tasks.begin(), _tasks.end(), taskHandle);
-    if (it == _tasks.end() || (*it)->id() != taskHandle)
+    if (it == _tasks.end() || it->first->id() != taskHandle)
         return;
 
-    (*it)->cancel();
+    it->first->cancel();
 }
 
-void TaskScheduler::cancelAll()
+void TaskScheduler::cancelAll(void* context)
 {
     for (auto& tp : _tasks)
     {
-        tp->cancel();
+        if (!context || tp.second == context) {
+            tp.first->cancel();
+        }
     }
 }
 
@@ -155,7 +157,7 @@ void TaskScheduler::update(uint32_t deltaTimeMs)
             //  something very wrong has happened with our task lifecycle
             //  assumptions.
             auto it = std::lower_bound(_tasks.begin(), _tasks.end(), handle);
-            CK_ASSERT(it != _tasks.end() && (*it)->id() == handle);
+            CK_ASSERT(it != _tasks.end() && it->first->id() == handle);
             _tasks.erase(it);
         }
         else
