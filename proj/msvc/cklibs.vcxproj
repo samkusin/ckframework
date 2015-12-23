@@ -1,0 +1,244 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8C1DC389-B836-4190-ACBD-D20117F29D5D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>cklibs</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>CKLibs</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\cinek\allocator.hpp" />
+    <ClInclude Include="..\..\cinek\buffer.hpp" />
+    <ClInclude Include="..\..\cinek\circular_queue.hpp" />
+    <ClInclude Include="..\..\cinek\ckdefs.h" />
+    <ClInclude Include="..\..\cinek\ckopts.h" />
+    <ClInclude Include="..\..\cinek\cstringstack.hpp" />
+    <ClInclude Include="..\..\cinek\debug.h" />
+    <ClInclude Include="..\..\cinek\file.hpp" />
+    <ClInclude Include="..\..\cinek\filestreambuf.hpp" />
+    <ClInclude Include="..\..\cinek\intrusive_list.hpp" />
+    <ClInclude Include="..\..\cinek\managed_dictionary.hpp" />
+    <ClInclude Include="..\..\cinek\map.hpp" />
+    <ClInclude Include="..\..\cinek\memorystack.hpp" />
+    <ClInclude Include="..\..\cinek\objectpool.hpp" />
+    <ClInclude Include="..\..\cinek\string.hpp" />
+    <ClInclude Include="..\..\cinek\task.hpp" />
+    <ClInclude Include="..\..\cinek\taskscheduler.hpp" />
+    <ClInclude Include="..\..\cinek\types.hpp" />
+    <ClInclude Include="..\..\cinek\vector.hpp" />
+    <ClInclude Include="..\..\ckentity\datarowset.hpp" />
+    <ClInclude Include="..\..\ckentity\entity.h" />
+    <ClInclude Include="..\..\ckentity\entitydatatable.hpp" />
+    <ClInclude Include="..\..\ckentity\entitygroup.hpp" />
+    <ClInclude Include="..\..\ckentity\entitygroupmap.hpp" />
+    <ClInclude Include="..\..\ckentity\entitystore.hpp" />
+    <ClInclude Include="..\..\ckentity\vectordatarowset.hpp" />
+    <ClInclude Include="..\..\ckio\file.h" />
+    <ClInclude Include="..\..\ckjson\json.hpp" />
+    <ClInclude Include="..\..\ckjson\jsoncollectionloader.hpp" />
+    <ClInclude Include="..\..\ckjson\jsonstreambuf.hpp" />
+    <ClInclude Include="..\..\ckjson\jsontypes.hpp" />
+    <ClInclude Include="..\..\ckjson\rapidjson\allocators.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\document.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\encodedstream.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\encodings.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\error\en.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\error\error.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\filereadstream.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\filestream.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\filewritestream.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\internal\meta.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\internal\pow10.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\internal\stack.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\internal\strfunc.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\msinttypes\inttypes.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\msinttypes\stdint.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\prettywriter.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\rapidjson.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\reader.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\stringbuffer.h" />
+    <ClInclude Include="..\..\ckjson\rapidjson\writer.h" />
+    <ClInclude Include="..\..\ckmsg\buffer.hpp" />
+    <ClInclude Include="..\..\ckmsg\client.hpp" />
+    <ClInclude Include="..\..\ckmsg\message.hpp" />
+    <ClInclude Include="..\..\ckmsg\messenger.hpp" />
+    <ClInclude Include="..\..\ckmsg\sender.hpp" />
+    <ClInclude Include="..\..\ckmsg\server.hpp" />
+    <ClInclude Include="..\..\ckm\aabb.hpp" />
+    <ClInclude Include="..\..\ckm\geometry.hpp" />
+    <ClInclude Include="..\..\ckm\math.hpp" />
+    <ClInclude Include="..\..\ckm\mathtypes.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\cinek\managed_handle.inl" />
+    <None Include="..\..\cinek\objectpool.inl" />
+    <None Include="..\..\ckmsg\client.inl" />
+    <None Include="..\..\ckmsg\server.inl" />
+    <None Include="..\..\ckm\geometry.inl" />
+    <None Include="..\..\ckm\math.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\cinek\allocator.cpp" />
+    <ClCompile Include="..\..\cinek\cstringstack.cpp" />
+    <ClCompile Include="..\..\cinek\file.cpp" />
+    <ClCompile Include="..\..\cinek\filestreambuf.cpp" />
+    <ClCompile Include="..\..\cinek\memorystack.cpp" />
+    <ClCompile Include="..\..\cinek\string.cpp" />
+    <ClCompile Include="..\..\cinek\task.cpp" />
+    <ClCompile Include="..\..\cinek\taskscheduler.cpp" />
+    <ClCompile Include="..\..\cinek\types.cpp" />
+    <ClCompile Include="..\..\ckentity\datarowset.cpp" />
+    <ClCompile Include="..\..\ckentity\entitydatatable.cpp" />
+    <ClCompile Include="..\..\ckentity\entitygroup.cpp" />
+    <ClCompile Include="..\..\ckentity\entitygroupmap.cpp" />
+    <ClCompile Include="..\..\ckentity\entitystore.cpp" />
+    <ClCompile Include="..\..\ckio\file.c" />
+    <ClCompile Include="..\..\ckjson\json.cpp" />
+    <ClCompile Include="..\..\ckjson\jsoncollectionloader.cpp" />
+    <ClCompile Include="..\..\ckmsg\messenger.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

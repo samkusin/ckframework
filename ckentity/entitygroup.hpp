@@ -96,8 +96,8 @@ public:
     //
     std::pair<uint32_t, uint32_t> entityIndexAndCountByRole(Role role) const; // O(1)
     Entity firstEntityByRole(Role role) const;      // O(1)
-    Entity entityByIndex(int32_t index) const;      // O(1)
-    Role roleByEntityIndex(int32_t index) const;    // O(N)
+    Entity entityByIndex(uint32_t index) const;      // O(1)
+    Role roleByEntityIndex(uint32_t index) const;    // O(N)
     uint32_t roleEntityCount(Role role) const;      // O(1)
     uint32_t roleEntityLimit(Role role) const;      // O(1)
     Entity entityWithRoleAndSlot(Role role, Slot slot) const; //  O(1)

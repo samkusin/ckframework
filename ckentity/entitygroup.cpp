@@ -70,13 +70,13 @@ Entity EntityGroup::firstEntityByRole(Role role) const
     return range.second > 0 ? entityByIndex(range.first) : 0;
 }
 
-Entity EntityGroup::entityByIndex(int32_t index) const
+Entity EntityGroup::entityByIndex(uint32_t index) const
 {
     CK_ASSERT_RETURN_VALUE(index < _entityByRoleTable.size(), 0);
     return _entityByRoleTable[index];
 }
 
-EntityGroup::Role EntityGroup::roleByEntityIndex(int32_t index) const
+EntityGroup::Role EntityGroup::roleByEntityIndex(uint32_t index) const
 {
     for (auto it = _roleRanges.begin(); it != _roleRanges.end(); ++it)
     {
@@ -139,7 +139,7 @@ auto EntityGroup::findEntityRoleAndSlot(Entity entity) const -> std::pair<Role, 
             }
             if (_entityByRoleTable[i] == entity)
             {
-                roleAndSlot.first = it - _roleRanges.begin();
+                roleAndSlot.first = (uint16_t)(it - _roleRanges.begin());
                 roleAndSlot.second = i - head;
                 break;
             }

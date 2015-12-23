@@ -1,0 +1,326 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\cinek">
+      <UniqueIdentifier>{97fd1349-58ed-4cc4-9a65-57c95d650f77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ckentity">
+      <UniqueIdentifier>{4c03709a-a1fd-4361-b9b0-a907e6956305}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ckio">
+      <UniqueIdentifier>{2b7cecda-215e-4b0a-b31d-2b1ec0b9a637}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ckjson">
+      <UniqueIdentifier>{18ecf5c9-020a-44c2-a47e-3e7fecfc4b99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ckm">
+      <UniqueIdentifier>{b3cc6f5d-aefc-4fd0-b0dc-0f426ee43208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ckmsg">
+      <UniqueIdentifier>{8cf03e04-3b45-4cf0-aec9-68b2c64ebc82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cinek">
+      <UniqueIdentifier>{28610602-c665-4f6c-bf46-10b3c925d019}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ckentity">
+      <UniqueIdentifier>{ebf052b0-5c24-4c0c-b40d-3dad80c18ddd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ckio">
+      <UniqueIdentifier>{d8322fc7-0d50-4783-84b5-feb19697e00e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ckjson">
+      <UniqueIdentifier>{a48e9922-9070-4aad-b5a1-8cbfaf8cc16b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ckmsg">
+      <UniqueIdentifier>{a0f0207a-1d2d-488f-ae50-3b6a3ddad380}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ckjson\rapidjson">
+      <UniqueIdentifier>{1f193be9-13c9-4aae-ab9a-4e5dcd7d21fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ckjson\rapidjson\error">
+      <UniqueIdentifier>{1118fe89-fe24-4e9e-8245-e43c214bdf81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ckjson\rapidjson\internal">
+      <UniqueIdentifier>{b8951d3e-ed8b-4547-93f9-95b047c75cc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ckjson\rapidjson\msinttypes">
+      <UniqueIdentifier>{07e21810-e594-4db2-9341-5660d96a0d78}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\cinek\allocator.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\buffer.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\circular_queue.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\ckdefs.h">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\ckopts.h">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\cstringstack.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\debug.h">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\file.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\filestreambuf.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\intrusive_list.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\managed_dictionary.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\map.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\memorystack.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\objectpool.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\string.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\task.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\taskscheduler.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\types.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinek\vector.hpp">
+      <Filter>Header Files\cinek</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckentity\datarowset.hpp">
+      <Filter>Header Files\ckentity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckentity\entity.h">
+      <Filter>Header Files\ckentity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckentity\entitydatatable.hpp">
+      <Filter>Header Files\ckentity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckentity\entitygroup.hpp">
+      <Filter>Header Files\ckentity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckentity\entitygroupmap.hpp">
+      <Filter>Header Files\ckentity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckentity\entitystore.hpp">
+      <Filter>Header Files\ckentity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckentity\vectordatarowset.hpp">
+      <Filter>Header Files\ckentity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckio\file.h">
+      <Filter>Header Files\ckio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\msinttypes\inttypes.h">
+      <Filter>Header Files\ckjson\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\msinttypes\stdint.h">
+      <Filter>Header Files\ckjson\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\internal\meta.h">
+      <Filter>Header Files\ckjson\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\internal\pow10.h">
+      <Filter>Header Files\ckjson\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\internal\stack.h">
+      <Filter>Header Files\ckjson\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\internal\strfunc.h">
+      <Filter>Header Files\ckjson\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\error\en.h">
+      <Filter>Header Files\ckjson\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\error\error.h">
+      <Filter>Header Files\ckjson\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\allocators.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\document.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\encodedstream.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\encodings.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\filereadstream.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\filestream.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\filewritestream.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\prettywriter.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\rapidjson.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\reader.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\stringbuffer.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\rapidjson\writer.h">
+      <Filter>Header Files\ckjson\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\json.hpp">
+      <Filter>Header Files\ckjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\jsoncollectionloader.hpp">
+      <Filter>Header Files\ckjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\jsonstreambuf.hpp">
+      <Filter>Header Files\ckjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckjson\jsontypes.hpp">
+      <Filter>Header Files\ckjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckm\aabb.hpp">
+      <Filter>Header Files\ckm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckm\geometry.hpp">
+      <Filter>Header Files\ckm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckm\math.hpp">
+      <Filter>Header Files\ckm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckm\mathtypes.hpp">
+      <Filter>Header Files\ckm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckmsg\buffer.hpp">
+      <Filter>Header Files\ckmsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckmsg\client.hpp">
+      <Filter>Header Files\ckmsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckmsg\message.hpp">
+      <Filter>Header Files\ckmsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckmsg\messenger.hpp">
+      <Filter>Header Files\ckmsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckmsg\sender.hpp">
+      <Filter>Header Files\ckmsg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ckmsg\server.hpp">
+      <Filter>Header Files\ckmsg</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\cinek\managed_handle.inl">
+      <Filter>Header Files\cinek</Filter>
+    </None>
+    <None Include="..\..\cinek\objectpool.inl">
+      <Filter>Header Files\cinek</Filter>
+    </None>
+    <None Include="..\..\ckm\geometry.inl">
+      <Filter>Header Files\ckm</Filter>
+    </None>
+    <None Include="..\..\ckm\math.inl">
+      <Filter>Header Files\ckm</Filter>
+    </None>
+    <None Include="..\..\ckmsg\client.inl">
+      <Filter>Header Files\ckmsg</Filter>
+    </None>
+    <None Include="..\..\ckmsg\server.inl">
+      <Filter>Header Files\ckmsg</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\cinek\allocator.cpp">
+      <Filter>Source Files\cinek</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinek\cstringstack.cpp">
+      <Filter>Source Files\cinek</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinek\file.cpp">
+      <Filter>Source Files\cinek</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinek\filestreambuf.cpp">
+      <Filter>Source Files\cinek</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinek\memorystack.cpp">
+      <Filter>Source Files\cinek</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinek\string.cpp">
+      <Filter>Source Files\cinek</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinek\task.cpp">
+      <Filter>Source Files\cinek</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinek\taskscheduler.cpp">
+      <Filter>Source Files\cinek</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinek\types.cpp">
+      <Filter>Source Files\cinek</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckentity\datarowset.cpp">
+      <Filter>Source Files\ckentity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckentity\entitydatatable.cpp">
+      <Filter>Source Files\ckentity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckentity\entitygroup.cpp">
+      <Filter>Source Files\ckentity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckentity\entitygroupmap.cpp">
+      <Filter>Source Files\ckentity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckentity\entitystore.cpp">
+      <Filter>Source Files\ckentity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckio\file.c">
+      <Filter>Source Files\ckio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckjson\json.cpp">
+      <Filter>Source Files\ckjson</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckjson\jsoncollectionloader.cpp">
+      <Filter>Source Files\ckjson</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckmsg\messenger.cpp">
+      <Filter>Source Files\ckmsg</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

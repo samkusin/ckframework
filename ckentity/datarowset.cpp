@@ -119,7 +119,7 @@ namespace component
         index_type idx = npos;
         if (_rowend != _rowlimit)
         {
-            idx = (index_type)(_rowend - _rowstart) / _header.recordSize;
+            idx = (index_type)((_rowend - _rowstart) / _header.recordSize);
             _rowend += _header.recordSize;
         }
         if (idx != npos)
@@ -225,12 +225,12 @@ namespace component
 
     uint32_t DataRowset::rowCount() const
     {
-        return (uint32_t)(_rowend - _rowstart) / _header.recordSize;
+        return static_cast<uint32_t>((_rowend - _rowstart) / _header.recordSize);
     }
 
     uint32_t DataRowset::capacity() const
     {
-        return (uint32_t)(_rowlimit - _rowstart) / _header.recordSize;
+        return static_cast<uint32_t>((_rowlimit - _rowstart) / _header.recordSize);
     }
 
     uint8_t* DataRowset::operator[](index_type index)

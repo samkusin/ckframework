@@ -63,10 +63,12 @@ namespace cinek {
 
     const char* CStringStack::create(const char* str)
     {
-        char* buf = reinterpret_cast<char*>(_stack.allocate(strlen(str)+1));
+		size_t len = strlen(str);
+        char* buf = reinterpret_cast<char*>(_stack.allocate(len+1));
         if (!buf)
             return kEmptyString;
-        strcpy(buf, str);
+        strncpy(buf, str, len);
+		buf[len] = 0;
         ++_count;
         return buf;
     }

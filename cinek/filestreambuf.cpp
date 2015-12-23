@@ -126,7 +126,7 @@ namespace cinek {
 
         if (gptr() == egptr())
         {
-            size_t putbackLen = 0;
+			ptrdiff_t putbackLen = 0;
             if (!gptr())
             {
                 setg(_buffer, _buffer+_bufferSize, _buffer+_bufferSize);
@@ -134,7 +134,9 @@ namespace cinek {
             else
             {
                 //  save the last few characters off so they are at the tail end of our new get buffer
-                putbackLen = std::min<size_t>((egptr()-gptr())/2, 32);
+				putbackLen = (egptr() - gptr()) / 2;
+				if (putbackLen > 32)
+					putbackLen = 32;
             }
             memmove(eback(), egptr() - putbackLen, putbackLen*sizeof(char_type));
             size_t readSize = (egptr() - eback() - putbackLen)*sizeof(char_type);
@@ -180,7 +182,7 @@ namespace cinek {
         {
             size_t revertCount = egptr()-gptr();
             
-            if (!file::seek(_fileHandle, file::kSeekCur, -revertCount))
+            if (!file::seek(_fileHandle, file::kSeekCur, -(long)revertCount))
                 return -1;
 
             setg(nullptr, nullptr, nullptr);

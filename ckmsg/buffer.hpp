@@ -130,12 +130,12 @@ template<typename Alloc>
 bool Buffer<Alloc>::readSizeContiguous(size_t sz) const
 {
     if (_writeHead >= _head) {
-        return (_writeHead - _head) >= sz;
+        return (_writeHead - _head) >= (ptrdiff_t)sz;
     }
-    else if (_limit - _head >= sz) {
+    else if (_limit - _head >= (ptrdiff_t)sz) {
         return true;
     }
-    else if (_writeHead - _start >= sz) {
+    else if (_writeHead - _start >= (ptrdiff_t)sz) {
         return true;
     }
     return false;
@@ -166,21 +166,22 @@ template<typename Alloc>
 uint8_t* Buffer<Alloc>::writep(size_t cnt)
 {
     uint8_t* p = _tail;
-    size_t avail = 0;
+    ptrdiff_t avail = 0;
+	ptrdiff_t amt = (ptrdiff_t)cnt;
     
     //  enforce that write requests must be contiguous (in memory) blocks
     if (_tail >= _readHead) {
         avail = _limit - _tail;
-        if (avail < cnt) {
+        if (avail < amt) {
             p = _start;
         }
     }
-    if (avail < cnt && p <= _readHead) {
+    if (avail < amt && p <= _readHead) {
         avail = _readHead - p;
-        if (avail <= cnt)       // wraparound, tail == head is overflow
+        if (avail <= amt)       // wraparound, tail == head is overflow
             return nullptr;
     }
-    _tail = p + cnt;
+    _tail = p + amt;
     return p;
 }
 
@@ -220,17 +221,18 @@ template<typename Alloc>
 const uint8_t* Buffer<Alloc>::peekp(size_t cnt) const
 {
     const uint8_t* p = _head;
-    ssize_t avail = 0;
+    ptrdiff_t avail = 0;
+	ptrdiff_t amt = (ptrdiff_t)cnt;
     //  enforce that read requests are for contiguous memory
     if (_head > _writeHead) {
         avail = _limit - _head;
-        if (avail < cnt) {
+        if (avail < amt) {
             p = _start;
         }
     }
-    if (avail < cnt && p <= _writeHead) {
+    if (avail < amt && p <= _writeHead) {
         avail = _writeHead - p;
-        if (avail < cnt)        // head < tail always means available read data
+        if (avail < amt)        // head < tail always means available read data
             return nullptr;
     }
     return p;
