@@ -310,9 +310,6 @@
     <ClCompile Include="..\..\ckentity\entitystore.cpp">
       <Filter>Source Files\ckentity</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ckio\file.c">
-      <Filter>Source Files\ckio</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ckjson\json.cpp">
       <Filter>Source Files\ckjson</Filter>
     </ClCompile>
@@ -321,6 +318,9 @@
     </ClCompile>
     <ClCompile Include="..\..\ckmsg\messenger.cpp">
       <Filter>Source Files\ckmsg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ckio\filewin.c">
+      <Filter>Source Files\ckio</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
