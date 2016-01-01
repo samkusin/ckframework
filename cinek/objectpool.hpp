@@ -37,7 +37,7 @@
 
 namespace cinek {
 
-    template<typename _T>
+    template<typename _T, size_t _Align=CK_ARCH_ALIGN_BYTES>
     class ObjectPool
     {
         CK_CLASS_NON_COPYABLE(ObjectPool);
@@ -48,7 +48,8 @@ namespace cinek {
         typedef const _T*   const_pointer;
 
         ObjectPool();
-        ObjectPool(size_t blockLimit, Allocator allocator=Allocator());
+        ObjectPool(size_t blockLimit,
+                   Allocator allocator=Allocator());
         ~ObjectPool();
 
         ObjectPool(ObjectPool&& other);
@@ -64,132 +65,15 @@ namespace cinek {
         void zeroVectors();
 
         Allocator _allocator;
-        pointer _first;
-        pointer _last;
-        pointer _limit;
+        uint8_t* _first;
+        uint8_t* _last;
+        uint8_t* _limit;
         pointer* _freefirst;
         pointer* _freelast;
         pointer* _freelimit;
     };
     
-    template<typename _T>
-    ObjectPool<_T>::ObjectPool() :
-        _first(nullptr),
-        _last(nullptr),
-        _limit(nullptr),
-        _freefirst(nullptr),
-        _freelast(nullptr),
-        _freelimit(nullptr)
-    {
-    }
-
-    template<typename _T>
-    ObjectPool<_T>::ObjectPool(size_t blockCount, Allocator allocator) :
-        _allocator(allocator),
-        _first(nullptr),
-        _last(nullptr),
-        _limit(nullptr),
-        _freefirst(nullptr),
-        _freelast(nullptr),
-        _freelimit(nullptr)
-    {
-        _first = reinterpret_cast<pointer>(_allocator.alloc(sizeof(_T) * blockCount));
-        _last = _first;
-        _limit = _first + blockCount;
-        _freefirst = reinterpret_cast<pointer*>(_allocator.alloc(blockCount * sizeof(pointer)));
-        _freelast = _freefirst;
-        _freelimit = _freefirst + blockCount;
-    }
-
-    template<typename _T>
-    ObjectPool<_T>::~ObjectPool()
-    {
-        _allocator.free(_freefirst);
-        _allocator.free(_first);
-    }
-
-    template<typename _T>
-    ObjectPool<_T>::ObjectPool(ObjectPool&& other) :
-        _allocator(std::move(other._allocator)),
-        _first(other._first),
-        _last(other._last),
-        _limit(other._limit),
-        _freefirst(other._freefirst),
-        _freelast(other._freelast),
-        _freelimit(other._freelimit)
-    {
-        other.zeroVectors();
-    }
-
-    template<typename _T>
-    ObjectPool<_T>& ObjectPool<_T>::operator=(ObjectPool&& other)
-    {
-        _allocator = std::move(other._allocator);
-        _first = other._first;
-        _last = other._last;
-        _limit = other._limit;
-        _freefirst = other._freefirst;
-        _freelast = other._freelast;
-        _freelimit = other._freelimit;
-
-        other.zeroVectors();
-
-        return *this;
-    }
-
-    template<typename _T>
-    void ObjectPool<_T>::zeroVectors()
-    {
-        _first = nullptr;
-        _last = nullptr;
-        _limit = nullptr;
-        _freefirst = nullptr;
-        _freelast = nullptr;
-        _freelimit = nullptr;
-    }
-
-    template<typename _T> template<typename... Args>
-    auto ObjectPool<_T>::construct(Args&&... args) -> pointer
-    {
-        pointer p = nullptr;
-        if (_freefirst != _freelast)
-        {
-            --_freelast;
-            p = *_freelast;
-        }
-        else if (_last < _limit)
-        {
-            p = _last;
-            ++_last;
-        }
-
-        CK_ASSERT(p);
-        if (p)
-        {
-            ::new(p) _T(std::forward<Args>(args)...);
-        }
-
-        return p;
-    }
-
-    template<typename _T>
-    void ObjectPool<_T>::destruct(pointer p)
-    {
-        if (!p)
-            return;
-
-        CK_ASSERT(p >= _first && p < _limit);
-        CK_ASSERT(_freelast < _freelimit);
-        if (_freelast >= _freelimit)
-            return;
-
-        p->~value_type();
-
-        *_freelast = p;
-        ++_freelast;
-    }
-    
-    template<typename _Object, typename _Derived>
+    template<typename _Object, typename _Derived, size_t _PoolAlign=CK_ARCH_ALIGN_BYTES>
     class ManagedObjectPoolBase
     {
         CK_CLASS_NON_COPYABLE(ManagedObjectPoolBase);
@@ -230,7 +114,7 @@ namespace cinek {
     
         void releaseRecordInternal(Record* record);
     
-        ObjectPool<Record> _recordsPool;
+        ObjectPool<Record, _PoolAlign> _recordsPool;
         Record* _head;
         
         void setOwnerRef(_Derived* owner);
@@ -247,14 +131,14 @@ namespace cinek {
      *
      *      void onReleaseManagedObject(Node& node);
      */
-    template<typename _Object, typename _Delegate>
+    template<typename _Object, typename _Delegate, size_t _PoolAlign=CK_ARCH_ALIGN_BYTES>
     class ManagedObjectPool :
-        public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate>>
+        public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate, _PoolAlign>, _PoolAlign>
     {
         CK_CLASS_NON_COPYABLE(ManagedObjectPool);
         
     public:
-        using BaseType = ManagedObjectPoolBase<_Object,ManagedObjectPool<_Object, _Delegate>>;
+        using BaseType = ManagedObjectPoolBase<_Object,ManagedObjectPool<_Object, _Delegate,_PoolAlign>, _PoolAlign>;
         using Handle = typename BaseType::Handle;
         using Value = typename BaseType::Value;
         
@@ -281,14 +165,14 @@ namespace cinek {
     };
     
 
-    template<typename _Object>
-    class ManagedObjectPool<_Object, void> :
-        public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void>>
+    template<typename _Object, size_t _PoolAlign>
+    class ManagedObjectPool<_Object, void, _PoolAlign> :
+        public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void, _PoolAlign>, _PoolAlign>
     {
         CK_CLASS_NON_COPYABLE(ManagedObjectPool);
         
     public:
-        using BaseType = ManagedObjectPoolBase<_Object,ManagedObjectPool<_Object, void>>;
+        using BaseType = ManagedObjectPoolBase<_Object,ManagedObjectPool<_Object, void, _PoolAlign>, _PoolAlign>;
         using Handle = typename BaseType::Handle;
         using Value = typename BaseType::Value;
         
