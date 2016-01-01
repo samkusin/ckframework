@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <aio.h>
+#include <unistd.h>
 
 #define CKIO_HANDLE_FLAG_ASYNC      1
 #define CKIO_HANDLE_FLAG_EOF        2
