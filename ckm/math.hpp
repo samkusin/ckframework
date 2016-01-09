@@ -25,6 +25,8 @@ template<typename scalar> scalar cos(scalar r);
 template<typename scalar> scalar acos(scalar a);
 template<typename scalar> scalar sin(scalar r);
 template<typename scalar> scalar asin(scalar a);
+template<typename scalar> scalar tan(scalar r);
+template<typename scalar> scalar atan(scalar a);
 template<typename scalar> scalar radians(scalar degrees);
 template<typename scalar> scalar degrees(scalar radians);
 template<typename val_type> val_type inverse(val_type const& m);
