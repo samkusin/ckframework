@@ -32,8 +32,6 @@
 #define CINEK_ENTITY_STORE_HPP
 
 #include "entity.h"
-#include "entitydatatable.hpp"
-#include "entitygroupmap.hpp"
 
 #include "cinek/vector.hpp"
 #include "cinek/map.hpp"
@@ -46,28 +44,9 @@ namespace cinek {
 
 struct EntityDiagnostics
 {
-    struct component
-    {
-        const char* name;
-        uint32_t allocated;
-        uint32_t limit;
-    };
-    struct group
-    {
-        EntityGroupMapId id;
-        uint32_t allocated;
-        uint32_t limit;
-    };
-    
-    vector<component> components;
-    vector<group> groups;
-    
     uint32_t entityCount;
     uint32_t entityLimit;
 };
-
-using EntityComponentDestroyFn =
-        std::function<void(EntityDataTable& table, ComponentRowIndex compRowIndex)>;
 
 // using techniques from:
 // http://bitsquid.blogspot.com/2014/08/building-data-oriented-entity-system.html
@@ -82,9 +61,6 @@ public:
     struct InitParams
     {
         EntityIndexType numEntities;
-        vector<component::MakeDescriptor> components;
-        vector<EntityGroupMap::MakeDescriptor> entityGroups;
-        int randomSeed;
     };
     
     EntityStore(const InitParams& params, const Allocator& allocator=Allocator());
@@ -100,15 +76,7 @@ public:
     void destroy(Entity eid);
     
     bool valid(Entity eid) const;
-    
-    //  garbage collects unused components - run once per frame
-    void gc(const EntityComponentDestroyFn& fn);
-
-    template<typename Component> component::Table<Component> table() const;
-    EntityGroupTable entityGroupTable(EntityGroupMapId id) const;
-    
-    const EntityDataTable* entityTable(ComponentId compId) const;
-    EntityDataTable* entityTable(ComponentId compId);
+    void gc();
     
     void diagnostics(EntityDiagnostics& diagnostics);
     
@@ -118,20 +86,7 @@ private:
     vector<EntityIndexType> _freed;
     EntityIterationType _entityIdIteration;
     EntityIndexType _entityCount;
-    unordered_map<ComponentId, EntityDataTable> _components;
-    unordered_map<EntityGroupMapId, EntityGroupMap> _entityGroups;
-    
-    std::minstd_rand _gcrandom;
 };
-
-template<typename Component>
-component::Table<Component> EntityStore::table() const
-{
-    const EntityDataTable* dataTable = entityTable(Component::kComponentId);
-    if (!dataTable)
-        return nullptr;
-    return component::Table<Component>(const_cast<EntityDataTable*>(dataTable));
-}
 
 } /* namespace cinek */
 
