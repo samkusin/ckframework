@@ -95,7 +95,13 @@ namespace cinek {
             return *this;
         }
         
-        operator bool() const {
+        bool operator==(const ManagedHandle& other) const {
+            return other._resource == _resource;
+        }
+        bool operator!=(const ManagedHandle& other) const {
+            return other._resource != _resource;
+        }
+        explicit operator bool() const {
             return _resource != nullptr;
         }
    

@@ -126,7 +126,7 @@ bool Client<_Delegate>::receive()
     }
     _messenger->pollEnd(_endpoint, true);
     
-    return (msg)==true;
+    return (bool)msg;
 }
 
 }   /* namespace ckmsg */

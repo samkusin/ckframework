@@ -87,7 +87,7 @@ struct ParseResult {
 	size_t Offset() const { return offset_; }
 
 	//! Conversion to \c bool, returns \c true, iff !\ref IsError().
-	operator bool() const { return !IsError(); }
+	explicit operator bool() const { return !IsError(); }
 	//! Whether the result is an error.
 	bool IsError() const { return code_ != kParseErrorNone; }
 
