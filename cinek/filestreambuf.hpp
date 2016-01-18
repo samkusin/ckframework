@@ -40,7 +40,7 @@ namespace cinek {
         );
         ~FileStreamBuf();
         //  Used to check whether file opened.
-        operator bool() const {
+        explicit operator bool() const {
             return isOpen();
         }
         bool isOpen() const {

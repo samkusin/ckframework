@@ -218,7 +218,7 @@
  * \def CK_ARCH_ALIGN_BYTES
  * The architecture specific alignment value (in bytes.)
  */
-#define CK_ARCH_ALIGN_BYTES (4)
+#define CK_ARCH_ALIGN_BYTES sizeof(void*)
 /**
  *  \def CK_ALIGN_SIZE_TO_ARCH(_val_)
  *  Invokes CK_ALIGN_SIZE with the platform's predefined alignment value.

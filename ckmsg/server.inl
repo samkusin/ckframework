@@ -72,7 +72,7 @@ bool Server<_DelegateType>::receive()
     }
     _messenger->pollEnd(_endpoint, true);
     
-    return (msg)==true;
+    return (bool)(msg);
 }
 
 template<typename _DelegateType>

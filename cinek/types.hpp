@@ -36,8 +36,8 @@
 #include <type_traits>
 
 namespace cinek {
-    template<typename _T> class ObjectPool;
-    template<typename _Object, typename _Delegate> class ManagedObjectPool;
+    template<typename _T, size_t _Align> class ObjectPool;
+    template<typename _Object, typename _Delegate, size_t _PoolAlign> class ManagedObjectPool;
 }
 
 namespace cinek {
@@ -95,7 +95,13 @@ namespace cinek {
             return *this;
         }
         
-        operator bool() const {
+        bool operator==(const ManagedHandle& other) const {
+            return other._resource == _resource;
+        }
+        bool operator!=(const ManagedHandle& other) const {
+            return other._resource != _resource;
+        }
+        explicit operator bool() const {
             return _resource != nullptr;
         }
    

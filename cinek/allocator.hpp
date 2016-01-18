@@ -42,6 +42,8 @@ struct cinek_memory_callbacks
 {
     /** Invoked when a subsystem allocates memory. */
     void*   (*alloc)(void* ctx, size_t numBytes);
+    /** Invoked when a subsystem allocates aligned memory. */
+    void*   (*alloc_aligned)(void* ctx, size_t numBytes, size_t align);
     /** Invoked when a subsystem frees memory. */
     void    (*free)(void* ctx, void* ptr);
     /** Invoked when a subsystem reallocates memory given a block of memory
@@ -83,6 +85,15 @@ void cinek_get_alloc_callbacks(int heap, cinek_memory_callbacks* callbacks);
  *  @return A pointer to the allocated block of memory (or NULL)
  */
 void* cinek_alloc(int heap, size_t sz);
+
+/**
+ *  Allocate an aligned block from the specified heap
+ *  @param  heap    The heap to allocate from
+ *  @param  sz      The amount to allocate
+ *  @param  align   The alignment of the allocated block
+ *  @return A pointer to the allocated block of memory (or NULL)
+ */
+void* cinek_alloc_aligned(int heap, size_t sz, size_t align);
 
 /**
  *  Allocate from the specified heap using an existing allocate block.  Used
@@ -143,6 +154,15 @@ public:
 	void* alloc(size_t size) {
 		return cinek_alloc(_heap, size);
 	}
+	/**
+	 * Allocates an aligned block of memory of the supplied size.
+	 * @param  size Size of the memory block to allocate.
+     * @param  align The alignment of the returned memory block.
+	 * @return A pointer to the allocated block or nullptr.
+	 */
+    void* allocAligned(size_t size, size_t align) {
+        return cinek_alloc_aligned(_heap, size, align);
+    }
 	/**
 	 * Allocates and constucts instance of T.
      * @param  args Initialization arguments to the constructor for T.

@@ -81,16 +81,6 @@ enum
 #define cinek_entity_iteration(_eid_) \
     ((CKEntityIteration)(((_eid_) & kCKEntityIterationMask)>>kCKEntityIterationShift))
 
-typedef uint32_t CKComponentId;
-typedef uint32_t CKComponentRowIndex;
-typedef uint32_t CKEntityGroupMapId;
-
-enum
-{
-    kCKEntityNullComponentRow = UINT32_MAX
-};
-
-
 #ifdef __cplusplus
 
 namespace cinek {
@@ -98,83 +88,14 @@ namespace cinek {
     //  Forward decls --------------------------------------------------------------
 
     class EntityStore;
-    class EntityGroup;
-    class EntityGroupMap;
-    class EntityDataTable;
     struct EntityDiagnostics;
-
-    //  Components -----------------------------------------------------------------
-
-    namespace component
-    {
-        template<typename _Component, typename _Container> class Table;
-    }
-    using EntityGroupTable = component::Table<EntityGroup, EntityGroupMap>;
 
     using Entity = CKEntity;
     using EntityContextType = CKEntityContext;
     using EntityIndexType = CKEntityIndex;
     using EntityIterationType = CKEntityIteration;
-    using ComponentId = CKComponentId;
-    using ComponentRowIndex = CKComponentRowIndex;
-    using EntityGroupMapId = CKEntityGroupMapId;
-    constexpr ComponentRowIndex kNullComponentRow = kCKEntityNullComponentRow;
-
-    constexpr ComponentId MakeComponentId(uint16_t category, uint16_t id)
-    {
-        return (((ComponentId)category) << 16) | id;
-    }
-
-    namespace component
-    {
-        struct Descriptor
-        {
-            ComponentId id;
-            size_t recordSize;
-            const char* name;
-            void (*initCb)(::cinek::Entity, void*);
-        };
-
-        struct MakeDescriptor
-        {
-            Descriptor desc;
-            uint32_t cnt;
-        };
-
-        enum
-        {
-            kEmpty              = MakeComponentId(0xffff,        0xffff)
-        };
-    }
 
 } /* namespace cinek */
-
-
-#define COMPONENT_DEFINITION(_type_) \
-    using this_type = _type_; \
-    static const ::cinek::ComponentId kComponentId; \
-    static const ::cinek::component::Descriptor kComponentType; \
-    static ::cinek::component::MakeDescriptor makeDescriptor( uint32_t cnt); \
-    void initialize(::cinek::Entity entity);
-
-#define COMPONENT_TYPE_IMPL(_type_, _id_, _init_body_) \
-    static_assert(std::is_standard_layout<_type_>::value, "Component type must have a standard layout (C++1x)"); \
-    void _type_::initialize(::cinek::Entity entity) { \
-        _init_body_ \
-    } \
-    ::cinek::component::MakeDescriptor _type_::makeDescriptor ( uint32_t cnt) { \
-        ::cinek::component::MakeDescriptor md; \
-        md.desc = kComponentType; \
-        md.cnt = cnt; \
-        return md; \
-    } \
-    void _type_ ## initialize_hook(::cinek::Entity e, void* pdata) { \
-        _type_::this_type* data = reinterpret_cast<_type_::this_type*>(pdata); \
-        data->initialize(e); \
-    } \
-    const ::cinek::ComponentId _type_::kComponentId = _id_; \
-    const ::cinek::component::Descriptor _type_::kComponentType =  \
-        { _type_::kComponentId, sizeof(_type_), #_type_,  _type_ ## initialize_hook };
 
 #endif  /* __cplusplus */
 

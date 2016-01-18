@@ -52,7 +52,7 @@ namespace ckm {
         ///
         /// @return False if the box has a zero size
         ///
-        operator bool() const;
+        explicit operator bool() const;
         /// Calculates the size of the box as a Point
         /// @return The x,y,z sizes of the box
         ///

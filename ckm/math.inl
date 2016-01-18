@@ -31,12 +31,21 @@ template<> float sin<float>(float r) {
 template<> float asin<float>(float a) {
     return asinf(a);
 }
+template<> float tan<float>(float r) {
+    return tanf(r);
+}
+template<> float atan<float>(float a) {
+    return atanf(a);
+}
 template<> float radians<float>(float degrees) {
     return pi<float>() * degrees / 180.0f;
 }
 template<> float degrees<float>(float radians) {
     return 180.0f * radians / pi<float>();
 }
+
+template<typename scalar> scalar tan(scalar r);
+template<typename scalar> scalar atan(scalar a);
 
 /*
     quat quatFromUnitVectors(vec3 const& v0, vec3 const& v1)

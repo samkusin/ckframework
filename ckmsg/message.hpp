@@ -101,7 +101,7 @@ public:
     {
     }
 
-    operator bool() const { return _classId != 0; }
+    explicit operator bool() const { return _classId != 0; }
 
     ClassId type() const {  return _classId; }
     Address sender() const { return _sender; }

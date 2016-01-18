@@ -8,15 +8,143 @@
 
 namespace cinek {
 
-    template<typename _Object, typename _Derived>
-    ManagedObjectPoolBase<_Object, _Derived>::ManagedObjectPoolBase() :
+    template<typename _T, size_t _Align>
+    ObjectPool<_T, _Align>::ObjectPool() :
+        _first(nullptr),
+        _last(nullptr),
+        _limit(nullptr),
+        _freefirst(nullptr),
+        _freelast(nullptr),
+        _freelimit(nullptr)
+    {
+    }
+
+    template<typename _T, size_t _Align>
+    ObjectPool<_T, _Align>::ObjectPool
+    (
+        size_t blockCount,
+        Allocator allocator
+    ) :
+        _allocator(allocator),
+        _first(nullptr),
+        _last(nullptr),
+        _limit(nullptr),
+        _freefirst(nullptr),
+        _freelast(nullptr),
+        _freelimit(nullptr)
+    {
+        size_t allocAmt = CK_ALIGN_SIZE(sizeof(_T), _Align);
+        allocAmt *= blockCount;
+    
+        _first = reinterpret_cast<uint8_t*>(_allocator.allocAligned(allocAmt, _Align));
+        _last = _first;
+        _limit = _first + allocAmt;
+        _freefirst = reinterpret_cast<pointer*>(_allocator.alloc(blockCount * sizeof(pointer)));
+        _freelast = _freefirst;
+        _freelimit = _freefirst + blockCount;
+    }
+
+    template<typename _T, size_t _Align>
+    ObjectPool<_T, _Align>::~ObjectPool()
+    {
+        _allocator.free(_freefirst);
+        _allocator.free(_first);
+    }
+
+    template<typename _T, size_t _Align>
+    ObjectPool<_T, _Align>::ObjectPool(ObjectPool&& other) :
+        _allocator(std::move(other._allocator)),
+        _first(other._first),
+        _last(other._last),
+        _limit(other._limit),
+        _freefirst(other._freefirst),
+        _freelast(other._freelast),
+        _freelimit(other._freelimit)
+    {
+        other.zeroVectors();
+    }
+
+    template<typename _T, size_t _Align>
+    ObjectPool<_T, _Align>& ObjectPool<_T, _Align>::operator=(ObjectPool&& other)
+    {
+        _allocator = std::move(other._allocator);
+        _first = other._first;
+        _last = other._last;
+        _limit = other._limit;
+        _freefirst = other._freefirst;
+        _freelast = other._freelast;
+        _freelimit = other._freelimit;
+
+        other.zeroVectors();
+
+        return *this;
+    }
+
+    template<typename _T, size_t _Align>
+    void ObjectPool<_T, _Align>::zeroVectors()
+    {
+        _first = nullptr;
+        _last = nullptr;
+        _limit = nullptr;
+        _freefirst = nullptr;
+        _freelast = nullptr;
+        _freelimit = nullptr;
+    }
+
+    template<typename _T, size_t _Align> template<typename... Args>
+    auto ObjectPool<_T, _Align>::construct(Args&&... args) -> pointer
+    {
+        pointer p = nullptr;
+        if (_freefirst != _freelast)
+        {
+            --_freelast;
+            p = *_freelast;
+        }
+        else if (_last < _limit)
+        {
+            p = reinterpret_cast<pointer>(_last);
+            _last += CK_ALIGN_SIZE(sizeof(_T), _Align);
+            CK_ASSERT(_last <= _limit);
+        }
+
+        CK_ASSERT(p);
+        if (p)
+        {
+            ::new(p) _T(std::forward<Args>(args)...);
+        }
+
+        return p;
+    }
+
+    template<typename _T, size_t _Align>
+    void ObjectPool<_T, _Align>::destruct(pointer p)
+    {
+        if (!p)
+            return;
+
+        CK_ASSERT((uint8_t*)p >= _first && (uint8_t*)p < _limit);
+        CK_ASSERT(_freelast < _freelimit);
+        if (_freelast >= _freelimit)
+            return;
+
+        p->~value_type();
+
+        *_freelast = p;
+        ++_freelast;
+    }
+
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>::ManagedObjectPoolBase() :
         _head(nullptr),
         _ownerRef(nullptr)
     {
     }
 
-    template<typename _Object, typename _Derived>
-    ManagedObjectPoolBase<_Object, _Derived>::ManagedObjectPoolBase(size_t count) :
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>::ManagedObjectPoolBase
+    (
+        size_t count
+    ) :
         _recordsPool(count),
         _head(nullptr),
         _ownerRef(nullptr)
@@ -26,8 +154,8 @@ namespace cinek {
         _ownerRef->owner = static_cast<_Derived*>(this);
     }
 
-    template<typename _Object, typename _Derived>
-    ManagedObjectPoolBase<_Object, _Derived>::ManagedObjectPoolBase
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>::ManagedObjectPoolBase
     (
         ManagedObjectPoolBase&& other
     )
@@ -42,8 +170,8 @@ namespace cinek {
         setOwnerRef(static_cast<_Derived*>(this));
     }
     
-    template<typename _Object, typename _Derived>
-    ManagedObjectPoolBase<_Object, _Derived>::~ManagedObjectPoolBase()
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>::~ManagedObjectPoolBase()
     {
         //  note - this destructor does not cleanup the records themselves.
         //  derived destructors take care of this since each derived impl
@@ -56,12 +184,12 @@ namespace cinek {
         _head = nullptr;    // memory invalidated by recordspool cleanup
     }
     
-    template<typename _Object, typename _Derived>
-    auto ManagedObjectPoolBase<_Object, _Derived>::operator=
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    auto ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>::operator=
     (
         ManagedObjectPoolBase&& other
     )
-    noexcept -> ManagedObjectPoolBase<_Object, _Derived>&
+    noexcept -> ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>&
     {
         _recordsPool = std::move(other._recordsPool);
         _head = other._head;
@@ -75,8 +203,8 @@ namespace cinek {
         return *this;
     }
 
-    template<typename _Object, typename _Derived>
-    auto ManagedObjectPoolBase<_Object, _Derived>::add(Value&& obj) -> Record*
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    auto ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>::add(Value&& obj) -> Record*
     {
         Record* r = add();
         if (r) {
@@ -85,8 +213,8 @@ namespace cinek {
         return r;
     }
     
-    template<typename _Object, typename _Derived>
-    auto ManagedObjectPoolBase<_Object, _Derived>::add() -> Record*
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    auto ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>::add() -> Record*
     {
         Record* record = _recordsPool.construct();
         if (record) {
@@ -110,8 +238,8 @@ namespace cinek {
         return record;
     }
   
-    template<typename _Object, typename _Derived>
-    void ManagedObjectPoolBase<_Object, _Derived>::releaseRecordInternal(Record *record)
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    void ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>::releaseRecordInternal(Record *record)
     {
         if (record->next) {
             record->next->prev = record->prev;
@@ -136,55 +264,55 @@ namespace cinek {
     
     ////////////////////////////////////////////////////////////////////////////
     
-    template<typename _Object, typename _Delegate>
-    ManagedObjectPool<_Object, _Delegate>::ManagedObjectPool() :
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    ManagedObjectPool<_Object, _Delegate, _PoolAlign>::ManagedObjectPool() :
         _delegate()
     {
     }
     
-    template<typename _Object, typename _Delegate>
-    ManagedObjectPool<_Object, _Delegate>::ManagedObjectPool
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    ManagedObjectPool<_Object, _Delegate, _PoolAlign>::ManagedObjectPool
     (
         size_t count
     ) :
-        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate>>(count),
+        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate, _PoolAlign>, _PoolAlign>(count),
         _delegate()
     {
     }
     
-    template<typename _Object, typename _Delegate>
-    ManagedObjectPool<_Object, _Delegate>::ManagedObjectPool
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    ManagedObjectPool<_Object, _Delegate, _PoolAlign>::ManagedObjectPool
     (
         ManagedObjectPool&& other
     )
     noexcept :
-        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate>>(std::move(other)),
+        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate, _PoolAlign>, _PoolAlign>(std::move(other)),
         _delegate(std::move(other._delegate))
     {
         other._delegate = nullptr;
     }
     
-    template<typename _Object, typename _Delegate>
-    ManagedObjectPool<_Object, _Delegate>::~ManagedObjectPool()
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    ManagedObjectPool<_Object, _Delegate, _PoolAlign>::~ManagedObjectPool()
     {
         destructAll();
     }
     
-    template<typename _Object, typename _Delegate>
-    auto ManagedObjectPool<_Object, _Delegate>::operator=
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    auto ManagedObjectPool<_Object, _Delegate, _PoolAlign>::operator=
     (
         ManagedObjectPool&& other
     )
-    noexcept -> ManagedObjectPool<_Object, _Delegate>&
+    noexcept -> ManagedObjectPool<_Object, _Delegate, _PoolAlign>&
     {
-        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate>>::operator=(std::move(other));
+        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate, _PoolAlign>, _PoolAlign>::operator=(std::move(other));
         _delegate = std::move(other._delegate);
         other._delegate = nullptr;
         return *this;
     }
     
-    template<typename _Object, typename _Delegate>
-    void ManagedObjectPool<_Object, _Delegate>::releaseRecord
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    void ManagedObjectPool<_Object, _Delegate, _PoolAlign>::releaseRecord
     (
         typename BaseType::Record *record
     )
@@ -196,32 +324,32 @@ namespace cinek {
         BaseType::releaseRecordInternal(record);
     }
     
-    template<typename _Object, typename _Delegate>
-    void ManagedObjectPool<_Object, _Delegate>::setDelegate(const _Delegate& del)
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    void ManagedObjectPool<_Object, _Delegate, _PoolAlign>::setDelegate(const _Delegate& del)
     {
         _delegate = del;
     }
     
-    template<typename _Object, typename _Delegate>
-    void ManagedObjectPool<_Object, _Delegate>::clearDelegate()
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    void ManagedObjectPool<_Object, _Delegate, _PoolAlign>::clearDelegate()
     {
         _delegate = nullptr;
     }
     
-    template<typename _Object, typename _Delegate>
-    auto ManagedObjectPool<_Object, _Delegate>::add(Value&& obj) -> Handle
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    auto ManagedObjectPool<_Object, _Delegate, _PoolAlign>::add(Value&& obj) -> Handle
     {
         return Handle(&BaseType::add(std::forward<Value>(obj))->object);
     }
     
-    template<typename _Object, typename _Delegate>
-    auto ManagedObjectPool<_Object, _Delegate>::add() -> Handle
+    template<typename _Object, typename _Delegate, size_t _PoolAlign>
+    auto ManagedObjectPool<_Object, _Delegate, _PoolAlign>::add() -> Handle
     {
         return Handle(&BaseType::add()->object);
     }
     
-    template<typename _Object, typename _Derived>
-    void ManagedObjectPool<_Object, _Derived>::destructAll()
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    void ManagedObjectPool<_Object, _Derived, _PoolAlign>::destructAll()
     {
         //  prevent handle releases from affecting our object teardown
         //  mainly in cases where our Objects contain handles to other Objects
@@ -237,8 +365,8 @@ namespace cinek {
         BaseType::setOwnerRef(this);
     }
     
-    template<typename _Object, typename _Derived>
-    void ManagedObjectPoolBase<_Object, _Derived>::setOwnerRef(_Derived* owner)
+    template<typename _Object, typename _Derived, size_t _PoolAlign>
+    void ManagedObjectPoolBase<_Object, _Derived, _PoolAlign>::setOwnerRef(_Derived* owner)
     {
         if (_ownerRef) {
             _ownerRef->owner = owner;
@@ -248,44 +376,45 @@ namespace cinek {
     
     ////////////////////////////////////////////////////////////////////////////
     
-    template<typename _Object>
-    ManagedObjectPool<_Object, void>::ManagedObjectPool
+    template<typename _Object, size_t _PoolAlign>
+    ManagedObjectPool<_Object, void, _PoolAlign>::ManagedObjectPool
     (
         size_t count
     ) :
-        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void>>(count)    {
+        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void, _PoolAlign>, _PoolAlign>(count)
+    {
     }
     
-    template<typename _Object>
-    ManagedObjectPool<_Object, void>::ManagedObjectPool
+    template<typename _Object, size_t _PoolAlign>
+    ManagedObjectPool<_Object, void, _PoolAlign>::ManagedObjectPool
     (
         ManagedObjectPool&& other
     )
     noexcept :
-        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void>>(std::move(other))
+        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void, _PoolAlign>, _PoolAlign>(std::move(other))
     {
     }
     
-    template<typename _Object>
-    ManagedObjectPool<_Object, void>::~ManagedObjectPool()
+    template<typename _Object, size_t _PoolAlign>
+    ManagedObjectPool<_Object, void, _PoolAlign>::~ManagedObjectPool()
     {
         destructAll();
     }
     
-    template<typename _Object>
-    auto ManagedObjectPool<_Object, void>::operator=
+    template<typename _Object, size_t _PoolAlign>
+    auto ManagedObjectPool<_Object, void, _PoolAlign>::operator=
     (
         ManagedObjectPool&& other
     )
-    noexcept -> ManagedObjectPool<_Object, void>&
+    noexcept -> ManagedObjectPool<_Object, void, _PoolAlign>&
     {
      
-        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void>>::operator=(std::move(other));
+        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void, _PoolAlign>, _PoolAlign>::operator=(std::move(other));
         return *this;
     }
     
-    template<typename _Object>
-    void ManagedObjectPool<_Object, void>::releaseRecord
+    template<typename _Object, size_t _PoolAlign>
+    void ManagedObjectPool<_Object, void, _PoolAlign>::releaseRecord
     (
         typename BaseType::Record *record
     )
@@ -293,20 +422,20 @@ namespace cinek {
         BaseType::releaseRecordInternal(record);
     }
     
-    template<typename _Object>
-    auto ManagedObjectPool<_Object, void>::add(Value&& obj) -> Handle
+    template<typename _Object, size_t _PoolAlign>
+    auto ManagedObjectPool<_Object, void, _PoolAlign>::add(Value&& obj) -> Handle
     {
         return Handle(&BaseType::add(std::forward<Value>(obj))->object);
     }
     
-    template<typename _Object>
-    auto ManagedObjectPool<_Object, void>::add() -> Handle
+    template<typename _Object, size_t _PoolAlign>
+    auto ManagedObjectPool<_Object, void, _PoolAlign>::add() -> Handle
     {
         return Handle(&BaseType::add()->object);
     }
     
-    template<typename _Object>
-    void ManagedObjectPool<_Object, void>::destructAll()
+    template<typename _Object, size_t _PoolAlign>
+    void ManagedObjectPool<_Object, void, _PoolAlign>::destructAll()
     {
         //  prevent handle releases from affecting our object teardown
         //  mainly in cases where our Objects contain handles to other Objects
