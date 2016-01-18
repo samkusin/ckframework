@@ -93,8 +93,6 @@ enum
 
 #ifdef __cplusplus
 
-#include <cstddef>
-
 namespace cinek {
 
     //  Forward decls --------------------------------------------------------------

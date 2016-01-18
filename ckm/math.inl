@@ -11,7 +11,7 @@ namespace ckm
 #ifdef CKM_MATH_IMPLEMENTATION
 
 template<> float epsilon<float>() {
-    return 1e-6;
+    return 1e-6f;
 }
 template<> float pi<float>() {
     return bx::pi;

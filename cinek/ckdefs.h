@@ -97,13 +97,34 @@
  * \def CK_CPP_EXCEPTIONS
  * Define if C++ exception handling is enabled.
  */
-#define CK_CPP_EXCEPTIONS 0
+#if !defined(CK_CPP_EXCEPTIONS) || !CK_CPP_EXCEPTIONS
+    #if __clang__
+        #if __has_feature(cxx_exceptions)
+          #define CK_CPP_EXCEPTIONS 1
+        #else
+          #define CK_CPP_EXCEPTIONS 0
+        #endif
+    #elif defined(_MSC_VER)
+        #ifdef _CPPUNWIND
+          #define CK_CPP_EXCEPTIONS 1
+        #else
+          #undef _HAS_EXCEPTIONS
+          #define _HAS_EXCEPTIONS 0
+        #endif
+    #else
+       #define CK_CPP_EXCEPTIONS 0
+    #endif
+#endif
+        
+
 /**@}*/
 
 #if CK_CPP_EXCEPTIONS
   #ifdef __cplusplus
     #include <stdexcept>
   #endif
+#else
+
 #endif
 
 #ifdef __cplusplus
