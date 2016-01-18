@@ -120,25 +120,10 @@
     <ClInclude Include="..\..\cinek\vector.hpp">
       <Filter>Header Files\cinek</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ckentity\datarowset.hpp">
-      <Filter>Header Files\ckentity</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ckentity\entity.h">
       <Filter>Header Files\ckentity</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ckentity\entitydatatable.hpp">
-      <Filter>Header Files\ckentity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ckentity\entitygroup.hpp">
-      <Filter>Header Files\ckentity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ckentity\entitygroupmap.hpp">
-      <Filter>Header Files\ckentity</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ckentity\entitystore.hpp">
-      <Filter>Header Files\ckentity</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ckentity\vectordatarowset.hpp">
       <Filter>Header Files\ckentity</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ckio\file.h">
@@ -294,18 +279,6 @@
     </ClCompile>
     <ClCompile Include="..\..\cinek\types.cpp">
       <Filter>Source Files\cinek</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ckentity\datarowset.cpp">
-      <Filter>Source Files\ckentity</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ckentity\entitydatatable.cpp">
-      <Filter>Source Files\ckentity</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ckentity\entitygroup.cpp">
-      <Filter>Source Files\ckentity</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ckentity\entitygroupmap.cpp">
-      <Filter>Source Files\ckentity</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ckentity\entitystore.cpp">
       <Filter>Source Files\ckentity</Filter>

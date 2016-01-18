@@ -138,7 +138,8 @@ namespace cinek {
         CK_CLASS_NON_COPYABLE(ManagedObjectPool);
         
     public:
-        using BaseType = ManagedObjectPoolBase<_Object,ManagedObjectPool<_Object, _Delegate,_PoolAlign>, _PoolAlign>;
+        using ThisType = ManagedObjectPool<_Object, _Delegate, _PoolAlign>;
+        using BaseType = ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>;
         using Handle = typename BaseType::Handle;
         using Value = typename BaseType::Value;
         
@@ -158,8 +159,10 @@ namespace cinek {
         
     private:
         friend Handle;
-    
-        void releaseRecord(typename BaseType::Record* record);
+        // MSVC 2015 does not resolve typename BaseType::Record properly during codegen
+        //  - expanding BaseType seems to work
+        //  - Clang (and likely GCC) do not have this problem
+        void releaseRecord(ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
         
         _Delegate _delegate;
     };
@@ -172,7 +175,8 @@ namespace cinek {
         CK_CLASS_NON_COPYABLE(ManagedObjectPool);
         
     public:
-        using BaseType = ManagedObjectPoolBase<_Object,ManagedObjectPool<_Object, void, _PoolAlign>, _PoolAlign>;
+        using ThisType = ManagedObjectPool<_Object, void, _PoolAlign>;
+        using BaseType = ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>;
         using Handle = typename BaseType::Handle;
         using Value = typename BaseType::Value;
         
@@ -189,8 +193,11 @@ namespace cinek {
         
     private:
         friend Handle;
-        
-        void releaseRecord(typename BaseType::Record* record);
+ 
+        // MSVC 2015 does not resolve typename BaseType::Record properly during codegen
+        //  - expanding BaseType seems to work
+        //  - Clang (and likely GCC) do not have this problem       
+        void releaseRecord(ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
     };
     
 } /* namespace cinek */

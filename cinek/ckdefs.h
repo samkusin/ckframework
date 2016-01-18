@@ -268,5 +268,10 @@
   #endif
 #endif
 
+#ifdef _MSC_VER 
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 /* CINEK_DEFS_H */
 #endif

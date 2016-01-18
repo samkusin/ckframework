@@ -48,7 +48,7 @@ namespace cinek {
     ObjectPool<_T, _Align>::~ObjectPool()
     {
         _allocator.free(_freefirst);
-        _allocator.free(_first);
+        _allocator.freeAligned(_first);
     }
 
     template<typename _T, size_t _Align>
@@ -305,7 +305,7 @@ namespace cinek {
     )
     noexcept -> ManagedObjectPool<_Object, _Delegate, _PoolAlign>&
     {
-        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate, _PoolAlign>, _PoolAlign>::operator=(std::move(other));
+        ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::operator=(std::move(other));
         _delegate = std::move(other._delegate);
         other._delegate = nullptr;
         return *this;
@@ -314,7 +314,7 @@ namespace cinek {
     template<typename _Object, typename _Delegate, size_t _PoolAlign>
     void ManagedObjectPool<_Object, _Delegate, _PoolAlign>::releaseRecord
     (
-        typename BaseType::Record *record
+        ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record *record
     )
     {
         if (_delegate) {
@@ -409,14 +409,14 @@ namespace cinek {
     noexcept -> ManagedObjectPool<_Object, void, _PoolAlign>&
     {
      
-        ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void, _PoolAlign>, _PoolAlign>::operator=(std::move(other));
+        ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::operator=(std::move(other));
         return *this;
     }
     
     template<typename _Object, size_t _PoolAlign>
     void ManagedObjectPool<_Object, void, _PoolAlign>::releaseRecord
     (
-        typename BaseType::Record *record
+        ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record *record
     )
     {
         BaseType::releaseRecordInternal(record);

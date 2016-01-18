@@ -46,6 +46,8 @@ struct cinek_memory_callbacks
     void*   (*alloc_aligned)(void* ctx, size_t numBytes, size_t align);
     /** Invoked when a subsystem frees memory. */
     void    (*free)(void* ctx, void* ptr);
+    /** Invoked when a subsystem frees aligned memory. */
+    void    (*free_aligned)(void* ctx, void* ptr);
     /** Invoked when a subsystem reallocates memory given a block of memory
      * previously allocated by alloc. */
     void*   (*realloc)(void* ctx, void* ptr, size_t numBytes);
@@ -111,6 +113,13 @@ void* cinek_realloc(int heap, void* ptr, size_t sz);
  *  @param  ptr     The allocated block to free
  */
 void cinek_free(int heap, void* ptr);
+
+/**
+*  Frees a block allocated via cinek_alloc_aligned
+*  @param  heap    The heap to free from
+*  @param  ptr     The allocated block to free
+*/
+void cinek_free_aligned(int heap, void* ptr);
 
 /**
  * @class Allocator
@@ -197,6 +206,14 @@ public:
 	void free(void* ptr) {
         cinek_free(_heap, ptr);
 	}
+
+    /**
+    * Frees aligned memory allocated by allocAlign.
+    * @param ptr Pointer to the memory block to free
+    */
+    void freeAligned(void* ptr) {
+        cinek_free_aligned(_heap, ptr);
+    }
 
 private:
     friend bool operator==(const Allocator& lha, const Allocator& rha);

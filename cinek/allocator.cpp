@@ -21,14 +21,28 @@ static void* DefaultAlloc(void* ctx, size_t numBytes)
 static void* DefaultAllocAlign(void* ctx, size_t numBytes, size_t align)
 {
     void* ptr;
+#if defined(CK_TARGET_WINDOWS)
+    ptr = _aligned_malloc(numBytes, align);
+#else
     if (posix_memalign(&ptr, align, numBytes) != 0)
         return nullptr;
+#endif
+
     return ptr;
 }
 
 static void DefaultFree(void* ctx, void* ptr)
 {
     free(ptr);
+}
+
+static void DefaultFreeAlign(void* ctx, void* ptr)
+{
+#if defined(CK_TARGET_WINDOWS)
+    _aligned_free(ptr);
+#else
+    free(ptr);
+#endif
 }
 
 static void* DefaultRealloc(void* ctx, void* ptr, size_t numBytes)
@@ -48,6 +62,7 @@ g_cinek_memoryProvider[16] =
             &DefaultAlloc,
             &DefaultAllocAlign,
             &DefaultFree,
+            &DefaultFreeAlign,
             &DefaultRealloc,
             NULL
         }
@@ -67,6 +82,7 @@ void cinek_alloc_set_callbacks
         g_cinek_memoryProvider[heap].cbs.alloc = &DefaultAlloc;
         g_cinek_memoryProvider[heap].cbs.alloc_aligned = &DefaultAllocAlign;
         g_cinek_memoryProvider[heap].cbs.free = &DefaultFree;
+        g_cinek_memoryProvider[heap].cbs.free_aligned = &DefaultFreeAlign;
         g_cinek_memoryProvider[heap].cbs.realloc = &DefaultRealloc;
         g_cinek_memoryProvider[heap].cbs.context = NULL;
         return;
@@ -121,6 +137,17 @@ void cinek_free(int heap, void* ptr)
         g_cinek_memoryProvider[heap].cbs.context,
         ptr
     );
+}
+
+void cinek_free_aligned(int heap, void* ptr)
+{
+    if (ptr == NULL)
+        return;
+    (*g_cinek_memoryProvider[heap].cbs.free_aligned)
+        (
+            g_cinek_memoryProvider[heap].cbs.context,
+            ptr
+            );
 }
 
 

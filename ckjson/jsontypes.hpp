@@ -13,13 +13,13 @@ namespace rapidjson {
     class CrtAllocator;
     template<typename BaseAllocatorr> class MemoryPoolAllocator;
     template<typename CharType> struct UTF8;
-    template<typename Encoding, typename Allocator> class GenericDocument;
+    template<typename Encoding, typename Allocator, typename StackAllocator> class GenericDocument;
     template<typename Encoding, typename Allocator> class GenericValue;
 }
 
 namespace cinek {
     typedef rapidjson::GenericDocument<rapidjson::UTF8<char>,
-        rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>> JsonDocument;
+        rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>, rapidjson::CrtAllocator> JsonDocument;
     typedef rapidjson::GenericValue<rapidjson::UTF8<char>,
         rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator>> JsonValue;
     

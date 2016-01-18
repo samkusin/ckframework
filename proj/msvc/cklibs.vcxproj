@@ -189,13 +189,8 @@
     <ClInclude Include="..\..\cinek\taskscheduler.hpp" />
     <ClInclude Include="..\..\cinek\types.hpp" />
     <ClInclude Include="..\..\cinek\vector.hpp" />
-    <ClInclude Include="..\..\ckentity\datarowset.hpp" />
     <ClInclude Include="..\..\ckentity\entity.h" />
-    <ClInclude Include="..\..\ckentity\entitydatatable.hpp" />
-    <ClInclude Include="..\..\ckentity\entitygroup.hpp" />
-    <ClInclude Include="..\..\ckentity\entitygroupmap.hpp" />
     <ClInclude Include="..\..\ckentity\entitystore.hpp" />
-    <ClInclude Include="..\..\ckentity\vectordatarowset.hpp" />
     <ClInclude Include="..\..\ckio\file.h" />
     <ClInclude Include="..\..\ckjson\json.hpp" />
     <ClInclude Include="..\..\ckjson\jsoncollectionloader.hpp" />
@@ -250,10 +245,6 @@
     <ClCompile Include="..\..\cinek\task.cpp" />
     <ClCompile Include="..\..\cinek\taskscheduler.cpp" />
     <ClCompile Include="..\..\cinek\types.cpp" />
-    <ClCompile Include="..\..\ckentity\datarowset.cpp" />
-    <ClCompile Include="..\..\ckentity\entitydatatable.cpp" />
-    <ClCompile Include="..\..\ckentity\entitygroup.cpp" />
-    <ClCompile Include="..\..\ckentity\entitygroupmap.cpp" />
     <ClCompile Include="..\..\ckentity\entitystore.cpp" />
     <ClCompile Include="..\..\ckio\filewin.c" />
     <ClCompile Include="..\..\ckjson\json.cpp" />
