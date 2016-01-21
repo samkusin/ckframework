@@ -162,7 +162,7 @@ namespace cinek {
         // MSVC 2015 does not resolve typename BaseType::Record properly during codegen
         //  - expanding BaseType seems to work
         //  - Clang (and likely GCC) do not have this problem
-        void releaseRecord(ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
+        void releaseRecord(typename ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
         
         _Delegate _delegate;
     };
@@ -197,7 +197,7 @@ namespace cinek {
         // MSVC 2015 does not resolve typename BaseType::Record properly during codegen
         //  - expanding BaseType seems to work
         //  - Clang (and likely GCC) do not have this problem       
-        void releaseRecord(ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
+        void releaseRecord(typename ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
     };
     
 } /* namespace cinek */

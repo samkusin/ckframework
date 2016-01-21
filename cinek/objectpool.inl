@@ -314,7 +314,7 @@ namespace cinek {
     template<typename _Object, typename _Delegate, size_t _PoolAlign>
     void ManagedObjectPool<_Object, _Delegate, _PoolAlign>::releaseRecord
     (
-        ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record *record
+        typename ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record *record
     )
     {
         if (_delegate) {
@@ -416,7 +416,7 @@ namespace cinek {
     template<typename _Object, size_t _PoolAlign>
     void ManagedObjectPool<_Object, void, _PoolAlign>::releaseRecord
     (
-        ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record *record
+        typename ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record *record
     )
     {
         BaseType::releaseRecordInternal(record);
