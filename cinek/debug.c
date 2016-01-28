@@ -7,6 +7,16 @@
  */
 
 #include "debug.h"
+#include "ckdefs.h"
+
+#if defined(CK_TARGET_OSX) || defined(CK_TARGET_LINUX)
+    #include <signal.h>
+    #define CK_DEBUG_BREAK_RAISE_SIGNAL 1
+#else
+    #if CK_COMPILER_MSVC
+    #define CK_DEBUG_BREAK_MSVC         1
+    #endif
+#endif
 
 #if CK_DEBUG_LOGGING
 
@@ -109,7 +119,13 @@ void cinek_debug_log_flush(void)
 
 void cinek_debug_break(void)
 {
+#if CK_DEBUG_BREAK_RAISE_SIGNAL
+    raise(SIGTRAP);
+#elif CK_DEBUG_BREAK_MSVC
+    __debugbreak;
+#else
     assert(0);
+#endif
 }
 
 #endif

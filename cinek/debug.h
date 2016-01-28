@@ -136,27 +136,30 @@ void cinek_debug_break(void);
  * \def CK_ASSERT(_cond_)
  * Assert macro verifying the _cond_ expression is true.
  */
-#define CK_ASSERT(_cond_) do { \
-    if (!(_cond_))              \
-    {                           \
-        cinek_debug_break();    \
-    }                           \
+#define CK_ASSERT(_cond_) do {  \
+    if (!(_cond_))                  \
+    {                               \
+        CK_LOG_ERROR( "assert", #_cond_ );    \
+        cinek_debug_break();        \
+    }                               \
 } while(0)
 
 #define CK_ASSERT_RETURN(_cond_) do { \
-    if (!(_cond_))              \
-    {                           \
-        cinek_debug_break();    \
-        return;                 \
-    }                           \
+    if (!(_cond_))                  \
+    {                               \
+        CK_LOG_ERROR( "assert", #_cond_ );    \
+        cinek_debug_break();        \
+        return;                     \
+    }                               \
 } while(0)
 
 #define CK_ASSERT_RETURN_VALUE(_cond_, _val_) do { \
-    if (!(_cond_))              \
-    {                           \
-        cinek_debug_break();    \
-        return (_val_);         \
-    }                           \
+    if (!(_cond_))                  \
+    {                               \
+        CK_LOG_ERROR( "assert", #_cond_ );    \
+        cinek_debug_break();        \
+        return (_val_);             \
+    }                               \
 } while(0)
 
 
