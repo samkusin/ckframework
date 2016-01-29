@@ -78,16 +78,22 @@ namespace cinek {
             acquire();
         }
         ManagedHandle& operator=(const ManagedHandle& other) noexcept {
-            _resource = other._resource;
-            acquire();
+            if (&other != this) {
+                releaseInt();
+                _resource = other._resource;
+                acquire();
+            }
             return *this;
         }
         ManagedHandle(ManagedHandle&& other) noexcept : _resource(other._resource) {
             other._resource = nullptr;
         }
         ManagedHandle& operator=(ManagedHandle&& other) noexcept {
-            _resource = other._resource;
-            other._resource = nullptr;
+            if (&other != this) {
+                releaseInt();
+                _resource = other._resource;
+                other._resource = nullptr;
+            }
             return *this;
         }
         ManagedHandle& operator=(std::nullptr_t) {
