@@ -92,7 +92,7 @@ namespace cinek {
 
     private:
         intrusive_list<TaskListNode> _runList;
-        vector<std::pair<unique_ptr<Task>, void*>> _tasks;
+        vector<unique_ptr<Task>> _tasks;
         TaskId _currentHandle;
     };
 

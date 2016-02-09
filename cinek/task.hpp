@@ -80,7 +80,7 @@ namespace cinek {
             kCanceled   /**< Task was canceled */
         };
         
-        using EndCallback = std::function<void(State, Task&)>;
+        using EndCallback = std::function<void(State, Task&, void*)>;
         
         Task(EndCallback _cb=0);
         virtual ~Task() = default;
@@ -151,6 +151,7 @@ namespace cinek {
         TaskId _schedulerHandle;
         unique_ptr<Task> _nextTask;
         EndCallback _endCb;
+        void *_schedulerContext;
     };
 
 } /* namespace cinek */

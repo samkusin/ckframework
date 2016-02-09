@@ -42,7 +42,8 @@ namespace cinek {
 Task::Task(EndCallback cb) :
     _state(State::kIdle),
     _schedulerHandle(kNullHandle),
-    _endCb(cb)
+    _endCb(cb),
+    _schedulerContext(nullptr)
 {
 }
 
@@ -69,14 +70,14 @@ void Task::fail()
 void Task::onEnd()
 {
     if (_endCb) {
-        _endCb(State::kEnded, *this);
+        _endCb(State::kEnded, *this, _schedulerContext);
     }
 }
 
 void Task::onFail()
 {
     if (_endCb) {
-        _endCb(State::kFailed, *this);
+        _endCb(State::kFailed, *this, _schedulerContext);
     }
 }
 
