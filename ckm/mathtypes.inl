@@ -91,6 +91,9 @@ namespace ckm
     template<typename T> const vector4<T> vector4<T>::kZero
         = { T(0.0), T(0.0), T(0.0), T(0.0) };
     
+        
+    template<typename T> const matrix3<T> matrix3<T>::kIdentity = matrix3<T>(T(1.0));
+    
     template<typename T> const matrix4<T> matrix4<T>::kIdentity = matrix4<T>(T(1.0));
 
 }

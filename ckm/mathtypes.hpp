@@ -102,6 +102,24 @@ struct vector4
     }
 };
 
+template<typename T>
+struct matrix3
+{
+    typedef T value_type;
+    
+    static const matrix3 kIdentity;
+    
+    value_type comp[9];
+    
+    matrix3() {}
+    matrix3(value_type v) :
+        comp { v,0,0,0,v,0,0,0,v }
+    {
+    }
+    operator float*() { return comp; }
+    operator const float*() const { return comp; }
+};
+
 /// A 4x4 uniform
 template<typename T>
 struct matrix4
@@ -130,6 +148,7 @@ template<typename vec_type> class Frustrum;
 using vector2f = vector2<float>;
 using vector3f = vector3<float>;
 using vector4f = vector4<float>;
+using matrix3f = matrix3<float>;
 using matrix4f = matrix4<float>;
 
 }
