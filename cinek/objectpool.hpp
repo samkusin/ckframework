@@ -60,6 +60,8 @@ namespace cinek {
 
         template<typename... Args> pointer construct(Args&&... args);
         void destruct(pointer p);
+        
+        bool verify(pointer p) const;
 
     private:
         void zeroVectors();

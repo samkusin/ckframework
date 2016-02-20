@@ -90,6 +90,12 @@ namespace cinek {
         _freelast = nullptr;
         _freelimit = nullptr;
     }
+    
+    template<typename _T, size_t _Align>
+    bool ObjectPool<_T, _Align>::verify(pointer p) const
+    {
+        return (p >= (pointer)_first && p < (pointer)_last);
+    }
 
     template<typename _T, size_t _Align> template<typename... Args>
     auto ObjectPool<_T, _Align>::construct(Args&&... args) -> pointer
