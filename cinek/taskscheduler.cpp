@@ -83,6 +83,15 @@ void TaskScheduler::cancel(TaskId taskHandle)
     (*it).get()->cancel();
 }
 
+bool TaskScheduler::isActive(TaskId taskHandle)
+{
+    auto it = std::lower_bound(_tasks.begin(), _tasks.end(), taskHandle);
+    if (it == _tasks.end() || (*it).get()->id() != taskHandle)
+        return false;
+    
+    return true;
+}
+
 void TaskScheduler::cancelAll(void* context)
 {
     for (auto& tp : _tasks)
