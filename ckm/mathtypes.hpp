@@ -116,8 +116,8 @@ struct matrix3
         comp { v,0,0,0,v,0,0,0,v }
     {
     }
-    operator float*() { return comp; }
-    operator const float*() const { return comp; }
+    operator value_type*() { return comp; }
+    operator const value_type*() const { return comp; }
 };
 
 /// A 4x4 uniform
