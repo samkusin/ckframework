@@ -9,6 +9,7 @@
 #ifndef CINEK_MATH_TYPES_HPP
 #define CINEK_MATH_TYPES_HPP
 
+#include <cinek/ckdefs.h>
 #include <cmath>
 
 namespace ckm {

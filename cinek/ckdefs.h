@@ -279,7 +279,8 @@
 #define strcasecmp _stricmp
 #endif
 
-
+typedef double CKTime;
+typedef double CKTimeDelta;
 
 /* CINEK_DEFS_H */
 #endif
