@@ -25,6 +25,10 @@ namespace ckm {
         typedef _PropertyId                             property_key_type;
         typedef equation<property_type>                 equation_type;
 
+        sequence();
+        
+        sequence(const property_key_type& propId, int kfcount);
+
         sequence(const property_key_type& propId,
                  CKTime startTime,
                  const keyframe_type& kfA, const keyframe_type& kfB, transition_type trans,

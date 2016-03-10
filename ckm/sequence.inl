@@ -9,6 +9,30 @@
 namespace ckm {
 
     template<typename _PropertyId, typename _Keyframe>
+    sequence<_PropertyId, _Keyframe>::sequence() :
+        _propertyId(),
+        _frames(),
+        _transitions(),
+        _startTime(0)
+    {
+    }
+
+    template<typename _PropertyId, typename _Keyframe>
+    sequence<_PropertyId, _Keyframe>::sequence
+    (
+        const property_key_type& propId,
+        int kfcount
+    ) :
+        _propertyId(propId),
+        _frames(),
+        _transitions(),
+        _startTime(0)
+    {
+        _frames.reserve(kfcount);
+        _transitions.reserve(_frames.capacity()*2-1);
+    }
+
+    template<typename _PropertyId, typename _Keyframe>
     sequence<_PropertyId, _Keyframe>::sequence
     (
         const property_key_type& propId,
@@ -76,29 +100,32 @@ namespace ckm {
     )
     {
         auto kfIt = _frames.begin();
-        auto kfTransIt = _transitions.begin();
+        
+        if (!_frames.empty()) {
+            auto kfTransIt = _transitions.begin();
 
-        for (; kfIt != _frames.end(); ++kfIt)
-        {
-            keyframe_type& kf = *kfIt;
-            if (kfToAdd == kf)
+            for (; kfIt != _frames.end(); ++kfIt)
             {
-                if (kfTransIt != _transitions.end())
-                    *kfTransIt = eq;
-                kf = kfToAdd;            
-                return;
+                keyframe_type& kf = *kfIt;
+                if (kfToAdd == kf)
+                {
+                    if (kfTransIt != _transitions.end())
+                        *kfTransIt = eq;
+                    kf = kfToAdd;            
+                    return;
+                }
+                else if (kfToAdd < kf)
+                {
+                    break;
+                }
+                //  only advance transition iterator if we've cleared the first
+                //  keyframe
+                if (kfIt != _frames.begin() && kfTransIt != _transitions.end())
+                    ++kfTransIt;
             }
-            else if (kfToAdd < kf)
-            {
-                break;
-            }
-            //  only advance transition iterator if we've cleared the first
-            //  keyframe
-            if (kfIt != _frames.begin() && kfTransIt != _transitions.end())
-                ++kfTransIt;
+
+            _transitions.insert(kfTransIt, eq);
         }
-
-        _transitions.insert(kfTransIt, eq);
         _frames.emplace(kfIt, kfToAdd);
     }
 
