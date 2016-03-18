@@ -20,6 +20,14 @@ constexpr scalar kEpsilon = 1e-6;
 constexpr scalar kEpsilonSmall = 1e-9;
 constexpr scalar kPi = M_PI;
 
+inline bool nearZero(scalar v) {
+    return v > -kEpsilon || v < kEpsilon;
+}
+
+inline bool nearZeroSmall(scalar v) {
+    return v > -kEpsilonSmall || v < kEpsilonSmall;
+}
+
 template<typename T>
 struct vector2
 {
