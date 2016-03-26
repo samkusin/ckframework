@@ -15,6 +15,7 @@
 #ifndef CINEK_MSG_HPP
 #define CINEK_MSG_HPP
 
+#include <cinek/ckdefs.h>
 #include <cstddef>
 #include <cstdint>
 #include <cassert>

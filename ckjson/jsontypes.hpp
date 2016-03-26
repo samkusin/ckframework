@@ -9,6 +9,8 @@
 #ifndef CINEK_JSON_TYPES_HPP
 #define CINEK_JSON_TYPES_HPP
 
+#include <cinek/ckdefs.h>
+
 namespace rapidjson {
     class CrtAllocator;
     template<typename BaseAllocatorr> class MemoryPoolAllocator;

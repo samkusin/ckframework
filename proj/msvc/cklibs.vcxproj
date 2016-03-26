@@ -75,7 +75,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(CKBuildRoot)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(CKBuildRoot)\obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>$(CKBuildRoot)\lib\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
@@ -85,7 +85,7 @@
     <OutDir>$(CKBuildRoot)\lib\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>$(CKBuildRoot)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(CKBuildRoot)\obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <OutDir>$(CKBuildRoot)\lib\$(Platform)\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
