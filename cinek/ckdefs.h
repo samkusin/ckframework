@@ -268,10 +268,19 @@
   #endif
 #endif
 
-#ifdef _MSC_VER 
+#ifdef _MSC_VER
+#define CK_COMPILER_MSVC _MSC_VER
+#else
+#define CK_COMPILER_CLANG 1
+#endif
+
+#ifdef CK_COMPILER_MSVC
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
 #endif
+
+typedef double CKTime;
+typedef double CKTimeDelta;
 
 /* CINEK_DEFS_H */
 #endif

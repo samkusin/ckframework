@@ -51,30 +51,37 @@ Frustrum<vec_type>::Frustrum
     auto farH = fovTan2 * farZ;
     auto farW = farH * aspect;
     
-    auto nearCenter = zFwd * nearZ;
-    auto farCenter = zFwd * farZ;
+    vec_type nearCenter;
+    vec_type farCenter;
+    
+    scale(nearCenter, zFwd, nearZ);
+    scale(farCenter, zFwd, farZ);
 
     auto nearTL = nearCenter + (yUp * (nearH/2)) + (xLeft * (nearW/2));
     auto nearBL = nearCenter + (yDown * (nearH/2)) + (xLeft * (nearW/2));
     auto farTL = farCenter + (yUp * (farH/2)) + (xLeft * (farW/2));
     
-    _shell[kLeftX].normal = ckm::normalize(ckm::cross(farTL - nearTL, nearBL - nearTL));
+    ckm::cross(_shell[kLeftX].normal, farTL - nearTL, nearBL - nearTL);
+    ckm::normalize(_shell[kLeftX].normal, _shell[kLeftX].normal);
     _shell[kLeftX].pt = nearTL;
     
     auto nearTR = nearCenter + (yUp * (nearH/2)) + (xRight * (nearW/2));
     auto nearBR = nearCenter + (yDown * (nearH/2)) + (xRight * (nearW/2));
     auto farTR = farCenter + (yUp * (farH/2)) + (xRight * (farW/2));
 
-    _shell[kRightX].normal = ckm::normalize(ckm::cross(nearBR - nearTR, farTR - nearTR));
+    ckm::cross(_shell[kRightX].normal, nearBR - nearTR, farTR - nearTR);
+    ckm::normalize(_shell[kRightX].normal, _shell[kRightX].normal);
     _shell[kRightX].pt = nearTR;
     
-    _shell[kTopY].normal = ckm::normalize(ckm::cross(farTR - nearTR, nearTL - nearTR));
+    ckm::cross(_shell[kTopY].normal, farTR - nearTR, nearTL - nearTR);
+    ckm::normalize(_shell[kTopY].normal, _shell[kTopY].normal);
     _shell[kTopY].pt = farTR;
     
     auto farBL = farCenter + (yDown * (farH/2)) + (xLeft* (farW/2));
     auto farBR = farCenter + (yDown * (farH/2)) + (xRight * (farW/2));
     
-    _shell[kBottomY].normal = ckm::normalize(ckm::cross(farBR - farBL, nearBL - farBL));
+    ckm::cross(_shell[kBottomY].normal, farBR - farBL, nearBL - farBL);
+    ckm::normalize(_shell[kBottomY].normal, _shell[kBottomY].normal);
     _shell[kBottomY].pt = farBL;
     
     //  near and far planes have trivial normals

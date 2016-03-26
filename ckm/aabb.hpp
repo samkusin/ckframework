@@ -137,8 +137,8 @@ namespace ckm {
     AABB<_Point>::AABB(const point_type& halfDim)
     {
         clear();
-        min -= halfDim;
-        max += halfDim;
+        sub(min, min, halfDim);
+        add(max, max, halfDim);
     }
 
     template<class _Point>
@@ -179,14 +179,17 @@ namespace ckm {
     template<class _Point>
     typename AABB<_Point>::point_type AABB<_Point>::center() const
     {
-        return (min + max) * 0.5f;
+        point_type t;
+        add(t, min, max);
+        scale(t, t, value_type(0.5));
+        return t;
     }
     
     template<class _Point>
     AABB<_Point>& AABB<_Point>::operator+=(const point_type& pt)
     {
-        min += pt;
-        max += pt;
+        add(min, min, pt);
+        add(min, min, pt);
         return *this;
     }
 

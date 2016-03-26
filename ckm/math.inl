@@ -1,70 +1,70 @@
 //
 //  math.inl
-//  Overview
+//  SampleCommon
 //
-//  Created by Samir Sinha on 8/25/15.
-//  Copyright (c) 2015 Cinekine. All rights reserved.
+//  Created by Samir Sinha on 2/15/16.
+//  Copyright © 2016 Cinekine. All rights reserved.
 //
 
 namespace ckm
 {
-#ifdef CKM_MATH_IMPLEMENTATION
 
-template<> float epsilon<float>() {
-    return 1e-6f;
-}
-template<> float pi<float>() {
-    return bx::pi;
-}
-template<> float zero() {
-    return 0.0f;
-}
 template<> float cos<float>(float r) {
-    return cosf(r);
+    return std::cosf(r);
 }
 template<> float acos(float a) {
-    return acosf(a);
+    return std::acosf(a);
 }
 template<> float sin<float>(float r) {
-    return sinf(r);
+    return std::sinf(r);
 }
 template<> float asin<float>(float a) {
-    return asinf(a);
+    return std::asinf(a);
 }
 template<> float tan<float>(float r) {
-    return tanf(r);
+    return std::tanf(r);
 }
 template<> float atan<float>(float a) {
-    return atanf(a);
+    return std::atanf(a);
 }
 template<> float radians<float>(float degrees) {
-    return pi<float>() * degrees / 180.0f;
+    return kPi * degrees / 180.0f;
 }
 template<> float degrees<float>(float radians) {
-    return 180.0f * radians / pi<float>();
+    return 180.0f * radians / kPi;
 }
 
-template<typename scalar> scalar tan(scalar r);
-template<typename scalar> scalar atan(scalar a);
+template<typename vec_type> vec_type operator+
+(
+    vec_type const& v0,
+    vec_type const& v1
+)
+{
+    vec_type r;
+    add(r, v0, v1);
+    return r;
+}
 
-/*
-    quat quatFromUnitVectors(vec3 const& v0, vec3 const& v1)
-    {
-        vec3 w = cross(v0, v1);
-        quat q = quat(1 + dot(v0, v1), w.x,w.y,w.z);
-        return normalize(q);
-    }
+template<typename vec_type> vec_type operator-
+(
+    vec_type const& v0,
+    vec_type const& v1
+)
+{
+    vec_type r;
+    sub(r, v0, v1);
+    return r;
+}
 
-    mat4 mtx4x4RotateFromAngleAndAxis
-    (
-        mat4 const& m,
-        scalar angle,
-        vec3 const& axis
-    )
-    {
-        return glm::rotate(m, angle, axis);
-    }
-*/
+template<typename vec_type> vec_type operator*
+(
+    vec_type const& v,
+    typename vec_type::value_type s
+)
+{
+    vec_type r;
+    scale(r, v, s);
+    return r;
+}
 
-#endif
 }

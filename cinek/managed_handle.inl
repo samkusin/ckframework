@@ -6,6 +6,8 @@
 //
 //
 
+#include <cstdio>
+
 namespace cinek {
 
 //  These ManagedHandle methods require the ManagedPool definition, so
@@ -20,6 +22,7 @@ void ManagedHandle<_HandleValue,_HandleOwner>::acquire()
         
     auto record = reinterpret_cast<typename _HandleOwner::Record*>(_resource);
     ++record->refcnt;
+//    printf("%p refcnt %d\n", _resource, record->refcnt);
     CK_ASSERT(record->refcnt > 0);
 }
 
@@ -33,6 +36,7 @@ void ManagedHandle<_HandleValue, _HandleOwner>::release()
 
     CK_ASSERT_RETURN(record->refcnt > 0);
     --record->refcnt;
+//    printf("%p refcnt %d\n", _resource, record->refcnt);
     if (!record->refcnt && record->ownerRef && record->ownerRef->owner) {
         record->ownerRef->owner->releaseRecord(record);
     }

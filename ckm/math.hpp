@@ -1,9 +1,9 @@
 //
-//  EngineMath.hpp
-//  Overview
+//  math.hpp
+//  SampleCommon
 //
-//  Created by Samir Sinha on 7/6/15.
-//  Copyright (c) 2015 Cinekine. All rights reserved.
+//  Created by Samir Sinha on 2/15/16.
+//  Copyright © 2016 Cinekine. All rights reserved.
 //
 
 #ifndef CINEK_MATH_HPP
@@ -13,74 +13,34 @@
 
 namespace ckm {
 
-template<typename scalar> scalar epsilon();
-template<typename scalar> scalar pi();
-template<typename type> type zero();
+//  functions
+template<typename T=scalar> T cos(T r);
+template<typename T=scalar> T acos(T a);
+template<typename T=scalar> T sin(T r);
+template<typename T=scalar> T asin(T a);
+template<typename T=scalar> T tan(T r);
+template<typename T=scalar> T atan(T a);
+template<typename T=scalar> T radians(T degrees);
+template<typename T=scalar> T degrees(T radians);
 
-template<typename vec_type> vec_type cross(vec_type const& x, vec_type const& y);
+//  operations
+template<typename vec_type> vec_type& add(vec_type& r, vec_type const& a, vec_type const& b);
+template<typename vec_type> vec_type& sub(vec_type& r, vec_type const& a, vec_type const& b);
+template<typename vec_type> vec_type&scale(vec_type& r, vec_type const& v, typename vec_type::value_type s);
+
+template<typename vec_type> vec_type& cross(vec_type& r, vec_type const& x, vec_type const& y);
 template<typename vec_type> typename vec_type::value_type dot(vec_type const& v0,vec_type const& v1);
 template<typename vec_type> typename vec_type::value_type vectorLength(vec_type const& v);
 
-template<typename scalar> scalar cos(scalar r);
-template<typename scalar> scalar acos(scalar a);
-template<typename scalar> scalar sin(scalar r);
-template<typename scalar> scalar asin(scalar a);
-template<typename scalar> scalar tan(scalar r);
-template<typename scalar> scalar atan(scalar a);
-template<typename scalar> scalar radians(scalar degrees);
-template<typename scalar> scalar degrees(scalar radians);
-template<typename val_type> val_type inverse(val_type const& m);
-template<typename val_type> val_type normalize(val_type const& v);
+//  val_type can either be vector or matrix
+template<typename val_type> val_type& inverse(val_type& o, val_type const& m);
+template<typename val_type> val_type& normalize(val_type& o, val_type const& v);
 
+//  operator overloads
+template<typename vec_type> vec_type operator+(vec_type const& v0, vec_type const& v1);
+template<typename vec_type> vec_type operator-(vec_type const& v0, vec_type const& v1);
+template<typename vec_type> vec_type operator*(vec_type const& v, typename vec_type::value_type s);
 
-//  quaternion math
-/*
-    inline quat inverse(quat const& q) {
-        return glm::inverse(q);
-    }
-    
-    inline mat4 mtx4x4FromQuat(quat const& q) {
-        return glm::mat4_cast(q);
-    }
-    
-    inline mat3 mtx3x3FromQuat(quat const& q) {
-        return glm::mat3_cast(q);
-    }
-    
-    inline quat quatFromMtx4x4(mat4 const& m) {
-        return glm::quat_cast(m);
-    }
-    
-    inline quat quatFromMtx3x3(mat3 const& m) {
-        return glm::quat_cast(m);
-    }
-    
-    inline quat quatFromAngleAndAxis(scalar angle, vec3 const& axis) {
-        return glm::angleAxis(angle, axis);
-    }
-    
-    inline vec3 axisFromQuat(quat const& q) {
-        return glm::axis(q);
-    }
-    
-    inline scalar angleFromQuat(quat const& q) {
-        return glm::angle(q);
-    }
-    
-    //  Referemce
-    //  lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
-    //  Inputs must be normalized (unit vectors)
-    //  The returned quaternion is normalized.
-    //
-    quat quatFromUnitVectors(vec3 const& v0, vec3 const& v1);
-    
-    mat4 mtx4x4RotateFromAngleAndAxis
-    (
-        mat4 const& m,
-        scalar angle,
-        vec3 const& axis
-    );
-*/
 }
 
-#endif
+#endif /* CINEK_MATH_HPP */

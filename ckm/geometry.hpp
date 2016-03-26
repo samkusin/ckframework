@@ -9,7 +9,7 @@
 #ifndef CINEK_MATH_GEOMETRY_HPP
 #define CINEK_MATH_GEOMETRY_HPP
 
-#include "mathtypes.hpp"
+#include "math.hpp"
 
 #include <array>
 

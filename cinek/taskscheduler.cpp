@@ -35,9 +35,9 @@
 
 namespace cinek {
 
-bool operator<(const std::pair<unique_ptr<Task>, void*>& l, TaskId r)
+bool operator<(const unique_ptr<Task>& l, TaskId r)
 {
-    return l.first->id() < r;
+    return l.get()->id() < r;
 }
 
 TaskScheduler::TaskScheduler(uint32_t taskLimit, const Allocator& allocator) :
@@ -56,7 +56,7 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
     auto it = std::lower_bound(_tasks.begin(), _tasks.end(), _currentHandle);
     if (it != _tasks.end())
     {
-        if (it->first->id() == _currentHandle)
+        if ((*it).get()->id() == _currentHandle)
         {
             CK_LOG_ERROR("TaskScheduler", "Handle %u already exists in task list!",
                          _currentHandle);
@@ -67,8 +67,9 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
     _runList.push_back(task.get());
     task->_state = Task::State::kStaged;
     task->_schedulerHandle = _currentHandle;
+    task->_schedulerContext = context;
     //  place owned reference onto our searchable list
-    _tasks.emplace(it, std::move(task), context);
+    _tasks.emplace(it, std::move(task));
 
     return _currentHandle;
 }
@@ -76,18 +77,27 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
 void TaskScheduler::cancel(TaskId taskHandle)
 {
     auto it = std::lower_bound(_tasks.begin(), _tasks.end(), taskHandle);
-    if (it == _tasks.end() || it->first->id() != taskHandle)
+    if (it == _tasks.end() || (*it).get()->id() != taskHandle)
         return;
 
-    it->first->cancel();
+    (*it).get()->cancel();
+}
+
+bool TaskScheduler::isActive(TaskId taskHandle)
+{
+    auto it = std::lower_bound(_tasks.begin(), _tasks.end(), taskHandle);
+    if (it == _tasks.end() || (*it).get()->id() != taskHandle)
+        return false;
+    
+    return true;
 }
 
 void TaskScheduler::cancelAll(void* context)
 {
     for (auto& tp : _tasks)
     {
-        if (!context || tp.second == context) {
-            tp.first->cancel();
+        if (!context || tp->_schedulerContext == context) {
+            tp->cancel();
         }
     }
 }
@@ -157,7 +167,7 @@ void TaskScheduler::update(uint32_t deltaTimeMs)
             //  something very wrong has happened with our task lifecycle
             //  assumptions.
             auto it = std::lower_bound(_tasks.begin(), _tasks.end(), handle);
-            CK_ASSERT(it != _tasks.end() && it->first->id() == handle);
+            CK_ASSERT(it != _tasks.end() && (*it).get()->id() == handle);
             _tasks.erase(it);
         }
         else

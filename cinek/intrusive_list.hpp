@@ -174,6 +174,12 @@ public:
     intrusive_list(intrusive_list&& other) : _anchor(std::move(other._anchor)), _size(other._size) {
         other._size = 0;
     }
+    intrusive_list& operator=(intrusive_list&& other) {
+        _anchor = std::move(other._anchor);
+        _size = other._size;
+        other._size = 0;
+        return *this;
+    }
     void clear() noexcept {
         //  need to clear out all nodes' references to prev and next
         //  since we're implementing an intrusive list
