@@ -25,7 +25,7 @@ namespace ckm
     {
     }
     
-    template<typename T> vector2<T>& vector2<T>::from
+    template<typename T> vector2<T>& vector2<T>::set
     (
         value_type x,
         value_type y
@@ -64,7 +64,7 @@ namespace ckm
     {
     }
     
-    template<typename T> vector3<T>& vector3<T>::from
+    template<typename T> vector3<T>& vector3<T>::set
     (
         value_type x,
         value_type y,

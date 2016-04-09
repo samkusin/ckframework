@@ -35,13 +35,15 @@ namespace cinek {
     {
         size_t allocAmt = CK_ALIGN_SIZE(sizeof(_T), _Align);
         allocAmt *= blockCount;
-    
-        _first = reinterpret_cast<uint8_t*>(_allocator.allocAligned(allocAmt, _Align));
-        _last = _first;
-        _limit = _first + allocAmt;
-        _freefirst = reinterpret_cast<pointer*>(_allocator.alloc(blockCount * sizeof(pointer)));
-        _freelast = _freefirst;
-        _freelimit = _freefirst + blockCount;
+        
+        if (allocAmt > 0) {
+            _first = reinterpret_cast<uint8_t*>(_allocator.allocAligned(allocAmt, _Align));
+            _last = _first;
+            _limit = _first + allocAmt;
+            _freefirst = reinterpret_cast<pointer*>(_allocator.alloc(blockCount * sizeof(pointer)));
+            _freelast = _freefirst;
+            _freelimit = _freefirst + blockCount;
+        }
     }
 
     template<typename _T, size_t _Align>

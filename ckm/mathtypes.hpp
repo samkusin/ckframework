@@ -44,7 +44,7 @@ struct vector2
     vector2();
     vector2(value_type v);
     vector2(value_type x, value_type y);
-    vector2& from(value_type x, value_type y);
+    vector2& set(value_type x, value_type y);
 };
 
 /// A 3x1 uniform
@@ -70,7 +70,7 @@ struct vector3
     vector3();
     vector3(value_type v);
     vector3(value_type x, value_type y, value_type z);
-    vector3& from(value_type x, value_type y, value_type z);
+    vector3& set(value_type x, value_type y, value_type z);
 };
 
 /// A 4x1 uniform
@@ -102,7 +102,11 @@ struct vector4
         comp { x, y, z, w }
     {
     }
-    vector4& from(value_type x, value_type y, value_type z, value_type w) {
+    vector4(const vector3<T>& v, value_type w) :
+        comp { v.x, v.y, v.z, w }
+    {
+    }
+    vector4& set(value_type x, value_type y, value_type z, value_type w) {
         comp[0] = x;
         comp[1] = y;
         comp[2] = z;
