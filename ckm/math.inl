@@ -8,7 +8,9 @@
 
 namespace ckm
 {
-
+template<> float abs<float>(float v) {
+    return std::fabs(v);
+}
 template<> float cos<float>(float r) {
     return std::cosf(r);
 }

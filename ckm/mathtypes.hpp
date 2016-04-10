@@ -154,8 +154,8 @@ struct matrix4
 
 //  Forward declarations of class types not defined in this file
 template<typename _Point> struct AABB;
-template<typename vec_type> struct Plane3;
-template<typename vec_type> class Frustrum;
+template<typename vec_type> struct plane3;
+template<typename vec_type> class frustrum;
 
 //  Convenience
 using vector2f = vector2<float>;
@@ -163,6 +163,7 @@ using vector3f = vector3<float>;
 using vector4f = vector4<float>;
 using matrix3f = matrix3<float>;
 using matrix4f = matrix4<float>;
+using plane3f = plane3<vector3f>;
 
 }
 

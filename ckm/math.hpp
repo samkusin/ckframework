@@ -14,6 +14,7 @@
 namespace ckm {
 
 //  functions
+template<typename T=scalar> T abs(T v);
 template<typename T=scalar> T cos(T r);
 template<typename T=scalar> T acos(T a);
 template<typename T=scalar> T sin(T r);

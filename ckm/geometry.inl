@@ -10,7 +10,7 @@
 namespace ckm {
 
 template<typename vec_type>
-auto Plane3<vec_type>::testPoint(const value_type& testPt) const -> scalar
+auto plane3<vec_type>::testPoint(const value_type& testPt) const -> scalar
 {
     const vec_type ptv = testPt - pt;
     return dot(ptv, normal);
@@ -18,7 +18,7 @@ auto Plane3<vec_type>::testPoint(const value_type& testPt) const -> scalar
 
 
 template<typename vec_type>
-Frustrum<vec_type>::Frustrum() :
+frustrum<vec_type>::frustrum() :
     _nearZ(0),
     _farZ(0),
     _aspect(0)
@@ -26,7 +26,7 @@ Frustrum<vec_type>::Frustrum() :
 }
 
 template<typename vec_type>
-Frustrum<vec_type>::Frustrum
+frustrum<vec_type>::frustrum
 (
     scalar nearZ,
     scalar farZ,
@@ -93,14 +93,14 @@ Frustrum<vec_type>::Frustrum
 
 template<typename vec_type>
 template<typename mat_type>
-Frustrum<vec_type> Frustrum<vec_type>::transform
+frustrum<vec_type> frustrum<vec_type>::transform
 (
     const mat_type& basis,
     const vec_type& translate
 )
 const
 {
-    Frustrum frustrum;
+    frustrum frustrum;
     
     frustrum._aspect = _aspect;
     frustrum._fovRadians = _fovRadians;
@@ -111,9 +111,9 @@ const
     {
         const mat_type* basis;
         const vec_type* translate;
-        typedef Plane3<vec_type> Plane;
+        typedef plane3<vec_type> Plane;
         
-        Plane operator()(const Plane& pl) const {
+        plane operator()(const plane& pl) const {
             Plane ret = { *basis * pl.normal, *basis * pl.pt };
             ret.pt += *translate;
             return ret;
@@ -128,7 +128,7 @@ const
 }
 
 template<typename vec_type>
-bool Frustrum<vec_type>::testAABB(const AABB<vec_type>& aabb) const
+bool frustrum<vec_type>::testAABB(const AABB<vec_type>& aabb) const
 {
     if (_nearZ == _farZ)
         return false;
@@ -145,10 +145,10 @@ bool Frustrum<vec_type>::testAABB(const AABB<vec_type>& aabb) const
 }
 
 template<typename vec_type>
-bool Frustrum<vec_type>::testAABBWithPlane
+bool frustrum<vec_type>::testAABBWithPlane
 (
     const AABB<vec_type>& aabb,
-    Plane planeType
+    plane planeType
 )
 const
 {
@@ -185,6 +185,46 @@ const
     
     return intersect;
 }
+
+
+template<typename scalar_type>
+auto raytest<scalar_type>::planeIntersection
+(
+    vector3<scalar_type>* intersectPt,
+    const vector3<scalar_type>& rayOrigin,
+    const vector3<scalar_type>& rayDir,
+    const plane3<vector3<scalar_type>>& plane
+)
+-> raytest::result
+{
+    scalar_type dotRayNormal = ckm::dot(rayDir, plane.normal);
+    vector3<scalar_type> temp;
+    ckm::sub(temp, plane.pt, rayOrigin);
+    scalar_type rayToPlaneLength = ckm::vectorLength(temp);
+    ckm::normalize(temp, temp);
+    scalar_type dotRayToPlaneNormal = ckm::dot(temp, plane.normal);
+    
+    //  trivial cases
+    if (abs(dotRayNormal) < kEpsilon) {
+        if (abs(dotRayToPlaneNormal) < kEpsilon) {
+            return result::kCoplanar;
+        }
+        else {
+            return result::kNone;   // parallel
+        }
+    }
+    if (dotRayToPlaneNormal > kEpsilon) {
+        return result::kNone;       // ray origin
+    }
+    
+    if (intersectPt) {
+        scalar_type d = rayToPlaneLength * dotRayToPlaneNormal/dotRayNormal;
+        ckm::scale(temp, rayDir, d);
+        ckm::add(*intersectPt, temp, rayOrigin);
+    }
+    return result::kIntersect;
+
+} /* namespace raytest */
 
     
 }
