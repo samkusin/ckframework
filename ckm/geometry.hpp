@@ -16,7 +16,7 @@
 namespace ckm {
 
     template<typename vec_type>
-    struct plane3
+    struct plane
     {
         using value_type = vec_type;
         using scalar = typename vec_type::value_type;
@@ -31,7 +31,7 @@ namespace ckm {
     class frustrum
     {
     public:
-        enum plane
+        enum side
         {
             kNearZ,
             kFarZ,
@@ -42,7 +42,7 @@ namespace ckm {
             kPlaneCount
         };
     
-        using shell = std::array<plane3<vec_type>, kPlaneCount>;
+        using shell = std::array<plane<vec_type>, kPlaneCount>;
         using scalar = typename vec_type::value_type;
         
         frustrum();
@@ -59,7 +59,7 @@ namespace ckm {
         frustrum transform(const mat_type& basis, const vec_type& translate) const;
         
         bool testAABB(const AABB<vec_type>& aabb) const;
-        bool testAABBWithPlane(const AABB<vec_type>& aabb, plane plane) const;
+        bool testAABBWithPlane(const AABB<vec_type>& aabb, side plane) const;
         
     private:
         shell _shell;
@@ -80,13 +80,15 @@ namespace ckm {
         
         static result planeIntersection
         (
-            vector3<scalar_type>* intersectPt,
-            const vector3<scalar_type>& rayOrigin,
-            const vector3<scalar_type>& rayDir,
-            const plane3<vector3<scalar_type>>& plane
+            vector3_type<scalar_type>* intersectPt,
+            const vector3_type<scalar_type>& rayOrigin,
+            const vector3_type<scalar_type>& rayDir,
+            const plane<vector3_type<scalar_type>>& plane
         );
     };
     
 }
+
+#include "geometry.inl"
 
 #endif

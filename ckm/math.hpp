@@ -43,6 +43,21 @@ template<typename vec_type> vec_type operator+(vec_type const& v0, vec_type cons
 template<typename vec_type> vec_type operator-(vec_type const& v0, vec_type const& v1);
 template<typename vec_type> vec_type operator*(vec_type const& v, typename vec_type::value_type s);
 
+//  quaternion math
+template<typename T> matrix4_type<T>& quatToMatrix(matrix4_type<T>& mtx, quat_type<T> const& q);
+template<typename T> vector3_type<T>& forwardFromQuat(vector3_type<T>& v, quat_type<T> const& q);
+template<typename T> vector3_type<T>& sideFromQuat(vector3_type<T>& v, quat_type<T> const& q);
+template<typename T> vector3_type<T>& upFromQuat(vector3_type<T>& v, quat_type<T> const& q);
+
+template<typename T> quat_type<T>& matrixToQuat(quat_type<T>& q, matrix4_type<T> const& mtx);
+template<typename T> quat_type<T>& eulerToQuat(quat_type<T>& q, T ax, T ay, T az);
+
+template<typename T> vector3_type<T>& translateFromMatrix(vector3_type<T>& v, matrix4_type<T> const& mtx);
+template<typename T> matrix4_type<T>& matrixFromQuatAndTranslate(matrix4_type<T>& mtx, quat_type<T> const& q, vector3_type<T> const& v);
+template<typename T> matrix4_type<T>& eulerToMatrix(matrix4_type<T>& m, T ax, T ay, T az);
+
 }
+
+#include "math.inl"
 
 #endif /* CINEK_MATH_HPP */

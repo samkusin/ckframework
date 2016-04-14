@@ -29,7 +29,7 @@ inline bool nearZeroSmall(scalar v) {
 }
 
 template<typename T>
-struct vector2
+struct vector2_type
 {
     typedef T value_type;
     union
@@ -41,22 +41,22 @@ struct vector2
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
     
-    vector2();
-    vector2(value_type v);
-    vector2(value_type x, value_type y);
-    vector2& set(value_type x, value_type y);
+    vector2_type();
+    vector2_type(value_type v);
+    vector2_type(value_type x, value_type y);
+    vector2_type& set(value_type x, value_type y);
 };
 
 /// A 3x1 uniform
 template<typename T>
-struct vector3
+struct vector3_type
 {
     typedef T value_type;
     
-    static const vector3 kUnitX;
-    static const vector3 kUnitY;
-    static const vector3 kUnitZ;
-    static const vector3 kZero;
+    static const vector3_type kUnitX;
+    static const vector3_type kUnitY;
+    static const vector3_type kUnitZ;
+    static const vector3_type kZero;
     
     union
     {
@@ -67,23 +67,23 @@ struct vector3
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
     
-    vector3();
-    vector3(value_type v);
-    vector3(value_type x, value_type y, value_type z);
-    vector3& set(value_type x, value_type y, value_type z);
+    vector3_type();
+    vector3_type(value_type v);
+    vector3_type(value_type x, value_type y, value_type z);
+    vector3_type& set(value_type x, value_type y, value_type z);
 };
 
 /// A 4x1 uniform
 template<typename T>
-struct vector4
+struct vector4_type
 {
     typedef T value_type;
     
-    static const vector4 kUnitX;
-    static const vector4 kUnitY;
-    static const vector4 kUnitZ;
-    static const vector4 kUnitW;
-    static const vector4 kZero;
+    static const vector4_type kUnitX;
+    static const vector4_type kUnitY;
+    static const vector4_type kUnitZ;
+    static const vector4_type kUnitW;
+    static const vector4_type kZero;
     
     union
     {
@@ -94,19 +94,19 @@ struct vector4
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
     
-    vector4() {}
-    vector4(value_type v) : comp { v,v,v,v }
+    vector4_type() {}
+    vector4_type(value_type v) : comp { v,v,v,v }
     {
     }
-    vector4(value_type x, value_type y, value_type z, value_type w) :
+    vector4_type(value_type x, value_type y, value_type z, value_type w) :
         comp { x, y, z, w }
     {
     }
-    vector4(const vector3<T>& v, value_type w) :
+    vector4_type(const vector3_type<T>& v, value_type w) :
         comp { v.x, v.y, v.z, w }
     {
     }
-    vector4& set(value_type x, value_type y, value_type z, value_type w) {
+    vector4_type& set(value_type x, value_type y, value_type z, value_type w) {
         comp[0] = x;
         comp[1] = y;
         comp[2] = z;
@@ -115,56 +115,95 @@ struct vector4
     }
 };
 
+/// A 4x1 uniform
 template<typename T>
-struct matrix3
+struct quat_type
 {
     typedef T value_type;
     
-    static const matrix3 kIdentity;
+    static const quat_type kIdentity;
+    
+    union
+    {
+        struct { value_type x, y, z, w; };
+        value_type comp[4];
+    };
+    operator value_type*() { return comp; }
+    operator const value_type*() const { return comp; }
+    
+    quat_type() {}
+    quat_type(value_type x, value_type y, value_type z, value_type w) :
+        comp { x, y, z, w }
+    {
+    }
+    quat_type& set(value_type x, value_type y, value_type z, value_type w) {
+        comp[0] = x;
+        comp[1] = y;
+        comp[2] = z;
+        comp[3] = w;
+        return *this;
+    }
+    void makeIdentity() {
+        set(value_type(0),value_type(0),value_type(0),value_type(1));
+    }
+};
+
+template<typename T>
+struct matrix3_type
+{
+    typedef T value_type;
+    
+    static const matrix3_type kIdentity;
     
     value_type comp[9];
     
-    matrix3() {}
-    matrix3(value_type v) :
+    matrix3_type() {}
+    matrix3_type(value_type v) :
         comp { v,0,0,0,v,0,0,0,v }
     {
     }
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
+    void makeIdentity();
 };
 
 /// A 4x4 uniform
 template<typename T>
-struct matrix4
+struct matrix4_type
 {
     typedef T value_type;
     
-    static const matrix4 kIdentity;
+    static const matrix4_type kIdentity;
     
     value_type comp[16];
     
-    matrix4() {}
-    matrix4(value_type v) :
+    matrix4_type() {}
+    matrix4_type(value_type v) :
         comp { v,0,0,0,0,v,0,0,0,0,v,0,0,0,0,v }
     {
     }
+    matrix4_type(const matrix3_type<T>& src);
     operator float*() { return comp; }
     operator const float*() const { return comp; }
+    void makeIdentity();
 };
 
 //  Forward declarations of class types not defined in this file
 template<typename _Point> struct AABB;
-template<typename vec_type> struct plane3;
+template<typename vec_type> struct plane;
 template<typename vec_type> class frustrum;
 
 //  Convenience
-using vector2f = vector2<float>;
-using vector3f = vector3<float>;
-using vector4f = vector4<float>;
-using matrix3f = matrix3<float>;
-using matrix4f = matrix4<float>;
-using plane3f = plane3<vector3f>;
+using vector2 = vector2_type<scalar>;
+using vector3 = vector3_type<scalar>;
+using vector4 = vector4_type<scalar>;
+using matrix3 = matrix3_type<scalar>;
+using matrix4 = matrix4_type<scalar>;
+using plane3 = plane<vector3>;
+using quat = quat_type<scalar>;
 
 }
+
+#include "mathtypes.inl"
 
 #endif

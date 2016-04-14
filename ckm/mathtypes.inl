@@ -11,12 +11,12 @@ namespace ckm
     //
     // Vector2 Inlined Implementation
     //
-    template<typename T> vector2<T>::vector2() {}
-    template<typename T> vector2<T>::vector2(value_type v) :
+    template<typename T> vector2_type<T>::vector2_type() {}
+    template<typename T> vector2_type<T>::vector2_type(value_type v) :
         comp { v, v }
     {
     }
-    template<typename T> vector2<T>::vector2
+    template<typename T> vector2_type<T>::vector2_type
     (
         value_type x,
         value_type y
@@ -25,7 +25,7 @@ namespace ckm
     {
     }
     
-    template<typename T> vector2<T>& vector2<T>::set
+    template<typename T> vector2_type<T>& vector2_type<T>::set
     (
         value_type x,
         value_type y
@@ -40,21 +40,21 @@ namespace ckm
     //
     // Vector3 Inlined Implementation
     //
-    template<typename T> const vector3<T> vector3<T>::kUnitX
+    template<typename T> const vector3_type<T> vector3_type<T>::kUnitX
         = { T(1.0), T(0.0), T(0.0) };
-    template<typename T> const vector3<T> vector3<T>::kUnitY
+    template<typename T> const vector3_type<T> vector3_type<T>::kUnitY
         = { T(0.0), T(1.0), T(0.0) };
-    template<typename T> const vector3<T> vector3<T>::kUnitZ
+    template<typename T> const vector3_type<T> vector3_type<T>::kUnitZ
         = { T(0.0), T(0.0), T(1.0) };
-    template<typename T> const vector3<T> vector3<T>::kZero
+    template<typename T> const vector3_type<T> vector3_type<T>::kZero
         = { T(0.0), T(0.0), T(0.0) };
     
-    template<typename T> vector3<T>::vector3() {}
-    template<typename T> vector3<T>::vector3(value_type v) :
+    template<typename T> vector3_type<T>::vector3_type() {}
+    template<typename T> vector3_type<T>::vector3_type(value_type v) :
         comp { v, v, v }
     {
     }
-    template<typename T> vector3<T>::vector3
+    template<typename T> vector3_type<T>::vector3_type
     (
         value_type x,
         value_type y,
@@ -64,7 +64,7 @@ namespace ckm
     {
     }
     
-    template<typename T> vector3<T>& vector3<T>::set
+    template<typename T> vector3_type<T>& vector3_type<T>::set
     (
         value_type x,
         value_type y,
@@ -80,20 +80,84 @@ namespace ckm
     //
     // Vector4 Inlined Implementation
     //
-    template<typename T> const vector4<T> vector4<T>::kUnitX
+    template<typename T> const vector4_type<T> vector4_type<T>::kUnitX
         = { T(1.0), T(0.0), T(0.0), T(0.0) };
-    template<typename T> const vector4<T> vector4<T>::kUnitY
+    template<typename T> const vector4_type<T> vector4_type<T>::kUnitY
         = { T(0.0), T(1.0), T(0.0), T(0.0) };
-    template<typename T> const vector4<T> vector4<T>::kUnitZ
+    template<typename T> const vector4_type<T> vector4_type<T>::kUnitZ
         = { T(0.0), T(0.0), T(1.0), T(0.0) };
-    template<typename T> const vector4<T> vector4<T>::kUnitW
+    template<typename T> const vector4_type<T> vector4_type<T>::kUnitW
         = { T(0.0), T(0.0), T(0.0), T(1.0) };
-    template<typename T> const vector4<T> vector4<T>::kZero
+    template<typename T> const vector4_type<T> vector4_type<T>::kZero
         = { T(0.0), T(0.0), T(0.0), T(0.0) };
     
-        
-    template<typename T> const matrix3<T> matrix3<T>::kIdentity = matrix3<T>(T(1.0));
+    //
+    // quat Inlined Implementation
+    //
+    template<typename T> const quat_type<T> quat_type<T>::kIdentity
+        = { T(0.0), T(0.0), T(0.0), T(1.0) };
     
-    template<typename T> const matrix4<T> matrix4<T>::kIdentity = matrix4<T>(T(1.0));
+        
+    template<typename T> const matrix3_type<T> matrix3_type<T>::kIdentity = matrix3_type<T>(T(1.0));
 
+    //
+    // Matrix3 Inlined Implementation
+    //
+    template<typename T> void matrix3_type<T>::makeIdentity()
+    {
+        comp[0] = value_type(1);
+        comp[1] = value_type(0);
+        comp[2] = value_type(0);
+        comp[3] = value_type(0);
+        comp[4] = value_type(1);
+        comp[5] = value_type(0);
+        comp[6] = value_type(0);
+        comp[7] = value_type(0);
+        comp[8] = value_type(1);
+    }
+    
+    //
+    // Matrix4 Inlined Implementation
+    //
+    template<typename T> const matrix4_type<T> matrix4_type<T>::kIdentity = matrix4_type<T>(T(1.0));
+    
+    template<typename T> matrix4_type<T>::matrix4_type(const matrix3_type<T>& src)
+    {
+        comp[0] = src.comp[0];
+        comp[1] = src.comp[1];
+        comp[2] = src.comp[2];
+        comp[3] = T(0);
+        comp[4] = src.comp[3];
+        comp[5] = src.comp[4];
+        comp[6] = src.comp[5];
+        comp[7] = T(0);
+        comp[8] = src.comp[6];
+        comp[9] = src.comp[7];
+        comp[10] = src.comp[8];
+        comp[11] = T(0);
+        comp[12] = T(0);
+        comp[13] = T(0);
+        comp[14] = T(0);
+        comp[15] = T(1);
+    }
+
+    template<typename T> void matrix4_type<T>::makeIdentity()
+    {
+        comp[0] = value_type(1);
+        comp[1] = value_type(0);
+        comp[2] = value_type(0);
+        comp[3] = value_type(0);
+        comp[4] = value_type(0);
+        comp[5] = value_type(1);
+        comp[6] = value_type(0);
+        comp[7] = value_type(0);
+        comp[8] = value_type(0);
+        comp[9] = value_type(0);
+        comp[10] = value_type(1);
+        comp[11] = value_type(0);
+        comp[12] = value_type(0);
+        comp[13] = value_type(0);
+        comp[14] = value_type(0);
+        comp[15] = value_type(1);
+    }
 }

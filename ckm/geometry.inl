@@ -10,7 +10,7 @@
 namespace ckm {
 
 template<typename vec_type>
-auto plane3<vec_type>::testPoint(const value_type& testPt) const -> scalar
+auto plane<vec_type>::testPoint(const value_type& testPt) const -> scalar
 {
     const vec_type ptv = testPt - pt;
     return dot(ptv, normal);
@@ -111,9 +111,9 @@ const
     {
         const mat_type* basis;
         const vec_type* translate;
-        typedef plane3<vec_type> Plane;
+        typedef plane<vec_type> Plane;
         
-        plane operator()(const plane& pl) const {
+        Plane operator()(const Plane& pl) const {
             Plane ret = { *basis * pl.normal, *basis * pl.pt };
             ret.pt += *translate;
             return ret;
@@ -148,7 +148,7 @@ template<typename vec_type>
 bool frustrum<vec_type>::testAABBWithPlane
 (
     const AABB<vec_type>& aabb,
-    plane planeType
+    side planeType
 )
 const
 {
@@ -190,15 +190,15 @@ const
 template<typename scalar_type>
 auto raytest<scalar_type>::planeIntersection
 (
-    vector3<scalar_type>* intersectPt,
-    const vector3<scalar_type>& rayOrigin,
-    const vector3<scalar_type>& rayDir,
-    const plane3<vector3<scalar_type>>& plane
+    vector3_type<scalar_type>* intersectPt,
+    const vector3_type<scalar_type>& rayOrigin,
+    const vector3_type<scalar_type>& rayDir,
+    const plane<vector3_type<scalar_type>>& plane
 )
 -> raytest::result
 {
     scalar_type dotRayNormal = ckm::dot(rayDir, plane.normal);
-    vector3<scalar_type> temp;
+    vector3_type<scalar_type> temp;
     ckm::sub(temp, plane.pt, rayOrigin);
     scalar_type rayToPlaneLength = ckm::vectorLength(temp);
     ckm::normalize(temp, temp);
