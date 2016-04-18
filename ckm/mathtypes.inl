@@ -99,22 +99,6 @@ namespace ckm
     
         
     template<typename T> const matrix3_type<T> matrix3_type<T>::kIdentity = matrix3_type<T>(T(1.0));
-
-    //
-    // Matrix3 Inlined Implementation
-    //
-    template<typename T> void matrix3_type<T>::makeIdentity()
-    {
-        comp[0] = value_type(1);
-        comp[1] = value_type(0);
-        comp[2] = value_type(0);
-        comp[3] = value_type(0);
-        comp[4] = value_type(1);
-        comp[5] = value_type(0);
-        comp[6] = value_type(0);
-        comp[7] = value_type(0);
-        comp[8] = value_type(1);
-    }
     
     //
     // Matrix4 Inlined Implementation
@@ -139,25 +123,5 @@ namespace ckm
         comp[13] = T(0);
         comp[14] = T(0);
         comp[15] = T(1);
-    }
-
-    template<typename T> void matrix4_type<T>::makeIdentity()
-    {
-        comp[0] = value_type(1);
-        comp[1] = value_type(0);
-        comp[2] = value_type(0);
-        comp[3] = value_type(0);
-        comp[4] = value_type(0);
-        comp[5] = value_type(1);
-        comp[6] = value_type(0);
-        comp[7] = value_type(0);
-        comp[8] = value_type(0);
-        comp[9] = value_type(0);
-        comp[10] = value_type(1);
-        comp[11] = value_type(0);
-        comp[12] = value_type(0);
-        comp[13] = value_type(0);
-        comp[14] = value_type(0);
-        comp[15] = value_type(1);
     }
 }

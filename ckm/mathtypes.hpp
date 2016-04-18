@@ -40,8 +40,9 @@ struct vector2_type
     };
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
-    
-    vector2_type();
+    bool isZero() const { return nearZero(comp[0]) && nearZero(comp[1]); }
+
+        vector2_type();
     vector2_type(value_type v);
     vector2_type(value_type x, value_type y);
     vector2_type& set(value_type x, value_type y);
@@ -66,6 +67,7 @@ struct vector3_type
     };
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
+    bool isZero() const { return nearZero(comp[0]) && nearZero(comp[1]) && nearZero(comp[2]); }
     
     vector3_type();
     vector3_type(value_type v);
@@ -93,6 +95,8 @@ struct vector4_type
     };
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
+    bool isZero() const { return nearZero(comp[0]) && nearZero(comp[1]) &&
+                                 nearZero(comp[2]) && nearZero(comp[3]); }
     
     vector4_type() {}
     vector4_type(value_type v) : comp { v,v,v,v }
@@ -143,9 +147,6 @@ struct quat_type
         comp[3] = w;
         return *this;
     }
-    void makeIdentity() {
-        set(value_type(0),value_type(0),value_type(0),value_type(1));
-    }
 };
 
 template<typename T>
@@ -164,7 +165,6 @@ struct matrix3_type
     }
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
-    void makeIdentity();
 };
 
 /// A 4x4 uniform
@@ -185,7 +185,6 @@ struct matrix4_type
     matrix4_type(const matrix3_type<T>& src);
     operator float*() { return comp; }
     operator const float*() const { return comp; }
-    void makeIdentity();
 };
 
 //  Forward declarations of class types not defined in this file

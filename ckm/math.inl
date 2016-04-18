@@ -41,6 +41,11 @@ template<typename vec_type> vec_type operator*
     return r;
 }
 
+template<typename mat_type> mat_type& identityMatrix(mat_type& m)
+{
+    return scaleMatrix(m, typename mat_type::value_type(1));
+}
+
 template<typename T> matrix4_type<T>& quatToMatrix
 (
     matrix4_type<T>& mtx,

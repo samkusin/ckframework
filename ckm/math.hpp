@@ -25,6 +25,8 @@ template<typename T=scalar> T radians(T degrees);
 template<typename T=scalar> T degrees(T radians);
 
 //  operations
+template<typename mat_type> mat_type& identityMatrix(mat_type& m);
+template<typename mat_type> mat_type& scaleMatrix(mat_type& m, typename mat_type::value_type s);
 template<typename vec_type> vec_type& add(vec_type& r, vec_type const& a, vec_type const& b);
 template<typename vec_type> vec_type& sub(vec_type& r, vec_type const& a, vec_type const& b);
 template<typename vec_type> vec_type& scale(vec_type& r, vec_type const& v, typename vec_type::value_type s);
