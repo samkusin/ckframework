@@ -21,6 +21,7 @@ template<typename T=scalar> T sin(T r);
 template<typename T=scalar> T asin(T a);
 template<typename T=scalar> T tan(T r);
 template<typename T=scalar> T atan(T a);
+template<typename T=scalar> T atan2(T y, T x);
 template<typename T=scalar> T radians(T degrees);
 template<typename T=scalar> T degrees(T radians);
 
@@ -53,6 +54,7 @@ template<typename T> vector3_type<T>& upFromQuat(vector3_type<T>& v, quat_type<T
 
 template<typename T> quat_type<T>& matrixToQuat(quat_type<T>& q, matrix4_type<T> const& mtx);
 template<typename T> quat_type<T>& eulerToQuat(quat_type<T>& q, T ax, T ay, T az);
+template<typename T> vector3_type<T>& quatToEuler(vector3_type<T>& v, quat_type<T> const& q);
 
 template<typename T> vector3_type<T>& translateFromMatrix(vector3_type<T>& v, matrix4_type<T> const& mtx);
 template<typename T> matrix4_type<T>& matrixFromQuatAndTranslate(matrix4_type<T>& mtx, quat_type<T> const& q, vector3_type<T> const& v);

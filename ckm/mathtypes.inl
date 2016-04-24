@@ -11,7 +11,10 @@ namespace ckm
     //
     // Vector2 Inlined Implementation
     //
-    template<typename T> vector2_type<T>::vector2_type() {}
+    template<typename T> vector2_type<T>::vector2_type(const value_type* vcomp) :
+        comp { vcomp[0], vcomp[1] }
+    {
+    }
     template<typename T> vector2_type<T>::vector2_type(value_type v) :
         comp { v, v }
     {
@@ -49,7 +52,10 @@ namespace ckm
     template<typename T> const vector3_type<T> vector3_type<T>::kZero
         = { T(0.0), T(0.0), T(0.0) };
     
-    template<typename T> vector3_type<T>::vector3_type() {}
+    template<typename T> vector3_type<T>::vector3_type(const value_type* vcomp) :
+        comp { vcomp[0], vcomp[1], vcomp[2] }
+    {
+    }
     template<typename T> vector3_type<T>::vector3_type(value_type v) :
         comp { v, v, v }
     {
@@ -90,6 +96,31 @@ namespace ckm
         = { T(0.0), T(0.0), T(0.0), T(1.0) };
     template<typename T> const vector4_type<T> vector4_type<T>::kZero
         = { T(0.0), T(0.0), T(0.0), T(0.0) };
+    
+    template<typename T> vector4_type<T>::vector4_type(const value_type* vcomp) :
+        comp { vcomp[0], vcomp[1], vcomp[2], vcomp[3] }
+    {
+    }
+    template<typename T> vector4_type<T>::vector4_type(value_type v) :
+        comp { v,v,v,v }
+    {
+    }
+    template<typename T> vector4_type<T>::vector4_type(value_type x, value_type y, value_type z, value_type w) :
+        comp { x,y,z,w }
+    {
+    }
+    template<typename T> vector4_type<T>::vector4_type(const vector3_type<T>& v, value_type w) :
+        comp { v.x, v.y, v.z, w }
+    {
+    }
+    template<typename T> vector4_type<T>& vector4_type<T>::set(value_type x, value_type y, value_type z, value_type w)
+    {
+        comp[0] = x;
+        comp[1] = y;
+        comp[2] = z;
+        comp[3] = w;
+        return *this;
+    }
     
     //
     // quat Inlined Implementation

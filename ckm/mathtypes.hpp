@@ -42,7 +42,8 @@ struct vector2_type
     operator const value_type*() const { return comp; }
     bool isZero() const { return nearZero(comp[0]) && nearZero(comp[1]); }
 
-        vector2_type();
+    vector2_type() = default;
+    vector2_type(const value_type* vcomp);
     vector2_type(value_type v);
     vector2_type(value_type x, value_type y);
     vector2_type& set(value_type x, value_type y);
@@ -69,8 +70,9 @@ struct vector3_type
     operator const value_type*() const { return comp; }
     bool isZero() const { return nearZero(comp[0]) && nearZero(comp[1]) && nearZero(comp[2]); }
     
-    vector3_type();
+    vector3_type() = default;
     vector3_type(value_type v);
+    vector3_type(const value_type* vcomp);
     vector3_type(value_type x, value_type y, value_type z);
     vector3_type& set(value_type x, value_type y, value_type z);
 };
@@ -98,25 +100,12 @@ struct vector4_type
     bool isZero() const { return nearZero(comp[0]) && nearZero(comp[1]) &&
                                  nearZero(comp[2]) && nearZero(comp[3]); }
     
-    vector4_type() {}
-    vector4_type(value_type v) : comp { v,v,v,v }
-    {
-    }
-    vector4_type(value_type x, value_type y, value_type z, value_type w) :
-        comp { x, y, z, w }
-    {
-    }
-    vector4_type(const vector3_type<T>& v, value_type w) :
-        comp { v.x, v.y, v.z, w }
-    {
-    }
-    vector4_type& set(value_type x, value_type y, value_type z, value_type w) {
-        comp[0] = x;
-        comp[1] = y;
-        comp[2] = z;
-        comp[3] = w;
-        return *this;
-    }
+    vector4_type() = default;
+    vector4_type(const value_type* vcomp);
+    vector4_type(value_type v);
+    vector4_type(value_type x, value_type y, value_type z, value_type w);
+    vector4_type(const vector3_type<T>& v, value_type w);
+    vector4_type& set(value_type x, value_type y, value_type z, value_type w);
 };
 
 /// A 4x1 uniform
@@ -135,7 +124,8 @@ struct quat_type
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
     
-    quat_type() {}
+    quat_type() = default;
+    quat_type(const value_type* vcomp);
     quat_type(value_type x, value_type y, value_type z, value_type w) :
         comp { x, y, z, w }
     {
@@ -158,7 +148,8 @@ struct matrix3_type
     
     value_type comp[9];
     
-    matrix3_type() {}
+    matrix3_type() = default;
+    matrix3_type(const value_type* vcomp);
     matrix3_type(value_type v) :
         comp { v,0,0,0,v,0,0,0,v }
     {
@@ -177,7 +168,8 @@ struct matrix4_type
     
     value_type comp[16];
     
-    matrix4_type() {}
+    matrix4_type() = default;
+    matrix4_type(const value_type* vcomp);
     matrix4_type(value_type v) :
         comp { v,0,0,0,0,v,0,0,0,0,v,0,0,0,0,v }
     {

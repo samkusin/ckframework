@@ -223,21 +223,60 @@ template<typename T> quat_type<T>& eulerToQuat
     T az
 )
 {
-    const T ex_2 = ax*0.5f;
-    const T ey_2 = ay*0.5f;
-    const T ez_2 = az*0.5f;
+    const T ex_2 = ay*0.5f;
+    const T ey_2 = az*0.5f;
+    const T ez_2 = ax*0.5f;
     const T cx = cos(ex_2);
     const T cy = cos(ey_2);
     const T cz = cos(ez_2);
     const T sx = sin(ex_2);
     const T sy = sin(ey_2);
     const T sz = sin(ez_2);
-    q.comp[0] = cy*cz*sx - sy*sz*cx;
-    q.comp[1] = cx*cz*sy + sx*sz*cy;
+    
+    /*
+    q.comp[0] = sx*cy*cz - cx*sy*sz;
+    q.comp[1] = cx*sy*cz + sx*cy*sz;
     q.comp[2] = cx*cy*sz - sx*sy*cz;
     q.comp[3] = cx*cy*cz + sx*sy*sz;
+    */
+    q.comp[0] = sx*sy*cz + cx*cy*sz;
+    q.comp[1] = sx*cy*cz + cx*sy*sz;
+    q.comp[2] = cx*sy*cz - sx*cy*sz;
+    q.comp[3] = cx*cy*cz - sx*sy*sz;
     
     return q;
+}
+
+template<typename T> vector3_type<T>& quatToEuler
+(
+    vector3_type<T>& v,
+    quat_type<T> const& q
+)
+{
+    T test = q.x*q.y + q.z*q.w;
+    
+    if (test > T(0.499)) {
+        v.x = 0;
+        v.y = T(2) * atan2(q.x, q.w);
+        v.z = ckm::kPi * T(0.5);
+        return v;
+    }
+    if (test < T(-0.499)) {
+        v.x = 0;
+        v.y = T(-2) * atan2(q.x, q.w);
+        v.z = -ckm::kPi * T(0.5);
+        return v;
+    }
+    
+    T sqx = q.x*q.x;
+    T sqy = q.y*q.y;
+    T sqz = q.z*q.z;
+    
+    v.x = atan2(T(2)*q.x*q.w - T(2)*q.y*q.z, T(1) - T(2)*(sqx + sqz));
+    v.y = atan2(T(2)*q.y*q.w - T(2)*q.x*q.z, T(1) - T(2)*(sqy + sqz));
+    v.z = asin(T(2)*test);
+    
+    return v;
 }
 
 template<typename T> vector3_type<T>& translateFromMatrix
