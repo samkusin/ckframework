@@ -10,6 +10,7 @@
 # to include any modules in the repository.
 #
 .DS_Store
+.vscode
 *.sublime-project
 *.sublime-workspace
 build/
