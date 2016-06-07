@@ -18,7 +18,6 @@
 #ifndef CINEK_MSG_BUFFER_HPP
 #define CINEK_MSG_BUFFER_HPP
 
-#include <cinek/ckdefs.h>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
