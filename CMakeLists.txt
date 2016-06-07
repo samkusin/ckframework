@@ -6,32 +6,40 @@ set(CINEK_ENTITY_TYPE "64"
     CACHE STRING "CKEntity value type width (32 or 64)")
 
 set(CINEK_CORE_SOURCES
+    "cinek/debug.c"
     "cinek/types.cpp"
-    "cinek/debug.cpp"
     "cinek/file.cpp"
     "cinek/allocator.cpp"
     "cinek/memorystack.cpp"
     "cinek/cstringstack.cpp"
     "cinek/filestreambuf.cpp"
     "cinek/string.cpp"
+    "cinek/task.cpp"
+    "cinek/taskscheduler.cpp"
     )
 
 set(CINEK_CORE_INCLUDES
     "cinek/ckdefs.h"
     "cinek/ckopts.h"
     "cinek/types.hpp"
-    "cinek/circular_queue.hpp"
-    "cinek/buffer.hpp"
     "cinek/debug.h"
-    "cinek/file.hpp"
+    "cinek/buffer.hpp"
     "cinek/allocator.hpp"
     "cinek/memorystack.hpp"
     "cinek/cstringstack.hpp"
     "cinek/objectpool.hpp"
-    "cinek/filestreambuf.hpp"
+    "cinek/objectpool.inl"
+    "cinek/circular_queue.hpp"
+    "cinek/instrusive_list.hpp"
+    "cinek/managed_dictionary.hpp"
+    "cinek/managed_handle.inl"
     "cinek/string.hpp"
     "cinek/vector.hpp"
     "cinek/map.hpp"
+    "cinek/file.hpp"
+    "cinek/filestreambuf.hpp"
+    "cinek/task.hpp"
+    "cinek/taskscheduler.hpp"
     )
 
 file(GLOB_RECURSE CINEK_RAPIDJSON_INCLUDES
@@ -53,27 +61,33 @@ set(CINEK_JSON_INCLUDES
     )
 
 set(CINEK_ENTITY_SOURCES
-    "ckentity/datarowset.cpp"
-    "ckentity/entitydatatable.cpp"
-    "ckentity/entitygroup.cpp"
-    "ckentity/entitygroupmap.cpp"
     "ckentity/entitystore.cpp"
     )
 
 set(CINEK_ENTITY_INCLUDES
     "ckentity/entity.h"
-    "ckentity/datarowset.hpp"
-    "ckentity/vectordatarowset.hpp"
-    "ckentity/entitydatatable.hpp"
-    "ckentity/entitygroup.hpp"
-    "ckentity/entitygroupmap.hpp"
     "ckentity/entitystore.hpp"
+    )
+    
+set(CINEK_MSG_SOURCES
+    "ckmsg/messenger.cpp"
+    )
+    
+set(CINEK_MSG_INCLUDES
+    "ckmsg/buffer.hpp"
+    "ckmsg/client.hpp"
+    "ckmsg/client.inl"
+    "ckmsg/message.hpp"
+    "ckmsg/messenger.hpp"
+    "ckmsg/server.hpp"
+    "ckmsg/server.inl"
     )
 
 add_library(ckcore STATIC
     ${CINEK_CORE_SOURCES}
     ${CINEK_JSON_SOURCES}
     ${CINEK_ENTITY_SOURCES}
+    ${CINEK_CKMSG_SOURCES}
     )
 
 target_include_directories(ckcore PUBLIC
@@ -135,5 +149,5 @@ target_compile_definitions(ckcore
 enable_testing()
 
 add_subdirectory(cinek/tests)
-add_subdirectory(ckentity/tests)
+
 
