@@ -31,8 +31,6 @@
 #ifndef CINEK_UUID_HPP
 #define CINEK_UUID_HPP
 
-#include <cstdint>
-
 namespace cinek {
 
     /** A UUID array (128-bit) */
