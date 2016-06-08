@@ -31,9 +31,9 @@
 #ifndef CINEK_OBJECT_POOL_HPP
 #define CINEK_OBJECT_POOL_HPP
 
-#include "cinek/debug.h"
-#include "cinek/allocator.hpp"
-
+#include "debug.h"
+#include "managed_handle.hpp"
+#include "allocator.hpp"
 
 namespace cinek {
 
@@ -60,7 +60,7 @@ namespace cinek {
 
         template<typename... Args> pointer construct(Args&&... args);
         void destruct(pointer p);
-        
+
         bool verify(pointer p) const;
 
     private:
@@ -74,22 +74,22 @@ namespace cinek {
         pointer* _freelast;
         pointer* _freelimit;
     };
-    
+
     template<typename _Object, typename _Derived, size_t _PoolAlign=CK_ARCH_ALIGN_BYTES>
     class ManagedObjectPoolBase
     {
         CK_CLASS_NON_COPYABLE(ManagedObjectPoolBase);
-        
+
     public:
         using Value = _Object;
         using Handle = ManagedHandle<_Object, _Derived>;
         using Derived = _Derived;
-        
+
         struct OwnerRef
         {
             Derived* owner;
         };
-        
+
         struct Record
         {
             // must be first member of the Record to support ManagedHandle
@@ -102,30 +102,30 @@ namespace cinek {
             // mainly for move operations
             OwnerRef* ownerRef;
         };
-        
+
         ManagedObjectPoolBase();
         ManagedObjectPoolBase(size_t count);
         ManagedObjectPoolBase(ManagedObjectPoolBase&& other) noexcept;
         ManagedObjectPoolBase& operator=(ManagedObjectPoolBase&& other) noexcept;
-        
+
         ~ManagedObjectPoolBase();
-        
+
     protected:
         Record* add(Value&& obj);
         Record* add();
-    
+
         void releaseRecordInternal(Record* record);
-    
+
         ObjectPool<Record, _PoolAlign> _recordsPool;
         Record* _head;
-        
+
         void setOwnerRef(_Derived* owner);
-        
+
     private:
         OwnerRef* _ownerRef;
     };
 
-    
+
     /**
      *  @class ManagedObjectPool
      *
@@ -138,13 +138,13 @@ namespace cinek {
         public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate, _PoolAlign>, _PoolAlign>
     {
         CK_CLASS_NON_COPYABLE(ManagedObjectPool);
-        
+
     public:
         using ThisType = ManagedObjectPool<_Object, _Delegate, _PoolAlign>;
         using BaseType = ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>;
         using Handle = typename BaseType::Handle;
         using Value = typename BaseType::Value;
-        
+
         ManagedObjectPool();
         ~ManagedObjectPool();
         explicit ManagedObjectPool(size_t count);
@@ -153,55 +153,55 @@ namespace cinek {
 
         void setDelegate(const _Delegate& del);
         void clearDelegate();
-        
+
         Handle add(Value&& obj);
         Handle add();
-        
+
         void destructAll();
-        
+
     private:
         friend Handle;
         // MSVC 2015 does not resolve typename BaseType::Record properly during codegen
         //  - expanding BaseType seems to work
         //  - Clang (and likely GCC) do not have this problem
         void releaseRecord(typename ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
-        
+
         _Delegate _delegate;
     };
-    
+
 
     template<typename _Object, size_t _PoolAlign>
     class ManagedObjectPool<_Object, void, _PoolAlign> :
         public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void, _PoolAlign>, _PoolAlign>
     {
         CK_CLASS_NON_COPYABLE(ManagedObjectPool);
-        
+
     public:
         using ThisType = ManagedObjectPool<_Object, void, _PoolAlign>;
         using BaseType = ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>;
         using Handle = typename BaseType::Handle;
         using Value = typename BaseType::Value;
-        
+
         ManagedObjectPool() = default;
         ~ManagedObjectPool();
         ManagedObjectPool(size_t count);
         ManagedObjectPool(ManagedObjectPool&& other) noexcept;
         ManagedObjectPool& operator=(ManagedObjectPool&& other) noexcept;
-        
+
         Handle add(Value&& obj);
         Handle add();
-        
+
         void destructAll();
-        
+
     private:
         friend Handle;
- 
+
         // MSVC 2015 does not resolve typename BaseType::Record properly during codegen
         //  - expanding BaseType seems to work
-        //  - Clang (and likely GCC) do not have this problem       
+        //  - Clang (and likely GCC) do not have this problem
         void releaseRecord(typename ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
     };
-    
+
 } /* namespace cinek */
 
 #endif

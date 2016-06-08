@@ -11,7 +11,8 @@
 #ifndef CINEK_FILE_HPP
 #define CINEK_FILE_HPP
 
-#include "types.hpp"
+#include <cstdint>
+#include <cstddef>
 
 namespace cinek {
 
@@ -31,7 +32,7 @@ namespace file
         kText           = 0x00000020,
         kAsync          = 0x80000000
     };
-    
+
     typedef enum
     {
         kSeekSet        = 0,
@@ -39,7 +40,7 @@ namespace file
         kSeekEnd        = 2
     }
     Seek;
-    
+
     typedef enum
     {
         kQuerySuccess,
@@ -47,7 +48,7 @@ namespace file
         kQueryFailed
     }
     QueryResult;
-    
+
     typedef union
     {
         size_t sizeResult;
@@ -58,7 +59,7 @@ namespace file
     typedef struct
     {
         void* context;
-       
+
         FileHandle (*openCb)(void* context, const char* pathname, uint32_t access);
         size_t (*readCb)(void* context, FileHandle fh, uint8_t* buffer, size_t cnt);
         void (*closeCb)(void* context, FileHandle fh);
@@ -69,7 +70,7 @@ namespace file
         QueryResult (*queryCb)(void* context, FileHandle fh, QueryExtra* extra);
         void (*cancelCb)(void* context, FileHandle fh);
     } Ops;
-    
+
     FileHandle  open(const char* pathname, uint32_t access);
     size_t      size(FileHandle fh);
     size_t      read(FileHandle fh, uint8_t* buffer, size_t cnt);

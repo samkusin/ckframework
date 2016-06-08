@@ -29,16 +29,17 @@
  */
 
 
-#include "types.hpp"
+#include "uuid.hpp"
 #include <cstring>
+#include <cstdint>
 
 namespace cinek {
 
-    UUID UUID::kNull = {
+    UUID UUID::kNull = { {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    };
-    
+    } };
+
     bool operator==(const UUID& l, const UUID& r)
     {
         return *(uint64_t*)(&l.bytes[0]) == *(uint64_t*)(&r.bytes[0]) &&
@@ -57,11 +58,11 @@ namespace cinek {
     {
         return memcmp(&l.bytes, &r.bytes, sizeof(UUID::bytes)) < 0;
     }
-    
+
     bool operator!(const UUID& l)
     {
         return memcmp(&UUID::kNull.bytes, &l.bytes, sizeof(UUID::bytes)) != 0;
     }
 
 
-} /* cinekine */
+} /* cinek */

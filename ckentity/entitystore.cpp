@@ -24,7 +24,8 @@
 
 #include "entitystore.hpp"
 
-#include "cinek/debug.h"
+#include <cinek/debug.h>
+#include <random>
 
 namespace cinek {
 
@@ -65,21 +66,21 @@ EntityStore& EntityStore::operator=(EntityStore&& other)
     _freed = std::move(other._freed);
     _entityIdIteration = other._entityIdIteration;
     _entityCount = other._entityCount;
-    
+
     other._entityIdIteration = 0;
     other._entityCount = 0;
-    
+
     return *this;
 }
 
 EntityStore::~EntityStore()
 {
 }
-    
+
 Entity EntityStore::create(EntityContextType context)
 {
     EntityIndexType index;
-    
+
     if (!_freed.empty())
     {
         index = _freed.back();
@@ -90,7 +91,7 @@ Entity EntityStore::create(EntityContextType context)
         index = (EntityIndexType)_iterations.size();
         _iterations.push_back(1);
     }
-    
+
     Entity eid = cinek_make_entity(_iterations[index], context, index);
     ++_entityCount;
     return eid;

@@ -31,9 +31,10 @@
 #ifndef CINEK_TASKSCHEDULER_HPP
 #define CINEK_TASKSCHEDULER_HPP
 
-#include "cinek/task.hpp"
-#include "cinek/vector.hpp"
-#include "cinek/intrusive_list.hpp"
+#include "task.hpp"
+
+#include <cinek/intrusive_list.hpp>
+#include <vector>
 
 namespace cinek {
 
@@ -44,7 +45,7 @@ namespace cinek {
     class TaskScheduler
     {
         CK_CLASS_NON_COPYABLE(TaskScheduler);
-        
+
     public:
         /**
          * Constructor
@@ -92,7 +93,7 @@ namespace cinek {
 
     private:
         intrusive_list<TaskListNode> _runList;
-        vector<unique_ptr<Task>> _tasks;
+        std::vector<unique_ptr<Task>, std_allocator<unique_ptr<Task>>> _tasks;
         TaskId _currentHandle;
     };
 

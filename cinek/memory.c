@@ -6,26 +6,28 @@
  *          Copyright (c) 2013 Cinekine. All rights reserved.
  */
 
-#include "allocator.hpp"
+#include "memory.h"
+
 #include <string.h>
 #include <stdlib.h>
-
-namespace cinek {
 
 /*****************************************************************************/
 static void* DefaultAlloc(void* ctx, size_t numBytes)
 {
+    (void)ctx;
     return malloc(numBytes);
 }
 
 static void* DefaultAllocAlign(void* ctx, size_t numBytes, size_t align)
 {
+    (void)ctx;
     void* ptr;
+
 #if defined(CK_TARGET_WINDOWS)
     ptr = _aligned_malloc(numBytes, align);
 #else
     if (posix_memalign(&ptr, align, numBytes) != 0)
-        return nullptr;
+        return NULL;
 #endif
 
     return ptr;
@@ -33,11 +35,14 @@ static void* DefaultAllocAlign(void* ctx, size_t numBytes, size_t align)
 
 static void DefaultFree(void* ctx, void* ptr)
 {
+    (void)ctx;
     free(ptr);
 }
 
 static void DefaultFreeAlign(void* ctx, void* ptr)
 {
+    (void)ctx;
+
 #if defined(CK_TARGET_WINDOWS)
     _aligned_free(ptr);
 #else
@@ -47,13 +52,14 @@ static void DefaultFreeAlign(void* ctx, void* ptr)
 
 static void* DefaultRealloc(void* ctx, void* ptr, size_t numBytes)
 {
-    return realloc(ctx, numBytes);
+    (void)ctx;
+    return realloc(ptr, numBytes);
 }
 
 /*  the global memory provider */
 struct
 {
-    cinek_memory_callbacks cbs;
+    struct cinek_memory_callbacks cbs;
 }
 g_cinek_memoryProvider[16] =
 {
@@ -74,7 +80,7 @@ g_cinek_memoryProvider[16] =
 void cinek_alloc_set_callbacks
 (
     int heap,
-    const cinek_memory_callbacks* callbacks
+    const struct cinek_memory_callbacks* callbacks
 )
 {
     if (callbacks == NULL)
@@ -92,7 +98,7 @@ void cinek_alloc_set_callbacks
 }
 
 
-void cinek_get_alloc_callbacks(int heap, cinek_memory_callbacks* callbacks)
+void cinek_get_alloc_callbacks(int heap, struct cinek_memory_callbacks* callbacks)
 {
     memcpy(callbacks, &g_cinek_memoryProvider[heap].cbs,
            sizeof(g_cinek_memoryProvider[heap].cbs));
@@ -149,7 +155,4 @@ void cinek_free_aligned(int heap, void* ptr)
             ptr
             );
 }
-
-
-} /* namespace cinek */
 

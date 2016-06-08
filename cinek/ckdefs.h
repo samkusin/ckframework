@@ -40,39 +40,6 @@
  *  Defines properties related to the build compiler system.
  */
 /**@{*/
-/*
- *  Detect Compiler.
- */
-#ifdef __cplusplus
-
-/**
- * \def CK_CPP_11_BASIC
- * C++11 support (move semantics, lambda, auto).   Removed initializer_lists
- * support until VS2012 or later fully supports that feature.
- */
-#ifndef CK_CPP_11_BASIC
-  #if __clang__
-    #if __has_feature(cxx_lambdas) && __has_feature(cxx_nullptr) \
-        && __has_feature(cxx_auto_type) && __has_feature(cxx_rvalue_references)
-      #define CK_CPP_11_BASIC
-    #endif
-  #elif __GNUC__ >= 4
-    #if __GNUC__ == 4
-      #if __GNUC_MINOR__ >= 7
-        #define CK_CPP_11_BASIC
-      #endif
-    #else
-      #define CK_CPP_11_BASIC
-    #endif
-  #elif _MSC_VER >= 1600
-    #define CK_CPP_11_BASIC
-  #endif
-  /* CK_CPP_11_BASIC */
-  #endif
-/* __cplusplus */
-#else
-  #undef CK_CPP_11_BASIC
-#endif
 
 /**
  * \def CK_COMPILER_HAS_STDINT
@@ -89,7 +56,6 @@
   /* [TODO] - explicitly call out GNU/LLVM, etc. */
     #define CK_COMPILER_HAS_STDINT 1
   #endif
-
 /* CK_COMPILER_HAS_STDINT */
 #endif
 
@@ -98,58 +64,29 @@
  * Define if C++ exception handling is enabled.
  */
 #if !defined(CK_CPP_EXCEPTIONS) || !CK_CPP_EXCEPTIONS
-    #if __clang__
-        #if __has_feature(cxx_exceptions)
-          #define CK_CPP_EXCEPTIONS 1
-        #else
-          #define CK_CPP_EXCEPTIONS 0
-        #endif
-    #elif defined(_MSC_VER)
-        #ifdef _CPPUNWIND
-          #define CK_CPP_EXCEPTIONS 1
-        #else
-          #undef _HAS_EXCEPTIONS
-          #define _HAS_EXCEPTIONS 0
-        #endif
+  #if __clang__
+    #if __has_feature(cxx_exceptions)
+      #define CK_CPP_EXCEPTIONS 1
     #else
-       #define CK_CPP_EXCEPTIONS 0
+      #define CK_CPP_EXCEPTIONS 0
     #endif
-#endif
-        
-
-/**@}*/
-
-#if CK_CPP_EXCEPTIONS
-  #ifdef __cplusplus
-    #include <stdexcept>
+  #elif defined(_MSC_VER)
+    #ifdef _CPPUNWIND
+      #define CK_CPP_EXCEPTIONS 1
+    #else
+      #undef _HAS_EXCEPTIONS
+      #define _HAS_EXCEPTIONS 0
+    #endif
+  #elif defined(__GNUC__)
+    #if defined(__EXCEPTIONS) || defined(__cpp_exceptions)
+      #define CK_CPP_EXCEPTIONS 1
+    #else
+      #define CK_CPP_EXCEPTIONS 0
+    #endif
   #endif
-#else
-
 #endif
 
-#ifdef __cplusplus
-/**
- *  \name C++ Macros
- *  Useful macros for C++ development.
- */
-/**@{*/
-/**
- * \def CK_CLASS_NON_COPYABLE(__class_name_)
- * Prevents copy operations for the specified class.  This must be placed
- * the C++ class definition.
- */
-#ifdef CK_CPP_11_BASIC
-#define CK_CLASS_NON_COPYABLE(__class_name_) \
-  __class_name_(const __class_name_&) = delete; \
-  __class_name_& operator=(const __class_name_&) = delete;
-#else
-  /* must be in a private decl. */
-#define CK_CLASS_NON_COPYABLE(__class_name_) \
-  __class_name_(const __class_name_&); \
-  __class_name_& operator=(const __class_name_&);
-#endif
 /**@}*/
-#endif
 
 /**
  *  \name Platform Defines
@@ -245,42 +182,49 @@
 #define TODO(_x_) DO_PRAGMA( message("TODO: " #_x_ ) )
 /**@}*/
 
-#ifndef MAX_PATH
+#ifdef __cplusplus
+/**
+ *  \name C++ Macros
+ *  Useful macros for C++ development.
+ */
 /**@{*/
 /**
- * \def MAX_PATH
- * The suggested maximum length of a pathname.
+ * \def CK_CLASS_NON_COPYABLE(__class_name_)
+ * Prevents copy operations for the specified class.  This must be placed
+ * the C++ class definition.
  */
-#define MAX_PATH 256
+#define CK_CLASS_NON_COPYABLE(__class_name_) \
+  __class_name_(const __class_name_&) = delete; \
+  __class_name_& operator=(const __class_name_&) = delete;
+
+
+template<typename... Ts>
+struct sizeof_max;
+
+template<>
+struct sizeof_max<>
+{
+    enum { size = 0 };
+};
+
+template<typename T0, typename... Ts>
+struct sizeof_max<T0, Ts...>
+{
+    enum { size = sizeof(T0) < sizeof_max<Ts...>::size ?
+                  sizeof_max<Ts...>::size : sizeof(T0) };
+};
+
 /**@}*/
 #endif
 
-
-#if CK_COMPILER_HAS_STDINT
-  #ifdef __cplusplus
-    #include <cstddef>
-    #include <cstdint>
-    #include <cinttypes>
-  #else
-    #include <stddef.h>
-    #include <stdint.h>
-    #include <inttypes.h>
-  #endif
-#endif
-
-#ifdef _MSC_VER
-#define CK_COMPILER_MSVC _MSC_VER
-#else
-#define CK_COMPILER_CLANG 1
-#endif
-
-#ifdef CK_COMPILER_MSVC
-#define strncasecmp _strnicmp
-#define strcasecmp _stricmp
+#if defined(_MSC_VER)
+  #define strncasecmp _strnicmp
+  #define strcasecmp _stricmp
 #endif
 
 typedef double CKTime;
 typedef double CKTimeDelta;
+
 
 /* CINEK_DEFS_H */
 #endif

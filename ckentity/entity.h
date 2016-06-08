@@ -33,20 +33,8 @@
 
 #include <stdint.h>
 
-#if CINEK_ENTITY_TYPE_32
-typedef uint32_t CKEntity;
-typedef uint16_t CKEntityIteration;
-typedef uint8_t CKEntityContext;
-typedef uint32_t CKEntityIndex;
+#if CINEK_ENTITY_TYPE_LONG
 
-constexpr uint32_t kCKEntityIndexMask = 0x000fffff;
-constexpr uint32_t kCKEntityIndexBits = 20;
-constexpr uint32_t kCKEntityIterationMask = 0x0ff00000;
-constexpr uint32_t kCKEntityIterationBits = 8;
-constexpr uint32_t kCKEntityContextMask = 0xf0000000;
-constexpr uint32_t kCKEntityContextBits = 4;
-
-#else
 typedef uint64_t CKEntity;
 typedef uint16_t CKEntityIteration;
 typedef uint16_t CKEntityContext;
@@ -58,6 +46,20 @@ constexpr uint64_t kCKEntityIterationMask = 0x0000ffff00000000;
 constexpr uint64_t kCKEntityIterationBits = 16;
 constexpr uint64_t kCKEntityContextMask = 0xffff000000000000;
 constexpr uint64_t kCKEntityContextBits = 16;
+
+#else
+
+typedef uint32_t CKEntity;
+typedef uint16_t CKEntityIteration;
+typedef uint8_t CKEntityContext;
+typedef uint32_t CKEntityIndex;
+
+constexpr uint32_t kCKEntityIndexMask = 0x000fffff;
+constexpr uint32_t kCKEntityIndexBits = 20;
+constexpr uint32_t kCKEntityIterationMask = 0x0ff00000;
+constexpr uint32_t kCKEntityIterationBits = 8;
+constexpr uint32_t kCKEntityContextMask = 0xf0000000;
+constexpr uint32_t kCKEntityContextBits = 4;
 
 #endif
 

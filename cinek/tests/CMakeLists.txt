@@ -1,18 +1,15 @@
 
 
 add_executable(ckcoretests
+    ${PROJECT_SOURCES}
     "cstringstacktests.cpp"
     "ckcoretestmain.cpp"
 )
 
-target_include_directories(ckcoretests
+target_include_directories(cinektests
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../.."
 )
 
-target_link_libraries(ckcoretests ckcore)
-
-enable_testing()
-
-add_test(NAME RunCKCoreTests COMMAND ckcoretests)
+add_test(NAME RunCineKTests COMMAND cinektests)
 

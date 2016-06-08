@@ -53,18 +53,23 @@ g_cinek_logProvider =
 /*  default logger. */
 static void stdlog(void* context, const char* sourceId, const char* fmt, va_list args)
 {
+    (void)context;
+    (void)sourceId;
     vfprintf(stdout, fmt, args);
     fputc('\n', stdout);
 }
 
 static void stdlogerr(void* context, const char* sourceId, const char* fmt, va_list args)
 {
+    (void)context;
+    (void)sourceId;
     vfprintf(stderr, fmt, args);
     fputc('\n', stdout);
 }
 
 static void stdlogflush(void* context)
 {
+    (void)context;
     fflush(stdout);
     fflush(stderr);
 }

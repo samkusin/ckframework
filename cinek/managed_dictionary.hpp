@@ -9,7 +9,7 @@
 #ifndef CINEK_MANAGED_DICTIONARY_HPP
 #define CINEK_MANAGED_DICTIONARY_HPP
 
-#include "cinek/objectpool.hpp"
+#include "objectpool.hpp"
 
 #include <unordered_map>
 #include <string>
@@ -33,9 +33,9 @@ typename Dictionary::mapped_type registerResource
 )
 {
     typename Dictionary::mapped_type h;
-    
+
     auto it = dictionary.end();
-    
+
     if (name && *name) {
         std::string key = name;
         it = dictionary.find(key);

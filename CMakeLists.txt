@@ -1,153 +1,117 @@
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
-project(cinek VERSION 0.2.0 LANGUAGES C CXX)
+project(ckframework VERSION 0.1.0 LANGUAGES C CXX)
 
-set(CINEK_ENTITY_TYPE "64"
-    CACHE STRING "CKEntity value type width (32 or 64)")
+option(INCLUDE_CINEK_PROJECT    "CineK Common Utilities" ON)
+option(INCLUDE_CKMSG_PROJECT    "CineK Messaging" ON)
+option(INCLUDE_CKJSON_PROJECT   "CineK JSON (rapidjson)" ON)
+option(INCLUDE_CKM_PROJECT      "CineK Math" ON)
+option(INCLUDE_CKENTITY_PROJECT "CineK Entity" ON)
+option(INCLUDE_CKIO_PROJECT     "CineK File IO" ON)
+option(INCLUDE_CKFILE_PROJECT   "CineK File Streaming" ON)
+option(INCLUDE_CKTASK_PROJECT   "CineK Task Scheduler" ON)
 
-set(CINEK_CORE_SOURCES
-    "cinek/debug.c"
-    "cinek/types.cpp"
-    "cinek/file.cpp"
-    "cinek/allocator.cpp"
-    "cinek/memorystack.cpp"
-    "cinek/cstringstack.cpp"
-    "cinek/filestreambuf.cpp"
-    "cinek/string.cpp"
-    "cinek/task.cpp"
-    "cinek/taskscheduler.cpp"
-    )
-
-set(CINEK_CORE_INCLUDES
-    "cinek/ckdefs.h"
-    "cinek/ckopts.h"
-    "cinek/types.hpp"
-    "cinek/debug.h"
-    "cinek/buffer.hpp"
-    "cinek/allocator.hpp"
-    "cinek/memorystack.hpp"
-    "cinek/cstringstack.hpp"
-    "cinek/objectpool.hpp"
-    "cinek/objectpool.inl"
-    "cinek/circular_queue.hpp"
-    "cinek/instrusive_list.hpp"
-    "cinek/managed_dictionary.hpp"
-    "cinek/managed_handle.inl"
-    "cinek/string.hpp"
-    "cinek/vector.hpp"
-    "cinek/map.hpp"
-    "cinek/file.hpp"
-    "cinek/filestreambuf.hpp"
-    "cinek/task.hpp"
-    "cinek/taskscheduler.hpp"
-    )
-
-file(GLOB_RECURSE CINEK_RAPIDJSON_INCLUDES
-     RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-     ckjson/rapidjson/*.h
-     )
-
-set(CINEK_JSON_SOURCES
-    "ckjson/json.cpp"
-    "ckjson/jsoncollectionloader.cpp"
-    )
-
-set(CINEK_JSON_INCLUDES
-    "ckjson/jsontypes.hpp"
-    "ckjson/json.hpp"
-    "ckjson/jsoncollectionloader.hpp"
-    "ckjson/jsonstreambuf.hpp"
-    ${CINEK_RAPIDJSON_INCLUDES}
-    )
-
-set(CINEK_ENTITY_SOURCES
-    "ckentity/entitystore.cpp"
-    )
-
-set(CINEK_ENTITY_INCLUDES
-    "ckentity/entity.h"
-    "ckentity/entitystore.hpp"
-    )
-    
-set(CINEK_MSG_SOURCES
-    "ckmsg/messenger.cpp"
-    )
-    
-set(CINEK_MSG_INCLUDES
-    "ckmsg/buffer.hpp"
-    "ckmsg/client.hpp"
-    "ckmsg/client.inl"
-    "ckmsg/message.hpp"
-    "ckmsg/messenger.hpp"
-    "ckmsg/server.hpp"
-    "ckmsg/server.inl"
-    )
-
-add_library(ckcore STATIC
-    ${CINEK_CORE_SOURCES}
-    ${CINEK_JSON_SOURCES}
-    ${CINEK_ENTITY_SOURCES}
-    ${CINEK_CKMSG_SOURCES}
-    )
-
-target_include_directories(ckcore PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:include>
-)
-
-target_compile_features(ckcore
-    PUBLIC
-        cxx_auto_type
-        cxx_rvalue_references
-        cxx_alias_templates
-        cxx_constexpr
-        cxx_decltype
-        cxx_lambdas
-        cxx_variadic_macros
-        cxx_uniform_initialization
-        cxx_defaulted_functions
-        cxx_static_assert
-        cxx_strong_enums
-        cxx_right_angle_brackets
-)
-
-
-set(CINEK_LOCAL_COMPILE_OPTIONS )
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CINEK_LOCAL_COMPILE_OPTIONS "-fno-exceptions")
-endif()
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CINEK_LOCAL_COMPILE_OPTIONS "-fno-exceptions")
-endif()
-
-target_compile_options(ckcore
-    PRIVATE ${CINEK_LOCAL_COMPILE_OPTIONS}
-)
-
-set(CINEK_GLOBAL_COMPILE_DEFINITIONS )
-
-if("${CINEK_ENTITY_TYPE}" STREQUAL "32")
-    set(CINEK_GLOBAL_COMPILE_DEFINITIONS ${PROJECT_COMPILE_DEFINITIONS}
-        "CINEK_ENTITY_TYPE_32=1")
-elseif("${CINEK_ENTITY_TYPE}" STREQUAL "64")
-    set(CINEK_GLOBAL_COMPILE_DEFINITIONS ${PROJECT_COMPILE_DEFINITIONS}
-        "CINEK_ENTITY_TYPE_32=0")
-else()
-    message(FATAL_ERROR "CONFIG - Specified CKEntity Type "
-            "${CINEK_ENTITY_TYPE} bits. Must be either 32 or 64.")
-endif()
-
-message(STATUS "CONFIG - CKEntity Type is ${CINEK_ENTITY_TYPE} bits.")
-
-target_compile_definitions(ckcore
-    PUBLIC ${CINEK_GLOBAL_COMPILE_DEFINITIONS}
-)
+option(DISABLE_TESTS            "Do not build tests" ON)
+option(DISABLE_TARGETS          "Do not build targets" ON)
+option(ENABLE_CXX_EXCEPTIONS    "Enable C++ Exceptions" OFF)
+option(ENABLE_CXX_RTTI          "Enable C++ RTTI" OFF)
 
 # Testing
-enable_testing()
+if(NOT DISABLE_TESTS)
+    enable_testing()
+endif()
 
-add_subdirectory(cinek/tests)
+# All subprojects
+set(PROJECT_SOURCES  )
+set(PROJECT_INCLUDES  )
 
+macro(declare_subproject name)
+    add_subdirectory(${name})
+    source_group(${name} FILES ${${name}_SOURCES} ${${name}_INCLUDES})
+    set(PROJECT_SOURCES ${PROJECT_SOURCES} ${${name}_SOURCES})
+    set(PROJECT_INCLUDES ${PROJECT_INCLUDES} ${${name}_INCLUDES})
+endmacro(declare_subproject)
 
+if(INCLUDE_CINEK_PROJECT)
+    declare_subproject(cinek)
+endif()
+
+if(INCLUDE_CKMSG_PROJECT)
+    declare_subproject(ckmsg)
+endif()
+
+if(INCLUDE_CKJSON_PROJECT)
+    declare_subproject(ckjson)
+endif()
+
+if(INCLUDE_CKENTITY_PROJECT)
+    declare_subproject(ckentity)
+endif()
+
+if(INCLUDE_CKIO_PROJECT)
+    declare_subproject(ckio)
+endif()
+
+if(INCLUDE_CKFILE_PROJECT)
+    declare_subproject(ckfilestream)
+endif()
+
+if(INCLUDE_CKTASK_PROJECT)
+    declare_subproject(cktask)
+endif()
+
+if(INCLUDE_CKM_PROJECT)
+    declare_subproject(ckm)
+endif()
+
+# Returns the files accumulated for the entire cinek project
+get_directory_property(HAS_PARENT_DIRECTORY PARENT_DIRECTORY)
+
+if(HAS_PARENT_DIRECTORY)
+    set(CKFRAMEWORK_SOURCES ${PROJECT_SOURCES} PARENT_SCOPE)
+    set(CKFRAMEWORK_INCLUDES ${PROJECT_INCLUDES} PARENT_SCOPE)
+endif()
+
+# Setup target properties for building the static library
+if(NOT DISABLE_TARGETS)
+    add_library(ckframework STATIC "${PROJECT_SOURCES}")
+
+    target_include_directories(ckframework PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+
+    set_property(TARGET ckframework PROPERTY C_STANDARD 99)
+    target_compile_features(ckframework PUBLIC
+        cxx_alias_templates
+        cxx_auto_type
+        cxx_decltype
+        cxx_defaulted_functions
+        cxx_deleted_functions
+        cxx_explicit_conversions
+        cxx_extended_friend_declarations
+        cxx_lambdas
+        cxx_nullptr
+        cxx_range_for
+        cxx_override
+        cxx_static_assert
+        cxx_variadic_macros
+        cxx_variadic_templates
+        cxx_strong_enums
+        )
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CXX_COMPILER_ID EQUAL GNU)
+        target_compile_options(ckframework PRIVATE -Wall -Wextra -pedantic)
+
+        if(NOT ENABLE_CXX_EXCEPTIONS)
+            target_compile_options(ckframework PUBLIC -fno-exceptions)
+        endif()
+        if(NOT ENABLE_CXX_RTTI)
+            target_compile_options(ckframework PRIVATE -fno-rtti)
+        endif()
+    elseif(CMAKE_CXX_COMPILER_ID EQUAL MSVC)
+        if(NOT ENABLE_CXX_EXCEPTIONS)
+            target_compile_options(ckframework PUBLIC /EHs-c-)
+        endif()
+        if(NOT ENABLE_CXX_RTTI)
+            target_compile_options(ckframework PRIVATE /GR-)
+        endif()
+    endif()
+endif(NOT DISABLE_TARGETS)

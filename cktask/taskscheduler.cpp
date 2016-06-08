@@ -29,8 +29,8 @@
  * @copyright Cinekine
  */
 
-#include "cinek/taskscheduler.hpp"
-#include "cinek/debug.h"
+#include "taskscheduler.hpp"
+#include <cinek/debug.h>
 #include <algorithm>
 
 namespace cinek {
@@ -60,7 +60,7 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
         {
             CK_LOG_ERROR("TaskScheduler", "Handle %u already exists in task list!",
                          _currentHandle);
-            return kNullHandle;
+            return 0;
         }
     }
     //  add to our processing list
@@ -88,7 +88,7 @@ bool TaskScheduler::isActive(TaskId taskHandle)
     auto it = std::lower_bound(_tasks.begin(), _tasks.end(), taskHandle);
     if (it == _tasks.end() || (*it).get()->id() != taskHandle)
         return false;
-    
+
     return true;
 }
 

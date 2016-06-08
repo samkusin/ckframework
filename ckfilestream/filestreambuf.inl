@@ -8,9 +8,6 @@
  *          (http://www.isc.org/downloads/software-support-policy/isc-license/)
  */
 
-#include "filestreambuf.hpp"
-
-
 namespace cinek {
     //  Initializes the stream buffer with the contents of the file specified.
     //  Uses SDL to read from/write to files
@@ -21,9 +18,15 @@ namespace cinek {
     //
     //  NOTE : No output supported at this time.
     //
-    FileStreamBuf::FileStreamBuf(const char* pathname, std::ios_base::openmode mode,
-                         size_t bufferSize,
-                         const Allocator& allocator) :
+    //
+    template<typename Allocator>
+    FileStreamBuf<Allocator>::FileStreamBuf
+    (
+        const char* pathname,
+        std::ios_base::openmode mode,
+        size_t bufferSize,
+        const Allocator& allocator
+    ) :
         _allocator(allocator),
         _fileHandle(nullptr),
         _mode(mode),
@@ -34,29 +37,12 @@ namespace cinek {
         uint32_t fileAccess = 0;
         if (_mode & std::ios_base::in)
         {
-            if (_mode & std::ios_base::out)         // does not support both read and write for now.
+            // does not support both read and write for now.
+            if (_mode & std::ios_base::out)
                 return;
 
             fileAccess = file::kReadAccess;
         }
-        /*else if (_mode & std::ios_base::out)
-        {
-            if (_mode & std::ios_base::in)          // does not support both read and write for now.
-                return;
-
-            if (_mode & std::ios_base::app)
-            {
-                if (_mode & std::ios_base::trunc)   // failure condition
-                    return;
-
-                fmode[0] = 'a';
-            }
-            else
-            {
-                fmode[0] = 'w';
-            }
-        }
-        */
         else
         {
             return;                 // unsupported IO
@@ -72,7 +58,8 @@ namespace cinek {
         }
     }
 
-    FileStreamBuf::~FileStreamBuf()
+    template<typename Allocator>
+    FileStreamBuf<Allocator>::~FileStreamBuf()
     {
         sync();
         if (_fileHandle)
@@ -87,7 +74,20 @@ namespace cinek {
         }
     }
 
-    size_t FileStreamBuf::availableChars() const
+    template<typename Allocator>
+    explicit FileStreamBuf<Allocator>::operator bool() const
+    {
+            return isOpen();
+    }
+
+    template<typename Allocator>
+    bool FileStreamBuf<Allocator>::isOpen() const
+    {
+        return _fileHandle != nullptr;
+    }
+
+    template<typename Allocator>
+    size_t FileStreamBuf<Allocator>::availableChars() const
     {
         if (!_fileHandle)
             return 0;
@@ -96,14 +96,18 @@ namespace cinek {
         return remaining;
     }
 
-    //  TODO - support substituting an external buffer?  Also support unbuffered IO (destroying the buffer.)
-    std::streambuf* FileStreamBuf::setbuf(char* s, std::streamsize n)
+    //  TODO - support substituting an external buffer?
+    //  Also support unbuffered IO (destroying the buffer.)
+    template<typename Allocator>
+    std::streambuf* FileStreamBuf<Allocator>::setbuf(char* s, std::streamsize n)
     {
         return std::streambuf::setbuf(s, n);
     }
 
-    //  Called when the FileStreamBuf is stuffed, needing to write out data to the output device.
-    int FileStreamBuf::overflow(int c)
+    //  Called when the FileStreamBuf is stuffed, needing to write out data to
+    //  the output device.
+    template<typename Allocator>
+    int FileStreamBuf<Allocator>::overflow(int c)
     {
         if (!(_mode & std::ios_base::out))
             return EOF;
@@ -111,18 +115,20 @@ namespace cinek {
         return EOF;
     }
 
-    //  Called when the FileStreamBuf is starved, needing to read in more data from the device.
-    //  May also be called to get the current input character without updating our get buffer pointers
-    //  (for peek perhaps?)  As such, if we still have get-data at gptr(), return the data at gptr().
-    int FileStreamBuf::underflow()
+    //  Called when the FileStreamBuf is starved, needing to read in more data
+    //  from the device. May also be called to get the current input character
+    //  without updating our get buffer pointers (for peek perhaps?)  As such,
+    //  if we still have get-data at gptr(), return the data at gptr().
+    template<typename Allocator>
+    int FileStreamBuf<Allocator>::underflow()
     {
         if (!(_mode & std::ios_base::in))
             return EOF;
         if (!_fileHandle)
             return EOF;
 
-        //  TODO: write out any data (via overflow) if there's data in the put buffer (when we support
-        //  concurrent read/write buffers.)
+        //  TODO: write out any data (via overflow) if there's data in the put
+        //  buffer (when we support  concurrent read/write buffers.)
 
         if (gptr() == egptr())
         {
@@ -133,7 +139,8 @@ namespace cinek {
             }
             else
             {
-                //  save the last few characters off so they are at the tail end of our new get buffer
+                //  save the last few characters off so they are at the tail end
+                //  of our new get buffer
 				putbackLen = (egptr() - gptr()) / 2;
 				if (putbackLen > 32)
 					putbackLen = 32;
@@ -154,7 +161,8 @@ namespace cinek {
     }
 
     //  TBD - this is an abbrieviated version of the clang filebuf impl.
-    int FileStreamBuf::pbackfail(int c)
+    template<typename Allocator>
+    int FileStreamBuf<Allocator>::pbackfail(int c)
     {
         if (_fileHandle && eback() < gptr())
         {
@@ -174,14 +182,16 @@ namespace cinek {
 
     //  if there's buffered output, this acts as a flush. (not implemented)
     //
-    //  for buffered input, since we're implementing a non-seekable stream, we can't backup the input
-    //  file buffer.  in this case we return an error indicating a loss of input data.
-    int FileStreamBuf::sync()
+    //  for buffered input, since we're implementing a non-seekable stream, we
+    //  can't backup the input file buffer.  in this case we return an error
+    //  indicating a loss of input data.
+    template<typename Allocator>
+    int FileStreamBuf<Allocator>::sync()
     {
         if (_fileHandle)
         {
             size_t revertCount = egptr()-gptr();
-            
+
             if (!file::seek(_fileHandle, file::kSeekCur, -(long)revertCount))
                 return -1;
 

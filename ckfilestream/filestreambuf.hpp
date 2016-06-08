@@ -11,7 +11,6 @@
 #ifndef CINEK_FILESTREAMBUF_HPP
 #define CINEK_FILESTREAMBUF_HPP
 
-#include "allocator.hpp"
 #include "file.hpp"
 
 #include <streambuf>
@@ -26,6 +25,7 @@ namespace cinek {
     //  This implementation supports either read or write on an opened file, but not both.
     //  Future versions may support both methods concurrently.
     //
+    template<typename Allocator>
     class FileStreamBuf: public std::streambuf
     {
         CK_CLASS_NON_COPYABLE(FileStreamBuf);
@@ -39,13 +39,13 @@ namespace cinek {
             const Allocator& allocator=Allocator()
         );
         ~FileStreamBuf();
+        FileStreamBuf(const FileStreamBuf& ) = delete;
+        FileStreamBuf& operator=(const FileStreamBuf& ) = delete;
+
         //  Used to check whether file opened.
-        explicit operator bool() const {
-            return isOpen();
-        }
-        bool isOpen() const {
-            return _fileHandle != nullptr;
-        }
+        explicit operator bool() const;
+        bool isOpen() const;
+
         //  get the remaining number of characters to read before starving the file stream.
         //  this will be the file size if the stream hasn't been consumed by the caller.
         size_t availableChars() const;
@@ -68,6 +68,7 @@ namespace cinek {
 
 }   // namespace cinek
 
+#include "filestreambuf.inl"
 
 #endif
 

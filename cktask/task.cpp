@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Cinekine Media
+ * Copyright (c) 2014 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,39 +21,64 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/string.hpp
+ * @file    cinek/task.cpp
  * @author  Samir Sinha
- * @date    1/6/2013
- * @brief   std::string with custom allocators
+ * @date    10/29/2014
+ * @brief   A Task execution object
  * @copyright Cinekine
  */
 
+/*
+ * An extension of Mike McShaffry's example of Process based execution,
+ * substituting 'Task' for 'Process' in a cooperative multitasking system.
+ * For details, refer to his book "Game Coding Complete (4th edition)",
+ * Chapter 7 ('Controlling the Main Loop')
+ */
 
-#ifndef CINEK_STRING_HPP
-#define CINEK_STRING_HPP
-
-#include "allocator.hpp"
-#include <string>
+#include "task.hpp"
 
 namespace cinek {
 
-using string = std::basic_string<char>;
+Task::Task(EndCallback cb) :
+    _state(State::kIdle),
+    _schedulerHandle(0),
+    _endCb(cb),
+    _schedulerContext(nullptr)
+{
+}
 
-char* duplicateCString(const char* str, Allocator& allocator);
+void Task::setNextTask(unique_ptr<Task>&& task)
+{
+    _nextTask = std::move(task);
+}
 
-/**
- * Joins path elements from the root and returns a normalized path
- * @param  root The root path
- * @return The resulting path string
- */
-std::string directoryPath
-(
-    const std::initializer_list<string>& elements,
-    const string& filename
-);
+void Task::cancel()
+{
+    _state = State::kCanceled;
+}
 
-uint32_t UInt32FromString(const char* string);
+void Task::end()
+{
+    _state = State::kEnded;
+}
 
-} /* cinekine */
+void Task::fail()
+{
+    _state = State::kFailed;
+}
 
-#endif
+void Task::onEnd()
+{
+    if (_endCb) {
+        _endCb(State::kEnded, *this, _schedulerContext);
+    }
+}
+
+void Task::onFail()
+{
+    if (_endCb) {
+        _endCb(State::kFailed, *this, _schedulerContext);
+    }
+}
+
+} /* namespace cinek */

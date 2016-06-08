@@ -46,9 +46,9 @@ void Allocator::free(uint8_t* p)
     The Messenger collects messages into various send queues and dispatches
     them to their target receiver queues.  Helper classes such as 'Client' and
     'Server' specialize messaging behavior through the Messenger Interface.
-    
+
     Some implementation notes:
- 
+
  */
 Messenger::Messenger() :
     _thisEndpointId(0)
@@ -62,13 +62,13 @@ Address Messenger::createEndpoint(EndpointInitParams initParams)
         Buffer<Allocator>(initParams.recvSize),
         0
     };
-    
+
     Address result { 0 };
     {
         ++_thisEndpointId;
         if (!_thisEndpointId)
             _thisEndpointId = 1;         // unlikely wraparound!
-        
+
         auto it = _endpoints.emplace(_thisEndpointId, std::move(endpoint)).first;
         if (it != _endpoints.end()) {
             result = { it->first };
@@ -95,28 +95,28 @@ uint32_t Messenger::send
     auto it = _endpoints.find(msg.sender().id);
     if (it == _endpoints.end())
         return 0;
- 
+
     //  todo - buffers that are full, call transmit to make space
     auto& sendPoint = it->second;
     auto& sendBuffer = sendPoint.sendBuffer;
-    
+
     //  verify we can send out the message packet
     uint8_t* packet = sendBuffer.writep(kEncodedHeaderSize +
                                         sizeof(Address));
     if (!packet)
         return 0;
-    
+
     encodeHeader(packet, kEncodedMessageHeader);
     memcpy(packet + kEncodedHeaderSize, &receiver, sizeof(Address));
-    
+
     auto outMsg = reinterpret_cast<Message*>(sendBuffer.writep(sizeof(Message)));
     if (!outMsg) {
         sendBuffer.revertWrite();
         return 0;
     }
-    
+
     *outMsg = std::move(msg);
-    
+
     if (payload && payload->size()>0) {
         uint32_t payloadSize = payload->size();
         uint8_t* outPayload = sendBuffer.writep(sizeof(uint32_t));
@@ -131,10 +131,10 @@ uint32_t Messenger::send
             return 0;
         }
         outMsg->setFlags(Message::kHasPayload);
-        
+
         memcpy(outPayload, payload->data(), payloadSize);
     }
-    
+
     if (seqId == kAssignSequenceId) {
         //  reserve 0 and (uint32_t)(-1) (see message.hpp constants.)
         ++sendPoint.thisSeqId;
@@ -145,9 +145,9 @@ uint32_t Messenger::send
     else if (seqId != kNullSequenceId) {
         outMsg->setFlags(Message::kIsReply);
     }
-    
+
     outMsg->setSequenceId(seqId);
-    
+
     //  finish write (note, we could've updated two times, message and payload.)
     //  since we don't yet support transmitting during send to free send space
     //  we want to perform the write in one sequence.
@@ -155,7 +155,7 @@ uint32_t Messenger::send
     //  note, this doesn't mean much yet without multithreading.
     //
     sendBuffer.updateWrite();
-    
+
     return seqId;
 }
 
@@ -164,13 +164,13 @@ void Messenger::transmit(Address sender)
     auto endpIt = _endpoints.find(sender.id);
     if (endpIt == _endpoints.end())
         return;
-    
+
     //  iterate through all messages on the sender's send list and dispatch
     //  to every message's receiver
-    
+
     auto& sendPoint = endpIt->second;
     auto& sendBuffer = sendPoint.sendBuffer;
-    
+
     //  take send buffer input and copy it to the receiver's output buffer
     //  - confirm we have a valid send buffer packet first (the while guard)
     //  - the remaining logic ingests the send buffer packet based on type
@@ -180,17 +180,17 @@ void Messenger::transmit(Address sender)
     //      - a full receive buffer results in an 'out of room' state
     //
     while (sendBuffer.readSizeContiguous(kEncodedHeaderSize + sizeof(Address))) {
-      
+
         const uint8_t* hdrpacket = sendBuffer.readp(kEncodedHeaderSize + sizeof(Address));
         const Address& address = *reinterpret_cast<const Address*>(
             hdrpacket+kEncodedHeaderSize
         );
-        
+
         auto endpRecvIt = _endpoints.find(address.id);
         if (endpRecvIt != _endpoints.end()) {
             auto& recvPoint = endpRecvIt->second;
             auto& recvBuffer = recvPoint.recvBuffer;
-            
+
             enum
             {
                 kStartPacket,
@@ -202,12 +202,12 @@ void Messenger::transmit(Address sender)
                 kOutOfRoom
             }
             inputState = kStartPacket;
-            
+
             uint32_t datasize = 0;
             while (inputState < kCompleted) {
                 const uint8_t* inp = nullptr;
                 uint8_t* outp = nullptr;
-            
+
                 switch (inputState)
                 {
                 case kStartPacket:
@@ -228,7 +228,7 @@ void Messenger::transmit(Address sender)
                     datasize = 0;
                     break;
                 }
-                
+
                 if (!inp) {
                     inp = sendBuffer.readp(datasize);
                 }
@@ -242,7 +242,7 @@ void Messenger::transmit(Address sender)
                 else {
                     memcpy(outp, inp, datasize);
                 }
-                
+
                 switch (inputState)
                 {
                 case kStartPacket:
@@ -276,7 +276,7 @@ void Messenger::transmit(Address sender)
                     break;
                 }
             }   //  end packet state machine
-            
+
             if (inputState == kOutOfRoom) {
                 //  Full receive buffer.  since our sender must publish packets
                 //  in-order, we can't transmit until there's room.
@@ -314,13 +314,13 @@ Message Messenger::pollReceive
 )
 {
     Message msg;
-    
+
     auto endpIt = _endpoints.find(receiver.id);
     if (endpIt != _endpoints.end()) {
         auto& recvBuffer = endpIt->second.recvBuffer;
         if (recvBuffer.readSizeContiguous(kEncodedHeaderSize)) {
             const uint8_t* hdrpacket = recvBuffer.readp(kEncodedHeaderSize);
-            
+
             if (checkHeader(hdrpacket, kEncodedMessageHeader)) {
                 const Message* pkt = reinterpret_cast<const Message*>(
                     recvBuffer.readp(sizeof(Message))
@@ -334,14 +334,14 @@ Message Messenger::pollReceive
                             payloadSize =  *reinterpret_cast<const uint32_t*>(p);
                             payloadData = recvBuffer.readp(payloadSize);
                         }
-                        payload = std::move(Payload(payloadData, payloadSize));
+                        payload = Payload(payloadData, payloadSize);
                     }
                     msg = *pkt;
                 }
             }
         }
     }
-    
+
     return msg;
 }
 

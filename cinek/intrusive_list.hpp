@@ -32,8 +32,8 @@
 #ifndef CINEK_INTRUSIVE_LIST_HPP
 #define CINEK_INTRUSIVE_LIST_HPP
 
-#include "cinek/types.hpp"
-#include "cinek/debug.h"
+#include "ckdefs.h"
+#include "debug.h"
 
 #include <memory>
 #include <iterator>

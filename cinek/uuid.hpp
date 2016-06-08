@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Cinekine Media
+ * Copyright (c) 2016 Cinekine Media
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,64 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * @file    cinek/task.cpp
+ * @file    cinek/ckdefs.h
  * @author  Samir Sinha
- * @date    10/29/2014
- * @brief   A Task execution object
+ * @date    6/7/2016
+ * @brief   UUID utilities (pulled from types.hpp)
  * @copyright Cinekine
  */
 
-/*
- * An extension of Mike McShaffry's example of Process based execution,
- * substituting 'Task' for 'Process' in a cooperative multitasking system.
- * For details, refer to his book "Game Coding Complete (4th edition)",
- * Chapter 7 ('Controlling the Main Loop')
- */
+#ifndef CINEK_UUID_HPP
+#define CINEK_UUID_HPP
 
-#include "cinek/task.hpp"
+#include <cstdint>
 
 namespace cinek {
 
-Task::Task(EndCallback cb) :
-    _state(State::kIdle),
-    _schedulerHandle(kNullHandle),
-    _endCb(cb),
-    _schedulerContext(nullptr)
-{
-}
+    /** A UUID array (128-bit) */
+    struct UUID
+    {
+        char bytes[16];
 
-void Task::setNextTask(unique_ptr<Task>&& task)
-{
-    _nextTask = std::move(task);
-}
+        static UUID kNull;
+    };
 
-void Task::cancel()
-{
-    _state = State::kCanceled;
-}
-
-void Task::end()
-{
-    _state = State::kEnded;
-}
-
-void Task::fail()
-{
-    _state = State::kFailed;
-}
-
-void Task::onEnd()
-{
-    if (_endCb) {
-        _endCb(State::kEnded, *this, _schedulerContext);
-    }
-}
-
-void Task::onFail()
-{
-    if (_endCb) {
-        _endCb(State::kFailed, *this, _schedulerContext);
-    }
-}
+    bool operator==(const UUID& l, const UUID& r);
+    bool operator<(const UUID& l, const UUID& r);
+    bool operator!=(const UUID& l, const UUID& r);
+    bool operator!(const UUID& l);
 
 } /* namespace cinek */
+
+#endif

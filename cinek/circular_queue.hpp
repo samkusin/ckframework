@@ -25,10 +25,9 @@
 #define CINEK_CIRCULAR_QUEUE_HPP
 
 /* 10-19-2014 - added to cinek namespace.
- *              include types.hpp
  */
-#include "cinek/types.hpp"
-
+#include <cstddef>
+#include <cstdint>
 #include <atomic>
 
 namespace cinek {

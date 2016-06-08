@@ -9,7 +9,6 @@
 #ifndef CINEK_MATH_TYPES_HPP
 #define CINEK_MATH_TYPES_HPP
 
-#include <cinek/ckdefs.h>
 #include <cmath>
 
 namespace ckm {
@@ -54,12 +53,12 @@ template<typename T>
 struct vector3_type
 {
     typedef T value_type;
-    
+
     static const vector3_type kUnitX;
     static const vector3_type kUnitY;
     static const vector3_type kUnitZ;
     static const vector3_type kZero;
-    
+
     union
     {
         struct { value_type x, y, z; };
@@ -69,7 +68,7 @@ struct vector3_type
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
     bool isZero() const { return nearZero(comp[0]) && nearZero(comp[1]) && nearZero(comp[2]); }
-    
+
     vector3_type() = default;
     vector3_type(value_type v);
     vector3_type(const value_type* vcomp);
@@ -82,13 +81,13 @@ template<typename T>
 struct vector4_type
 {
     typedef T value_type;
-    
+
     static const vector4_type kUnitX;
     static const vector4_type kUnitY;
     static const vector4_type kUnitZ;
     static const vector4_type kUnitW;
     static const vector4_type kZero;
-    
+
     union
     {
         struct { value_type x, y, z, w; };
@@ -99,7 +98,7 @@ struct vector4_type
     operator const value_type*() const { return comp; }
     bool isZero() const { return nearZero(comp[0]) && nearZero(comp[1]) &&
                                  nearZero(comp[2]) && nearZero(comp[3]); }
-    
+
     vector4_type() = default;
     vector4_type(const value_type* vcomp);
     vector4_type(value_type v);
@@ -113,9 +112,9 @@ template<typename T>
 struct quat_type
 {
     typedef T value_type;
-    
+
     static const quat_type kIdentity;
-    
+
     union
     {
         struct { value_type x, y, z, w; };
@@ -123,7 +122,7 @@ struct quat_type
     };
     operator value_type*() { return comp; }
     operator const value_type*() const { return comp; }
-    
+
     quat_type() = default;
     quat_type(const value_type* vcomp);
     quat_type(value_type x, value_type y, value_type z, value_type w) :
@@ -143,11 +142,11 @@ template<typename T>
 struct matrix3_type
 {
     typedef T value_type;
-    
+
     static const matrix3_type kIdentity;
-    
+
     value_type comp[9];
-    
+
     matrix3_type() = default;
     matrix3_type(const value_type* vcomp);
     matrix3_type(value_type v) :
@@ -163,11 +162,11 @@ template<typename T>
 struct matrix4_type
 {
     typedef T value_type;
-    
+
     static const matrix4_type kIdentity;
-    
+
     value_type comp[16];
-    
+
     matrix4_type() = default;
     matrix4_type(const value_type* vcomp);
     matrix4_type(value_type v) :

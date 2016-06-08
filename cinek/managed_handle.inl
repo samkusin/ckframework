@@ -6,7 +6,6 @@
 //
 //
 
-#include <cstdio>
 
 namespace cinek {
 
@@ -19,7 +18,7 @@ void ManagedHandle<_HandleValue,_HandleOwner>::acquire()
 {
     if (!_resource)
         return;
-        
+
     auto record = reinterpret_cast<typename _HandleOwner::Record*>(_resource);
     ++record->refcnt;
 //    printf("%p refcnt %d\n", _resource, record->refcnt);
@@ -31,7 +30,7 @@ void ManagedHandle<_HandleValue, _HandleOwner>::release()
 {
     if (!_resource)
         return;
-    
+
     auto record = reinterpret_cast<typename _HandleOwner::Record*>(_resource);
 
     CK_ASSERT_RETURN(record->refcnt > 0);

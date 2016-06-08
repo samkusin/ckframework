@@ -38,9 +38,11 @@
 #ifndef CINEK_TASK_HPP
 #define CINEK_TASK_HPP
 
-#include "cinek/types.hpp"
-#include "cinek/allocator.hpp"
+#include <cinek/ckdefs.h>
+#include <cinek/uuid.hpp>
+#include <cinek/allocator.hpp>
 
+#include <cstdint>
 #include <functional>
 
 namespace cinek {
@@ -68,7 +70,7 @@ namespace cinek {
     class Task : public TaskListNode
     {
     public:
-    
+
         /** Task States */
         enum class State
         {
@@ -79,12 +81,12 @@ namespace cinek {
             kFailed,    /**< Task has failed as a result of calling fail() */
             kCanceled   /**< Task was canceled */
         };
-        
+
         using EndCallback = std::function<void(State, Task&, void*)>;
-        
+
         Task(EndCallback _cb=0);
         virtual ~Task() = default;
-        
+
         /**
          *  @param  cb      The callback executed upon an end or fail result.
          */
@@ -109,7 +111,7 @@ namespace cinek {
 
         /** @return The task's state.  See State for more information */
         State state() const { return _state; }
-        
+
         /** @return An optional unique ID identifying the task class */
         virtual const TaskClassId& classId() const { return UUID::kNull; }
         /** @return The assigned scheduler handle */
