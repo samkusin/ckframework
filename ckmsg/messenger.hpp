@@ -17,11 +17,23 @@
 
 namespace ckmsg {
 
+struct MessengerBase
+{
+    static const uint8_t kEncodedMessageHeader[4];
+
+    void encodeHeader(uint8_t* target, const uint8_t hdr[]);
+    bool checkHeader(const uint8_t* input, const uint8_t hdr[]);
+
+    void setFlags(Message& msg, uint16_t mask) { msg.setFlags(mask); }
+    void clearFlags(Message& msg, uint16_t mask) { msg.clearFlags(mask); }
+    void setSequenceId(Message& msg,uint32_t id) { msg.setSequenceId(id); }
+};
+
 template<typename Allocator>
-class Messenger
+class Messenger : MessengerBase
 {
 public:
-    Messenger();
+    Messenger(Allocator allocator);
     Messenger(const Messenger& ) = delete;
     Messenger& operator=(const Messenger& ) = delete;
 
@@ -65,14 +77,9 @@ private:
 
         uint32_t thisSeqId;
     };
-
+    Allocator _allocator;
     std::unordered_map<uint32_t, Endpoint> _endpoints;
     uint32_t _thisEndpointId;
-
-    static const uint8_t kEncodedMessageHeader[4];
-
-    void encodeHeader(uint8_t* target, const uint8_t hdr[]);
-    bool checkHeader(const uint8_t* input, const uint8_t hdr[]);
 };
 
 }   /* namespace ckmsg */

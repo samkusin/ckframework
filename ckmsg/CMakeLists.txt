@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 project(ckmsg VERSION 0.1.0 LANGUAGES C CXX)
 
 # All subprojects
-set(PROJECT_SOURCES )
+set(PROJECT_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/messenger.cpp")
 
 set(PROJECT_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/buffer.hpp"

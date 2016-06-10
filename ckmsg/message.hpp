@@ -20,11 +20,11 @@
 #include <cassert>
 
 namespace ckmsg {
-    
-class Messenger;
-template<typename _DelegateType> class Client;
-template<typename _DelegateType> class Server;
-    
+
+template<typename _Allocator> class Messenger;
+template<typename _DelegateType, typename _Allocator> class Client;
+template<typename _DelegateType, typename _Allocator> class Server;
+
 /** The target of a message, which is a registered address from the Messenger */
 struct Address
 {
@@ -59,10 +59,10 @@ public:
     Payload() : _data(nullptr), _size(0) {}
     Payload(const uint8_t* data, uint32_t size) :
         _data(data), _size(size) {}
-    
+
     const uint8_t* data() const { return _data; }
     uint32_t size() const { return _size; }
-    
+
 private:
     const uint8_t* _data;
     uint32_t _size;
@@ -90,7 +90,7 @@ public:
         /** Message is an error msg */
         kErrorFlag          = (1 << 15)
     };
-    
+
     Message() : _classId(0), _flags(0) {}
     Message(Address sender, ClassId classId) :
         _classId(classId),
@@ -110,14 +110,14 @@ public:
     bool queryCustomFlags(uint16_t mask) const { return (_customFlags & mask) != 0; }
     void setCustomFlags(uint16_t mask) { _customFlags |= mask; }
     void clearCustomFlags(uint16_t mask) { _customFlags &= ~mask; }
-    
+
 private:
-    friend class Messenger;
-    
+    friend struct MessengerBase;
+
     void setFlags(uint16_t mask) { _flags |= mask; }
     void clearFlags(uint16_t mask) { _flags &= ~mask; }
     void setSequenceId(uint32_t id) { _seqId = id; }
-    
+
     ClassId _classId;
     Address _sender;
     uint32_t _seqId;
@@ -126,13 +126,13 @@ private:
 };
 
 /**
- *  Identifies a request tracker.  
- *  
+ *  Identifies a request tracker.
+ *
  *  A Server's main mission is to reply to client requests.  Incoming requests
  *  must always be replied to.  Because requests might take some time to finish,
  *  responses are often delayed until the request has completed processing.
- *  
- *  In an asynchronous server, we'd then need to track requests, so that 
+ *
+ *  In an asynchronous server, we'd then need to track requests, so that
  *  repsonses contain the correct response class and sequence ID.
  */
 struct ServerRequestId

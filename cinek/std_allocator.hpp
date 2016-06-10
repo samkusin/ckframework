@@ -32,6 +32,8 @@
 #define CINEK_STD_ALLOCATOR_HPP
 
 #include <memory>
+
+namespace cinek {
 /**
  * @class std_allocator
  * @brief A std::allocator compliant allocator for STL containers.
@@ -159,5 +161,7 @@ unique_ptr<T, Allocator> allocate_unique(Args&&... args) {
     T* ptr = allocator.template newItem<T>(std::forward<Args>(args)...);
     return unique_ptr<T, Allocator>(ptr, allocator);
 }
+
+} // namespace cinek
 
 #endif

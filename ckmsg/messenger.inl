@@ -12,25 +12,6 @@
 #include <cstdlib>
 
 namespace ckmsg {
-
-template<typename Allocator> const uint8_t Messenger<Allocator>::kEncodedMessageHeader[4] = { 'm','e','s','g' };
-
-template<typename Allocator>
-void Messenger<Allocator>::encodeHeader(uint8_t* target, const uint8_t hdr[]) {
-    target[0] = hdr[0];
-    target[1] = hdr[1];
-    target[2] = hdr[2];
-    target[3] = hdr[3];
-}
-
-template<typename Allocator>
-bool Messenger<Allocator>::checkHeader(const uint8_t* input, const uint8_t hdr[]) {
-    return input[0]==hdr[0] &&
-           input[1]==hdr[1] &&
-           input[2]==hdr[2] &&
-           input[3]==hdr[3];
-}
-
 /*
     The Messenger collects messages into various send queues and dispatches
     them to their target receiver queues.  Helper classes such as 'Client' and
@@ -40,7 +21,8 @@ bool Messenger<Allocator>::checkHeader(const uint8_t* input, const uint8_t hdr[]
 
  */
 template<typename Allocator>
-Messenger<Allocator>::Messenger() :
+Messenger<Allocator>::Messenger(Allocator allocator) :
+    _allocator(allocator),
     _thisEndpointId(0)
 {
 }
@@ -49,8 +31,8 @@ template<typename Allocator>
 Address Messenger<Allocator>::createEndpoint(EndpointInitParams initParams)
 {
     Endpoint endpoint {
-        Buffer<Allocator>(initParams.sendSize),
-        Buffer<Allocator>(initParams.recvSize),
+        Buffer<Allocator>(initParams.sendSize, _allocator),
+        Buffer<Allocator>(initParams.recvSize, _allocator),
         0
     };
 
@@ -124,7 +106,7 @@ uint32_t Messenger<Allocator>::send
             sendBuffer.revertWrite();
             return 0;
         }
-        outMsg->setFlags(Message::kHasPayload);
+        setFlags(*outMsg, Message::kHasPayload);
 
         memcpy(outPayload, payload->data(), payloadSize);
     }
@@ -137,10 +119,10 @@ uint32_t Messenger<Allocator>::send
         seqId = sendPoint.thisSeqId;
     }
     else if (seqId != kNullSequenceId) {
-        outMsg->setFlags(Message::kIsReply);
+        setFlags(*outMsg, Message::kIsReply);
     }
 
-    outMsg->setSequenceId(seqId);
+    setSequenceId(*outMsg, seqId);
 
     //  finish write (note, we could've updated two times, message and payload.)
     //  since we don't yet support transmitting during send to free send space
