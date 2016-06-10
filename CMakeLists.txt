@@ -6,13 +6,12 @@ option(INCLUDE_CINEK_PROJECT    "CineK Common Utilities" ON)
 option(INCLUDE_CKMSG_PROJECT    "CineK Messaging" ON)
 option(INCLUDE_CKJSON_PROJECT   "CineK JSON (rapidjson)" ON)
 option(INCLUDE_CKM_PROJECT      "CineK Math" ON)
-option(INCLUDE_CKENTITY_PROJECT "CineK Entity" ON)
 option(INCLUDE_CKIO_PROJECT     "CineK File IO" ON)
 option(INCLUDE_CKFILE_PROJECT   "CineK File Streaming" ON)
 option(INCLUDE_CKTASK_PROJECT   "CineK Task Scheduler" ON)
 
-option(DISABLE_TESTS            "Do not build tests" ON)
-option(DISABLE_TARGETS          "Do not build targets" ON)
+option(DISABLE_CKFRAMEWORK_TESTS    "Do not build tests" ON)
+option(DISABLE_CKFRAMEWORK_TARGETS  "Do not build targets" ON)
 option(ENABLE_CXX_EXCEPTIONS    "Enable C++ Exceptions" OFF)
 option(ENABLE_CXX_RTTI          "Enable C++ RTTI" OFF)
 
@@ -44,10 +43,6 @@ if(INCLUDE_CKJSON_PROJECT)
     declare_subproject(ckjson)
 endif()
 
-if(INCLUDE_CKENTITY_PROJECT)
-    declare_subproject(ckentity)
-endif()
-
 if(INCLUDE_CKIO_PROJECT)
     declare_subproject(ckio)
 endif()
@@ -64,6 +59,12 @@ if(INCLUDE_CKM_PROJECT)
     declare_subproject(ckm)
 endif()
 
+# Testing
+if(NOT DISABLE_CKFRAMEWORK_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
 # Returns the files accumulated for the entire cinek project
 get_directory_property(HAS_PARENT_DIRECTORY PARENT_DIRECTORY)
 
@@ -73,10 +74,13 @@ if(HAS_PARENT_DIRECTORY)
 endif()
 
 # Setup target properties for building the static library
-if(NOT DISABLE_TARGETS)
+if(NOT DISABLE_CKFRAMEWORK_TARGETS)
     add_library(ckframework STATIC "${PROJECT_SOURCES}")
 
-    target_include_directories(ckframework PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_include_directories(ckframework PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:include>
+    )
 
     set_property(TARGET ckframework PROPERTY C_STANDARD 99)
     target_compile_features(ckframework PUBLIC
@@ -114,4 +118,4 @@ if(NOT DISABLE_TARGETS)
             target_compile_options(ckframework PRIVATE /GR-)
         endif()
     endif()
-endif(NOT DISABLE_TARGETS)
+endif(NOT DISABLE_CKFRAMEWORK_TARGETS)

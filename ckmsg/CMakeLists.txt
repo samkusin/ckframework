@@ -3,9 +3,7 @@ cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 project(ckmsg VERSION 0.1.0 LANGUAGES C CXX)
 
 # All subprojects
-set(PROJECT_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/messenger.cpp"
-   )
+set(PROJECT_SOURCES )
 
 set(PROJECT_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/buffer.hpp"
@@ -15,11 +13,6 @@ set(PROJECT_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/server.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/server.inl"
    )
-
-if(NOT DISABLE_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif(NOT DISABLE_TESTS)
 
 get_directory_property(HAS_PARENT_DIRECTORY PARENT_DIRECTORY)
 

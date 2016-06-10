@@ -11,8 +11,8 @@
 
 namespace ckmsg {
 
-template<typename _DelegateType>
-Server<_DelegateType>::Server
+template<typename _DelegateType, typename _Allocator>
+Server<_DelegateType, _Allocator>::Server
 (
     Messenger& messenger,
     EndpointInitParams params
@@ -23,15 +23,15 @@ Server<_DelegateType>::Server
     _endpoint = messenger.createEndpoint(params);
 }
 
-template<typename _DelegateType>
-Server<_DelegateType>::~Server()
+template<typename _DelegateType, typename _Allocator>
+Server<_DelegateType, _Allocator>::~Server()
 {
     _messenger->destroyEndpoint(_endpoint);
 }
 
 
-template<typename _DelegateType>
-void Server<_DelegateType>::on
+template<typename _DelegateType, typename _Allocator>
+void Server<_DelegateType, _Allocator>::on
 (
     ClassId classId,
     _DelegateType delegate
@@ -50,8 +50,8 @@ void Server<_DelegateType>::on
     }
 }
 
-template<typename _DelegateType>
-bool Server<_DelegateType>::receive()
+template<typename _DelegateType, typename _Allocator>
+bool Server<_DelegateType, _Allocator>::receive()
 {
     Payload payload;
     Message msg = _messenger->pollReceive(_endpoint, payload);
@@ -71,12 +71,12 @@ bool Server<_DelegateType>::receive()
         }
     }
     _messenger->pollEnd(_endpoint, true);
-    
+
     return (bool)(msg);
 }
 
-template<typename _DelegateType>
-void Server<_DelegateType>::reply
+template<typename _DelegateType, typename _Allocator>
+void Server<_DelegateType, _Allocator>::reply
 (
     ServerRequestId reqId,
     const Payload* payload
@@ -85,14 +85,14 @@ void Server<_DelegateType>::reply
     auto it = _activeRequests.find(reqId);
     if (it != _activeRequests.end()) {
         Message msg(_endpoint, reqId.classId);
-    
+
         _messenger->send(std::move(msg), it->second, payload, reqId.seqId);
         _activeRequests.erase(it);
     }
 }
 
-template<typename _DelegateType>
-void Server<_DelegateType>::transmit()
+template<typename _DelegateType, typename _Allocator>
+void Server<_DelegateType, _Allocator>::transmit()
 {
     _messenger->transmit(_endpoint);
 }

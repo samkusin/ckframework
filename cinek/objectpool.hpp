@@ -33,11 +33,10 @@
 
 #include "debug.h"
 #include "managed_handle.hpp"
-#include "allocator.hpp"
 
 namespace cinek {
 
-    template<typename _T, size_t _Align=CK_ARCH_ALIGN_BYTES>
+    template<typename _T, size_t _Align=CK_ARCH_ALIGN_BYTES, typename _Allocator=Allocator()>
     class ObjectPool
     {
         CK_CLASS_NON_COPYABLE(ObjectPool);
@@ -49,7 +48,7 @@ namespace cinek {
 
         ObjectPool();
         ObjectPool(size_t blockLimit,
-                   Allocator allocator=Allocator());
+                   _Allocator allocator=Allocator());
         ~ObjectPool();
 
         ObjectPool(ObjectPool&& other);
@@ -66,7 +65,7 @@ namespace cinek {
     private:
         void zeroVectors();
 
-        Allocator _allocator;
+        _Allocator _allocator;
         uint8_t* _first;
         uint8_t* _last;
         uint8_t* _limit;
@@ -75,7 +74,10 @@ namespace cinek {
         pointer* _freelimit;
     };
 
-    template<typename _Object, typename _Derived, size_t _PoolAlign=CK_ARCH_ALIGN_BYTES>
+    template<typename _Object,
+        typename _Derived,
+        size_t _PoolAlign=CK_ARCH_ALIGN_BYTES,
+        typename _Allocator=Allocator()>
     class ManagedObjectPoolBase
     {
         CK_CLASS_NON_COPYABLE(ManagedObjectPoolBase);
@@ -116,7 +118,7 @@ namespace cinek {
 
         void releaseRecordInternal(Record* record);
 
-        ObjectPool<Record, _PoolAlign> _recordsPool;
+        ObjectPool<Record, _PoolAlign, _Allocator> _recordsPool;
         Record* _head;
 
         void setOwnerRef(_Derived* owner);
@@ -133,9 +135,15 @@ namespace cinek {
      *
      *      void onReleaseManagedObject(Node& node);
      */
-    template<typename _Object, typename _Delegate, size_t _PoolAlign=CK_ARCH_ALIGN_BYTES>
+    template<typename _Object,
+        typename _Delegate,
+        size_t _PoolAlign=CK_ARCH_ALIGN_BYTES,
+        _Allocator=Allocator()>
     class ManagedObjectPool :
-        public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, _Delegate, _PoolAlign>, _PoolAlign>
+        public ManagedObjectPoolBase<_Object,
+            ManagedObjectPool<_Object, _Delegate, _PoolAlign, _Allocator>,
+            _PoolAlign,
+            _Allocator>
     {
         CK_CLASS_NON_COPYABLE(ManagedObjectPool);
 
@@ -164,15 +172,21 @@ namespace cinek {
         // MSVC 2015 does not resolve typename BaseType::Record properly during codegen
         //  - expanding BaseType seems to work
         //  - Clang (and likely GCC) do not have this problem
-        void releaseRecord(typename ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
+        void releaseRecord(typename ManagedObjectPoolBase<_Object,
+                                                ThisType,
+                                                _PoolAlign,
+                                                _Allocator>::Record* record);
 
         _Delegate _delegate;
     };
 
 
-    template<typename _Object, size_t _PoolAlign>
+    template<typename _Object, size_t _PoolAlign, typename _Allocator=Allocator()>
     class ManagedObjectPool<_Object, void, _PoolAlign> :
-        public ManagedObjectPoolBase<_Object, ManagedObjectPool<_Object, void, _PoolAlign>, _PoolAlign>
+        public ManagedObjectPoolBase<_Object,
+            ManagedObjectPool<_Object, void, _PoolAlign, _Allocator>,
+            _PoolAlign,
+            _Allocator>
     {
         CK_CLASS_NON_COPYABLE(ManagedObjectPool);
 
@@ -199,7 +213,7 @@ namespace cinek {
         // MSVC 2015 does not resolve typename BaseType::Record properly during codegen
         //  - expanding BaseType seems to work
         //  - Clang (and likely GCC) do not have this problem
-        void releaseRecord(typename ManagedObjectPoolBase<_Object, ThisType, _PoolAlign>::Record* record);
+        void releaseRecord(typename ManagedObjectPoolBase<_Object, ThisType, _PoolAlign, _Allocator>::Record* record);
     };
 
 } /* namespace cinek */

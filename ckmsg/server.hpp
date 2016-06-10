@@ -43,13 +43,13 @@ namespace ckmsg {
  *
  *  void cb(ServerRequestId reqId, const Payload* payload);
  */
-template<typename _DelegateType>
+template<typename _DelegateType, typename _Allocator>
 class Server
 {
 public:
-    Server(Messenger& messenger, EndpointInitParams params={256,256});
+    Server(Messenger<_Allocator>& messenger, EndpointInitParams params={256,256});
     ~Server();
-    
+
     /**
      *  Registers a command handler for the specified class.  Only one
      *  handler is allowed per notifcation.  Calls that specify a class with
@@ -89,9 +89,9 @@ public:
     Address address() const { return _endpoint; }
 
 private:
-    Messenger* _messenger;
+    Messenger<_Allocator>* _messenger;
     Address _endpoint;
-    
+
     std::vector<std::pair<ClassId, _DelegateType>> _classDelegates;
     std::unordered_map<ServerRequestId, Address> _activeRequests;
 };

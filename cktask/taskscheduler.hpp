@@ -42,6 +42,7 @@ namespace cinek {
      *  @class  TaskScheduler
      *  @brief  Manages cooperative execution and the lifecycle of tasks.
      */
+    template<typename Allocator>
     class TaskScheduler
     {
         CK_CLASS_NON_COPYABLE(TaskScheduler);
@@ -93,7 +94,9 @@ namespace cinek {
 
     private:
         intrusive_list<TaskListNode> _runList;
-        std::vector<unique_ptr<Task>, std_allocator<unique_ptr<Task>>> _tasks;
+        std::vector<
+            unique_ptr<Task, Allocator>,
+            std_allocator<unique_ptr<Task, Allocator>, Allocator>> _tasks;
         TaskId _currentHandle;
     };
 

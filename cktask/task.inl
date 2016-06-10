@@ -39,7 +39,8 @@
 
 namespace cinek {
 
-Task::Task(EndCallback cb) :
+template<typename Allocator>
+Task<Allocator>::Task(EndCallback cb) :
     _state(State::kIdle),
     _schedulerHandle(0),
     _endCb(cb),
@@ -47,34 +48,40 @@ Task::Task(EndCallback cb) :
 {
 }
 
-void Task::setNextTask(unique_ptr<Task>&& task)
+template<typename Allocator>
+void Task<Allocator>::setNextTask(unique_ptr<Task>&& task)
 {
     _nextTask = std::move(task);
 }
 
-void Task::cancel()
+template<typename Allocator>
+void Task<Allocator>::cancel()
 {
     _state = State::kCanceled;
 }
 
-void Task::end()
+template<typename Allocator>
+void Task<Allocator>::end()
 {
     _state = State::kEnded;
 }
 
-void Task::fail()
+template<typename Allocator>
+void Task<Allocator>::fail()
 {
     _state = State::kFailed;
 }
 
-void Task::onEnd()
+template<typename Allocator>
+void Task<Allocator>::onEnd()
 {
     if (_endCb) {
         _endCb(State::kEnded, *this, _schedulerContext);
     }
 }
 
-void Task::onFail()
+template<typename Allocator>
+void Task<Allocator>::onFail()
 {
     if (_endCb) {
         _endCb(State::kFailed, *this, _schedulerContext);

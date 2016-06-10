@@ -1,5 +1,5 @@
 //
-//  messenger.cpp
+//  messenger.inl
 //  SampleCommon
 //
 //  Created by Samir Sinha on 11/16/15.
@@ -13,33 +13,22 @@
 
 namespace ckmsg {
 
+template<typename Allocator> const uint8_t Messenger<Allocator>::kEncodedMessageHeader[4] = { 'm','e','s','g' };
 
-static const size_t kEncodedHeaderSize = 4;
-static const uint8_t kEncodedMessageHeader[kEncodedHeaderSize] = { 'm','e','s','g' };
-
-inline void encodeHeader(uint8_t* target, const uint8_t hdr[]) {
+template<typename Allocator>
+void Messenger<Allocator>::encodeHeader(uint8_t* target, const uint8_t hdr[]) {
     target[0] = hdr[0];
     target[1] = hdr[1];
     target[2] = hdr[2];
     target[3] = hdr[3];
 }
 
-inline bool checkHeader(const uint8_t* input, const uint8_t hdr[]) {
+template<typename Allocator>
+bool Messenger<Allocator>::checkHeader(const uint8_t* input, const uint8_t hdr[]) {
     return input[0]==hdr[0] &&
            input[1]==hdr[1] &&
            input[2]==hdr[2] &&
            input[3]==hdr[3];
-}
-
-
-uint8_t* Allocator::allocate(size_t sz)
-{
-    return (uint8_t*)std::malloc(sz);
-}
-
-void Allocator::free(uint8_t* p)
-{
-    std::free(p);
 }
 
 /*
@@ -50,12 +39,14 @@ void Allocator::free(uint8_t* p)
     Some implementation notes:
 
  */
-Messenger::Messenger() :
+template<typename Allocator>
+Messenger<Allocator>::Messenger() :
     _thisEndpointId(0)
 {
 }
 
-Address Messenger::createEndpoint(EndpointInitParams initParams)
+template<typename Allocator>
+Address Messenger<Allocator>::createEndpoint(EndpointInitParams initParams)
 {
     Endpoint endpoint {
         Buffer<Allocator>(initParams.sendSize),
@@ -78,12 +69,14 @@ Address Messenger::createEndpoint(EndpointInitParams initParams)
     return result;
 }
 
-void Messenger::destroyEndpoint(Address endp)
+template<typename Allocator>
+void Messenger<Allocator>::destroyEndpoint(Address endp)
 {
     _endpoints.erase(endp.id);
 }
 
-uint32_t Messenger::send
+template<typename Allocator>
+uint32_t Messenger<Allocator>::send
 (
     Message&& msg,
     Address receiver,
@@ -91,6 +84,7 @@ uint32_t Messenger::send
     uint32_t seqId
 )
 {
+    constexpr size_t kEncodedHeaderSize = sizeof(kEncodedMessageHeader);
     // create message and add it to the sender queue
     auto it = _endpoints.find(msg.sender().id);
     if (it == _endpoints.end())
@@ -159,8 +153,10 @@ uint32_t Messenger::send
     return seqId;
 }
 
-void Messenger::transmit(Address sender)
+template<typename Allocator>
+void Messenger<Allocator>::transmit(Address sender)
 {
+    constexpr size_t kEncodedHeaderSize = sizeof(kEncodedMessageHeader);
     auto endpIt = _endpoints.find(sender.id);
     if (endpIt == _endpoints.end())
         return;
@@ -181,7 +177,7 @@ void Messenger::transmit(Address sender)
     //
     while (sendBuffer.readSizeContiguous(kEncodedHeaderSize + sizeof(Address))) {
 
-        const uint8_t* hdrpacket = sendBuffer.readp(kEncodedHeaderSize + sizeof(Address));
+        const uint8_t* hdrpacket = sendBuffer.readp(sizeof(kEncodedMessageHeader) + sizeof(Address));
         const Address& address = *reinterpret_cast<const Address*>(
             hdrpacket+kEncodedHeaderSize
         );
@@ -307,13 +303,15 @@ void Messenger::transmit(Address sender)
     }
 }
 
-Message Messenger::pollReceive
+template<typename Allocator>
+Message Messenger<Allocator>::pollReceive
 (
     Address receiver,
     Payload& payload
 )
 {
     Message msg;
+    constexpr size_t kEncodedHeaderSize = sizeof(kEncodedMessageHeader);
 
     auto endpIt = _endpoints.find(receiver.id);
     if (endpIt != _endpoints.end()) {
@@ -345,7 +343,8 @@ Message Messenger::pollReceive
     return msg;
 }
 
-void Messenger::pollEnd(Address receiver, bool consume)
+template<typename Allocator>
+void Messenger<Allocator>::pollEnd(Address receiver, bool consume)
 {
     auto endpIt = _endpoints.find(receiver.id);
     if (endpIt != _endpoints.end()) {

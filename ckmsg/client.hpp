@@ -39,13 +39,13 @@ namespace ckmsg {
  *  operator bool()
  *  support move
  */
-template<typename _DelegateType>
+template<typename _DelegateType, typename _Allocator>
 class Client
 {
 public:
-    Client(Messenger& messenger, EndpointInitParams params);
+    Client(Messenger<_Allocator>& messenger, EndpointInitParams params);
     ~Client();
-    
+
     /**
      *  Sends a message to the target with an optional callback on response
      *  from the server.
@@ -58,7 +58,7 @@ public:
      */
     uint32_t send(Address target, ClassId classId,
                   _DelegateType delegate=_DelegateType());
-    
+
     /**
      *  Sends a message with payload to the target with an optional callback
      *  on response from the server.
@@ -112,15 +112,15 @@ public:
      *  @return returns the address for this client.
      */
     Address address() const { return _endpoint; }
-    
+
 private:
-    Messenger* _messenger;
+    Messenger<_Allocator>* _messenger;
     Address _endpoint;
-    
+
     std::vector<std::pair<uint32_t, _DelegateType>> _sequenceDelegates;
     std::vector<std::pair<ClassId, _DelegateType>> _classDelegates;
 };
-    
+
 }   /* namespace ckmsg */
 
 

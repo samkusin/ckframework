@@ -6,8 +6,6 @@ project(cinek VERSION 0.1.0 LANGUAGES C CXX)
 set(PROJECT_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/memory.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/uuid.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/memorystack.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/cstringstack.cpp"
    )
 
 if(CMAKE_BUILD_TYPE EQUAL Debug OR CMAKE_BUILD_TYPE EQUAL RelWithDebInfo)
@@ -35,11 +33,6 @@ set(PROJECT_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/intrusive_list.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/circular_queue.hpp"
    )
-
-if(NOT DISABLE_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif(NOT DISABLE_TESTS)
 
 get_directory_property(HAS_PARENT_DIRECTORY PARENT_DIRECTORY)
 

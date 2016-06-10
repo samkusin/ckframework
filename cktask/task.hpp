@@ -40,7 +40,7 @@
 
 #include <cinek/ckdefs.h>
 #include <cinek/uuid.hpp>
-#include <cinek/allocator.hpp>
+#include <cinek/std_allocator.hpp>
 
 #include <cstdint>
 #include <functional>
@@ -67,6 +67,7 @@ namespace cinek {
      * @class Task
      * @brief A unit of execution managed by the TaskScheduler
      */
+    template<typename Allocator>
     class Task : public TaskListNode
     {
     public:
@@ -151,7 +152,7 @@ namespace cinek {
 
         State _state;
         TaskId _schedulerHandle;
-        unique_ptr<Task> _nextTask;
+        unique_ptr<Task, Allocator> _nextTask;
         EndCallback _endCb;
         void *_schedulerContext;
     };

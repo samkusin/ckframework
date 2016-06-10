@@ -14,10 +14,10 @@
 
 namespace ckmsg {
 
-template<typename _Delegate>
-Client<_Delegate>::Client
+template<typename _Delegate, typename _Allocator>
+Client<_Delegate, _Allocator>::Client
 (
-    Messenger& messenger,
+    Messenger<_Allocator>& messenger,
     EndpointInitParams initParams
 ) :
     _messenger(&messenger),
@@ -27,14 +27,14 @@ Client<_Delegate>::Client
     _classDelegates.reserve(64);
 }
 
-template<typename _Delegate>
-Client<_Delegate>::~Client()
+template<typename _Delegate, typename _Allocator>
+Client<_Delegate, _Allocator>::~Client()
 {
     _messenger->destroyEndpoint(_endpoint);
 }
-    
-template<typename _Delegate>
-uint32_t Client<_Delegate>::send
+
+template<typename _Delegate, typename _Allocator>
+uint32_t Client<_Delegate, _Allocator>::send
 (
     Address target,
     ClassId classId,
@@ -44,8 +44,8 @@ uint32_t Client<_Delegate>::send
     return send(target, classId, Payload(), delegate);
 }
 
-template<typename _Delegate>
-uint32_t Client<_Delegate>::send
+template<typename _Delegate, typename _Allocator>
+uint32_t Client<_Delegate, _Allocator>::send
 (
     Address target,
     ClassId classId,
@@ -85,15 +85,15 @@ void Client<_DelegateType>::on(ClassId classId, _DelegateType delegate)
     }
 }
 
-template<typename _Delegate>
-void Client<_Delegate>::transmit()
+template<typename _Delegate, typename _Allocator>
+void Client<_Delegate, _Allocator>::transmit()
 {
     _messenger->transmit(_endpoint);
 }
 
 
-template<typename _Delegate>
-bool Client<_Delegate>::receive()
+template<typename _Delegate, typename _Allocator>
+bool Client<_Delegate, _Allocator>::receive()
 {
     Payload payload;
     Message msg = _messenger->pollReceive(_endpoint, payload);
@@ -125,7 +125,7 @@ bool Client<_Delegate>::receive()
         }
     }
     _messenger->pollEnd(_endpoint, true);
-    
+
     return (bool)msg;
 }
 

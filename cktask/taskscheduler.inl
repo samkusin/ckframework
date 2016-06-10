@@ -35,19 +35,22 @@
 
 namespace cinek {
 
-bool operator<(const unique_ptr<Task>& l, TaskId r)
+template<typename Allocator>
+bool operator<(const unique_ptr<Task, Allocator>& l, TaskId r)
 {
     return l.get()->id() < r;
 }
 
-TaskScheduler::TaskScheduler(uint32_t taskLimit, const Allocator& allocator) :
+template<typename Allocator>
+TaskScheduler<Allocator>::TaskScheduler(uint32_t taskLimit, const Allocator& allocator) :
     _tasks(allocator),
     _currentHandle(0)
 {
     _tasks.reserve(taskLimit);
 }
 
-TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
+template<typename Allocator>
+TaskId TaskScheduler<Allocator>::schedule(unique_ptr<Task>&& task, void* context)
 {
     ++_currentHandle;
     if (!_currentHandle)
@@ -74,7 +77,8 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
     return _currentHandle;
 }
 
-void TaskScheduler::cancel(TaskId taskHandle)
+template<typename Allocator>
+void TaskScheduler<Allocator>::cancel(TaskId taskHandle)
 {
     auto it = std::lower_bound(_tasks.begin(), _tasks.end(), taskHandle);
     if (it == _tasks.end() || (*it).get()->id() != taskHandle)
@@ -83,7 +87,8 @@ void TaskScheduler::cancel(TaskId taskHandle)
     (*it).get()->cancel();
 }
 
-bool TaskScheduler::isActive(TaskId taskHandle)
+template<typename Allocator>
+bool TaskScheduler<Allocator>::isActive(TaskId taskHandle)
 {
     auto it = std::lower_bound(_tasks.begin(), _tasks.end(), taskHandle);
     if (it == _tasks.end() || (*it).get()->id() != taskHandle)
@@ -92,7 +97,8 @@ bool TaskScheduler::isActive(TaskId taskHandle)
     return true;
 }
 
-void TaskScheduler::cancelAll(void* context)
+template<typename Allocator>
+void TaskScheduler<Allocator>::cancelAll(void* context)
 {
     for (auto& tp : _tasks)
     {
@@ -102,7 +108,8 @@ void TaskScheduler::cancelAll(void* context)
     }
 }
 
-void TaskScheduler::update(uint32_t deltaTimeMs)
+template<typename Allocator>
+void TaskScheduler<Allocator>::update(uint32_t deltaTimeMs)
 {
     auto taskIt = _runList.begin();
 
