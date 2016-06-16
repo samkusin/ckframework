@@ -67,9 +67,9 @@ g_cinek_memoryProvider[16] =
         {
             &DefaultAlloc,
             &DefaultAllocAlign,
+            &DefaultRealloc,
             &DefaultFree,
             &DefaultFreeAlign,
-            &DefaultRealloc,
             NULL
         }
     },
