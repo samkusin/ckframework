@@ -5,6 +5,9 @@
 //  Created by Samir Sinha on 9/26/15.
 //
 //
+//
+
+#include "objectpool.hpp"
 
 namespace cinek {
 
@@ -143,7 +146,7 @@ namespace cinek {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    template<typename _Object, typename _Derived, size_t _PoolAlign, typename _Allocator>
+    template<typename _Object, typename _Derived, typename _Allocator, size_t _PoolAlign>
     ManagedObjectPoolBase<_Object, _Derived,  _Allocator, _PoolAlign>::ManagedObjectPoolBase() :
         _head(nullptr),
         _ownerRef(nullptr)
@@ -187,8 +190,7 @@ namespace cinek {
         //  derived destructors take care of this since each derived impl
         //  can have its own destruction strategy
         if (_ownerRef) {
-            Allocator allocator;
-            allocator.free(_ownerRef);
+            _recordsPool.allocator().free(_ownerRef);
             _ownerRef = nullptr;
         }
         _head = nullptr;    // memory invalidated by recordspool cleanup
@@ -272,7 +274,7 @@ namespace cinek {
         _recordsPool.destruct(record);
     }
 
-    template<typename _Object, typename _Delegate, typename _Allocator, size_t _PoolAlign>
+    template<typename _Object, typename _Derived, typename _Allocator, size_t _PoolAlign>
     void ManagedObjectPoolBase<_Object, _Derived, _Allocator, _PoolAlign>::setOwnerRef(_Derived* owner)
     {
         if (_ownerRef) {
@@ -405,8 +407,8 @@ namespace cinek {
     ) :
         ManagedObjectPoolBase<_Object,
             ManagedObjectPool<_Object, void, _Allocator, _PoolAlign>,
-            _PoolAlign
-            _Allocator>(
+            _Allocator,
+            _PoolAlign>(
                 count,
                 allocator
             )
@@ -421,8 +423,8 @@ namespace cinek {
     noexcept :
         ManagedObjectPoolBase<_Object,
             ManagedObjectPool<_Object, void, _Allocator, _PoolAlign>,
-            _PoolAlign,
-            _Allocator>(std::move(other))
+            _Allocator,
+            _PoolAlign>(std::move(other))
     {
     }
 
@@ -445,7 +447,7 @@ namespace cinek {
     }
 
     template<typename _Object, typename _Allocator, size_t _PoolAlign>
-    void ManagedObjectPool<_Object, void, _PoolAlign, _Allocator>::releaseRecord
+    void ManagedObjectPool<_Object, void, _Allocator, _PoolAlign>::releaseRecord
     (
         typename ManagedObjectPoolBase<_Object, ThisType, _Allocator, _PoolAlign>::Record *record
     )

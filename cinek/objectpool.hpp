@@ -54,6 +54,7 @@ namespace cinek {
         ObjectPool(ObjectPool&& other);
         ObjectPool& operator=(ObjectPool&& other);
 
+        _Allocator allocator() const { return _allocator; }
         size_t blockLimit() const { return (_limit - _first); }
         size_t blockCount() const { return (_last - _first); }
 
