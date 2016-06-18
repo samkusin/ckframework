@@ -112,7 +112,7 @@ public:
     void clearCustomFlags(uint16_t mask) { _customFlags &= ~mask; }
 
 private:
-    friend struct MessengerBase;
+    friend struct EndpointBase;
 
     void setFlags(uint16_t mask) { _flags |= mask; }
     void clearFlags(uint16_t mask) { _flags &= ~mask; }

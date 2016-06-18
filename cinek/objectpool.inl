@@ -119,6 +119,7 @@ namespace cinek {
         }
 
         CK_ASSERT(p);
+
         if (p)
         {
             ::new(p) _T(std::forward<Args>(args)...);
@@ -126,6 +127,34 @@ namespace cinek {
 
         return p;
     }
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    auto ObjectPool<_T, _Allocator, _Align>::construct() -> pointer
+    {
+        pointer p = nullptr;
+        if (_freefirst != _freelast)
+        {
+            --_freelast;
+            p = *_freelast;
+        }
+        else if (_last < _limit)
+        {
+            p = reinterpret_cast<pointer>(_last);
+            _last += CK_ALIGN_SIZE(sizeof(_T), _Align);
+            CK_ASSERT(_last <= _limit);
+        }
+
+        CK_ASSERT(p);
+
+        if (p)
+        {
+            ::new(p) _T();
+        }
+
+        return p;
+    }
+
+
 
     template<typename _T, typename _Allocator, size_t _Align>
     void ObjectPool<_T, _Allocator, _Align>::destruct(pointer p)

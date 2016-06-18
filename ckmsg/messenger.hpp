@@ -10,35 +10,22 @@
 #define CINEK_MSG_MESSENGER_HPP
 
 #include "message.hpp"
-#include "buffer.hpp"
+#include "endpoint.hpp"
 
-#include <vector>
 #include <unordered_map>
 
 namespace ckmsg {
 
-struct MessengerBase
-{
-    static const uint8_t kEncodedMessageHeader[4];
-
-    void encodeHeader(uint8_t* target, const uint8_t hdr[]);
-    bool checkHeader(const uint8_t* input, const uint8_t hdr[]);
-
-    void setFlags(Message& msg, uint16_t mask) { msg.setFlags(mask); }
-    void clearFlags(Message& msg, uint16_t mask) { msg.clearFlags(mask); }
-    void setSequenceId(Message& msg,uint32_t id) { msg.setSequenceId(id); }
-};
-
 template<typename Allocator>
-class Messenger : MessengerBase
+class Messenger
 {
 public:
     Messenger(Allocator allocator);
     Messenger(const Messenger& ) = delete;
     Messenger& operator=(const Messenger& ) = delete;
 
-    Address createEndpoint(EndpointInitParams params);
-    void destroyEndpoint(Address endp);
+    Address attachEndpoint(Endpoint<Allocator>&& endpoint);
+    Endpoint<Allocator> detachEndpoint(Address endp);
 
     uint32_t send(Message&& msg, Address receiver,
                   const Payload* payload,
@@ -70,15 +57,8 @@ public:
     void pollEnd(Address receiver, bool consume);
 
 private:
-    struct Endpoint
-    {
-        Buffer<Allocator> sendBuffer;
-        Buffer<Allocator> recvBuffer;
-
-        uint32_t thisSeqId;
-    };
     Allocator _allocator;
-    std::unordered_map<uint32_t, Endpoint> _endpoints;
+    std::unordered_map<uint32_t, Endpoint<Allocator>> _endpoints;
     uint32_t _thisEndpointId;
 };
 

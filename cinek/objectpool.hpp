@@ -59,6 +59,7 @@ namespace cinek {
         size_t blockCount() const { return (_last - _first); }
 
         template<typename... Args> pointer construct(Args&&... args);
+        pointer construct();
         void destruct(pointer p);
 
         bool verify(pointer p) const;

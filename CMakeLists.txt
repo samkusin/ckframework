@@ -25,37 +25,121 @@ set(PROJECT_SOURCES  )
 set(PROJECT_INCLUDES  )
 
 macro(declare_subproject name)
-    add_subdirectory(${name})
+    #add_subdirectory(${name})
     source_group(${name} FILES ${${name}_SOURCES} ${${name}_INCLUDES})
     set(PROJECT_SOURCES ${PROJECT_SOURCES} ${${name}_SOURCES})
     set(PROJECT_INCLUDES ${PROJECT_INCLUDES} ${${name}_INCLUDES})
 endmacro(declare_subproject)
 
 if(INCLUDE_CINEK_PROJECT)
+    set(cinek_SOURCES
+        "cinek/memory.c"
+        "cinek/debug.c"
+        "cinek/uuid.cpp"
+       )
+    set(cinek_INCLUDES
+        "cinek/ckdefs.h"
+        "cinek/ckopts.h"
+        "cinek/debug.h"
+        "cinek/memory.h"
+        "cinek/uuid.hpp"
+        "cinek/allocator.hpp"
+        "cinek/buffer.hpp"
+        "cinek/memorystack.hpp"
+        "cinek/cstringstack.hpp"
+        "cinek/managed_handle.hpp"
+        "cinek/managed_handle.inl"
+        "cinek/objectpool.hpp"
+        "cinek/objectpool.inl"
+        "cinek/managed_dictionary.hpp"
+        "cinek/intrusive_list.hpp"
+        "cinek/circular_queue.hpp"
+       )
     declare_subproject(cinek)
 endif()
 
 if(INCLUDE_CKMSG_PROJECT)
+    set(ckmsg_SOURCES
+        "ckmsg/endpoint.cpp"
+        )
+    set(ckmsg_INCLUDES
+        "ckmsg/buffer.hpp"
+        "ckmsg/message.hpp"
+        "ckmsg/endpoint.hpp"
+        "ckmsg/endpoint.inl"
+        "ckmsg/messenger.hpp"
+        "ckmsg/messenger.inl"
+        "ckmsg/client.hpp"
+        "ckmsg/client.inl"
+        "ckmsg/server.hpp"
+        "ckmsg/server.inl"
+       )
     declare_subproject(ckmsg)
 endif()
 
 if(INCLUDE_CKJSON_PROJECT)
+    file(GLOB_RECURSE RAPIDJSON_INCLUDES
+         RELATIVE "ckjson"
+         rapidjson/*.h
+         )
+    set(ckjson_SOURCES
+        "ckjson/json.cpp"
+        )
+    set(ckjson_INCLUDES
+        "ckjson/jsontypes.hpp"
+        "ckjson/json.hpp"
+        "ckjson/jsonstreambuf.hpp"
+        ${RAPIDJSON_INCLUDES}
+        )
     declare_subproject(ckjson)
 endif()
 
 if(INCLUDE_CKIO_PROJECT)
+    set(ckio_SOURCES
+        "ckio/file.c"
+       )
+    set(ckio_INCLUDES
+        "ckio/file.h"
+       )
     declare_subproject(ckio)
 endif()
 
 if(INCLUDE_CKFILE_PROJECT)
+    set(ckfilestream_SOURCES
+        "ckfilestream/file.cpp"
+       )
+    set(ckfilestream_INCLUDES
+        "ckfilestream/file.hpp"
+        "ckfilestream/filestreambuf.hpp"
+       )
     declare_subproject(ckfilestream)
 endif()
 
 if(INCLUDE_CKTASK_PROJECT)
+    set(cktask_SOURCES )
+    set(cktask_INCLUDES
+        "cktask/task.hpp"
+        "cktask/taskscheduler.hpp"
+        "cktask/task.inl"
+        "cktask/taskscheduler.inl"
+       )
     declare_subproject(cktask)
 endif()
 
 if(INCLUDE_CKM_PROJECT)
+    set(ckm_SOURCES )
+    set(ckm_INCLUDES
+        "ckm/aabb.hpp"
+        "ckm/mathtypes.hpp"
+        "ckm/mathtypes.inl"
+        "ckm/math.inl"
+        "ckm/equation.hpp"
+        "ckm/equation.inl"
+        "ckm/keyframe.hpp"
+        "ckm/keyframe.inl"
+        "ckm/sequence.hpp"
+        "ckm/sequence.inl"
+       )
     declare_subproject(ckm)
 endif()
 
@@ -118,4 +202,13 @@ if(NOT DISABLE_CKFRAMEWORK_TARGETS)
             target_compile_options(ckframework PRIVATE /GR-)
         endif()
     endif()
+
+    install(TARGETS ckframework
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        )
+    install(FILES ${PROJECT_INCLUDES}
+        DESTINATION include
+        )
+
 endif(NOT DISABLE_CKFRAMEWORK_TARGETS)

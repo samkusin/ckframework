@@ -1,10 +1,10 @@
 
-#include "messenger.hpp"
+#include "endpoint.hpp"
 
 namespace ckmsg {
-    const uint8_t MessengerBase::kEncodedMessageHeader[4] = { 'm','e','s','g' };
+    const uint8_t EndpointBase::kEncodedMessageHeader[4] = { 'm','e','s','g' };
 
-    void MessengerBase::encodeHeader(uint8_t* target, const uint8_t hdr[])
+    void EndpointBase::encodeHeader(uint8_t* target, const uint8_t hdr[])
     {
         target[0] = hdr[0];
         target[1] = hdr[1];
@@ -12,7 +12,7 @@ namespace ckmsg {
         target[3] = hdr[3];
     }
 
-    bool MessengerBase::checkHeader(const uint8_t* input, const uint8_t hdr[])
+    bool EndpointBase::checkHeader(const uint8_t* input, const uint8_t hdr[])
     {
         return input[0]==hdr[0] &&
                input[1]==hdr[1] &&
