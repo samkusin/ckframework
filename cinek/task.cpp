@@ -41,7 +41,7 @@ namespace cinek {
 
 Task::Task(EndCallback cb) :
     _state(State::kIdle),
-    _schedulerHandle(kNullHandle),
+    _schedulerHandle(0),
     _endCb(cb),
     _schedulerContext(nullptr)
 {

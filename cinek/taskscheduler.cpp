@@ -60,7 +60,7 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
         {
             CK_LOG_ERROR("TaskScheduler", "Handle %u already exists in task list!",
                          _currentHandle);
-            return kNullHandle;
+            return 0;
         }
     }
     //  add to our processing list
