@@ -18,10 +18,10 @@ template<typename _Delegate, typename _Allocator>
 Client<_Delegate, _Allocator>::Client
 (
     Messenger<_Allocator>& messenger,
-    EndpointInitParams initParams
+    Endpoint<_Allocator> endpoint
 ) :
     _messenger(&messenger),
-    _endpoint(_messenger->createEndpoint(initParams))
+    _endpoint(_messenger->attachEndpoint(std::move(endpoint)))
 {
     _sequenceDelegates.reserve(64);
     _classDelegates.reserve(64);
@@ -30,7 +30,7 @@ Client<_Delegate, _Allocator>::Client
 template<typename _Delegate, typename _Allocator>
 Client<_Delegate, _Allocator>::~Client()
 {
-    _messenger->destroyEndpoint(_endpoint);
+    _messenger->detachEndpoint(_endpoint);
 }
 
 template<typename _Delegate, typename _Allocator>
@@ -38,10 +38,11 @@ uint32_t Client<_Delegate, _Allocator>::send
 (
     Address target,
     ClassId classId,
+    TagId tag,
     _Delegate delegate
 )
 {
-    return send(target, classId, Payload(), delegate);
+    return send(target, classId, tag, Payload(), delegate);
 }
 
 template<typename _Delegate, typename _Allocator>
@@ -49,11 +50,13 @@ uint32_t Client<_Delegate, _Allocator>::send
 (
     Address target,
     ClassId classId,
+    TagId tag,
     const Payload& payload,
     _Delegate delegate
 )
 {
     Message msg(_endpoint, classId);
+    msg.setTag(tag);
     uint32_t seqId = _messenger->send(std::move(msg), target, &payload, kAssignSequenceId);
     if (seqId && delegate) {
         auto it = std::lower_bound(_sequenceDelegates.begin(), _sequenceDelegates.end(),
@@ -68,8 +71,8 @@ uint32_t Client<_Delegate, _Allocator>::send
     return seqId;
 }
 
-template<typename _DelegateType>
-void Client<_DelegateType>::on(ClassId classId, _DelegateType delegate)
+template<typename _DelegateType, typename _Allocator>
+void Client<_DelegateType, _Allocator>::on(ClassId classId, _DelegateType delegate)
 {
     auto it = std::lower_bound(_classDelegates.begin(), _classDelegates.end(),
         classId,
@@ -80,8 +83,7 @@ void Client<_DelegateType>::on(ClassId classId, _DelegateType delegate)
         it->second = std::move(delegate);
     }
     else {
-        _classDelegates.emplace(it, classId,
-        std::move(delegate));
+        _classDelegates.emplace(it, classId, std::move(delegate));
     }
 }
 
@@ -91,13 +93,13 @@ void Client<_Delegate, _Allocator>::transmit()
     _messenger->transmit(_endpoint);
 }
 
-
 template<typename _Delegate, typename _Allocator>
-bool Client<_Delegate, _Allocator>::receive()
+bool Client<_Delegate, _Allocator>::receiveOne(TagId tag)
 {
     Payload payload;
     Message msg = _messenger->pollReceive(_endpoint, payload);
-    if (msg)
+    //  filter by tag if a tag is specified.  
+    if (msg && (!tag || (msg.tagId() && tag == msg.tagId())))
     {
         //  if a reply, check sequence delegates
         if (msg.queryFlag(Message::kIsReply)) {
@@ -127,6 +129,13 @@ bool Client<_Delegate, _Allocator>::receive()
     _messenger->pollEnd(_endpoint, true);
 
     return (bool)msg;
+}
+
+
+template<typename _DelegateType, typename _Allocator>
+void Client<_DelegateType, _Allocator>::receive(TagId tag)
+{
+    while (receiveOne(tag)) {}
 }
 
 }   /* namespace ckmsg */

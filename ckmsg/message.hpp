@@ -33,6 +33,8 @@ struct Address
 
 /** Identifies the message */
 using ClassId = uint32_t;
+/** Tags messages, allowing messages to belong to a group */
+using TagId = uint32_t;
 
 /** Parameters for initializing an endpoint */
 struct EndpointInitParams
@@ -96,6 +98,7 @@ public:
         _classId(classId),
         _sender(sender),
         _seqId(0),
+        _tagId(0),
         _customFlags(0),
         _flags(0)
     {
@@ -110,7 +113,10 @@ public:
     bool queryCustomFlags(uint16_t mask) const { return (_customFlags & mask) != 0; }
     void setCustomFlags(uint16_t mask) { _customFlags |= mask; }
     void clearCustomFlags(uint16_t mask) { _customFlags &= ~mask; }
-
+    
+    void setTag(TagId tag) { _tagId = tag; }
+    TagId tagId() const { return _tagId; }
+    
 private:
     friend struct EndpointBase;
 
@@ -118,9 +124,10 @@ private:
     void clearFlags(uint16_t mask) { _flags &= ~mask; }
     void setSequenceId(uint32_t id) { _seqId = id; }
 
-    ClassId _classId;
     Address _sender;
+    ClassId _classId;
     uint32_t _seqId;
+    TagId _tagId;
     uint16_t _customFlags;
     uint16_t _flags;
 };

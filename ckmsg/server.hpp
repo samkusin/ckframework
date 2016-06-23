@@ -10,6 +10,7 @@
 #define CINEK_MSG_SERVER_HPP
 
 #include "message.hpp"
+#include "endpoint.hpp"
 
 #include <vector>
 #include <unordered_map>
@@ -47,7 +48,7 @@ template<typename _DelegateType, typename _Allocator>
 class Server
 {
 public:
-    Server(Messenger<_Allocator>& messenger, EndpointInitParams params={256,256});
+    Server(Messenger<_Allocator>& messenger, Endpoint<_Allocator> endpoint);
     ~Server();
 
     /**
@@ -70,7 +71,14 @@ public:
      *
      *  @return False if there are no more messages on the receive buffer
      */
-    bool receive();
+    bool receiveOne();
+    /**
+     *  Receives all messages targeted for this endpoint (via localAddress).
+     *  This call will run until all messages have been processed.  It's offered
+     *  as a convenience method if an application's expected to process its
+     *  entire receive queue in one call.
+     */
+    void receive();
     /**
      *  Reply to an active request.
      *
@@ -93,7 +101,11 @@ private:
     Address _endpoint;
 
     std::vector<std::pair<ClassId, _DelegateType>> _classDelegates;
-    std::unordered_map<ServerRequestId, Address> _activeRequests;
+    struct ActiveRequest {
+        Address adr;
+        TagId tag;
+    };
+    std::unordered_map<ServerRequestId, ActiveRequest> _activeRequests;
 };
 
 } /* namespace ckmsg */

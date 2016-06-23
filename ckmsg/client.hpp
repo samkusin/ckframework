@@ -16,6 +16,7 @@
 #define CINEK_MSG_CLIENT_HPP
 
 #include "message.hpp"
+#include "endpoint.hpp"
 
 #include <vector>
 
@@ -31,10 +32,7 @@ namespace ckmsg {
  *  The Client's _Delegate must be a callable object that conforms to the
  *  following signature:
  *
- *  bool callback(ResultType result, ClassId classId, const Payload* payload);
- *      ; returns true if message handled, false if it's kept on the queue
- *      ; returning false will hold the client's receive queue until it
- *      ; processes the message.
+ *  void callback(uint32_t seqId, ClassId classId, const Payload* payload);
  *
  *  operator bool()
  *  support move
@@ -43,7 +41,7 @@ template<typename _DelegateType, typename _Allocator>
 class Client
 {
 public:
-    Client(Messenger<_Allocator>& messenger, EndpointInitParams params);
+    Client(Messenger<_Allocator>& messenger, Endpoint<_Allocator> endpoint);
     ~Client();
 
     /**
@@ -52,11 +50,13 @@ public:
      *
      *  @param  target          The destination for the message
      *  @param  classId         The message class
+     *  @param  tag             The message tag (0 if not used for filtering)
      *  @param  delegate        The callback invoked upon response from the
      *                          server of the sent message
      *  @return A sequence ID or 0 (failed)
      */
     uint32_t send(Address target, ClassId classId,
+                  TagId tag,
                   _DelegateType delegate=_DelegateType());
 
     /**
@@ -65,12 +65,14 @@ public:
      *
      *  @param  target          The destination for the message
      *  @param  classId         The message class
+     *  @param  tag             The message tag (0 if not used for filtering)
      *  @param  payload         The message payload
      *  @param  delegate        The callback invoked upon response from the
      *                          server of the sent message
      *  @return A sequence ID or 0 (failed)
      */
     uint32_t send(Address target, ClassId classId,
+                  TagId tag,
                   const Payload& payload,
                   _DelegateType delegate=_DelegateType());
     /**
@@ -89,9 +91,21 @@ public:
      *  Clients should call this method regularly to poll for incoming messages.
      *  This method may invoke message handlers before returning.
      *
-     *  @return False is the receive buffer is empty
+     *  @param tag   Filter messages via tag.  Messages not matching the tag
+     *               filter are thrown out.  If zero, tag is ignored.
+     *  @return      False is the receive buffer is empty
      */
-    bool receive();
+    bool receiveOne(TagId tag=0);
+    /**
+     *  Receives all messages targeted for this endpoint (via localAddress).
+     *  This call will run until all messages have been processed.  It's offered
+     *  as a convenience method if an application's expected to process its
+     *  entire receive queue in one call.
+     *
+     *  @param tag   Filter messages via tag.  Messages not matching the tag
+     *               filter are thrown out.  If zero, tag is ignored.
+     */
+    void receive(TagId tag=0);
     /**
      *  Registers a notification handler for the specified class.  Only one
      *  handler is allowed per notifcation.  Calls that specify a class with

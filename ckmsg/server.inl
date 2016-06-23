@@ -14,19 +14,18 @@ namespace ckmsg {
 template<typename _DelegateType, typename _Allocator>
 Server<_DelegateType, _Allocator>::Server
 (
-    Messenger& messenger,
-    EndpointInitParams params
+    Messenger<_Allocator>& messenger,
+    Endpoint<_Allocator> endpoint
 ) :
     _messenger(&messenger),
-    _endpoint()
+    _endpoint(_messenger->attachEndpoint(std::move(endpoint)))
 {
-    _endpoint = messenger.createEndpoint(params);
 }
 
 template<typename _DelegateType, typename _Allocator>
 Server<_DelegateType, _Allocator>::~Server()
 {
-    _messenger->destroyEndpoint(_endpoint);
+    _messenger->detachEndpoint(_endpoint);
 }
 
 
@@ -51,7 +50,7 @@ void Server<_DelegateType, _Allocator>::on
 }
 
 template<typename _DelegateType, typename _Allocator>
-bool Server<_DelegateType, _Allocator>::receive()
+bool Server<_DelegateType, _Allocator>::receiveOne()
 {
     Payload payload;
     Message msg = _messenger->pollReceive(_endpoint, payload);
@@ -66,13 +65,22 @@ bool Server<_DelegateType, _Allocator>::receive()
             //  pass incoming messages to their respective class delegates
             //  register the incoming sequence for replying
             ServerRequestId reqId { msg.sequenceId(), msg.type() };
-            _activeRequests.emplace(reqId, msg.sender());
+            ActiveRequest activeReq { msg.sender(), msg.tagId() };
+            _activeRequests.emplace(reqId, activeReq);
             it->second(reqId, &payload);
         }
     }
     _messenger->pollEnd(_endpoint, true);
 
     return (bool)(msg);
+}
+
+template<typename _DelegateType, typename _Allocator>
+void Server<_DelegateType, _Allocator>::receive()
+{
+    while (receiveOne())
+    {
+    }
 }
 
 template<typename _DelegateType, typename _Allocator>
@@ -85,8 +93,8 @@ void Server<_DelegateType, _Allocator>::reply
     auto it = _activeRequests.find(reqId);
     if (it != _activeRequests.end()) {
         Message msg(_endpoint, reqId.classId);
-
-        _messenger->send(std::move(msg), it->second, payload, reqId.seqId);
+        msg.setTag(it->second.tag);
+        _messenger->send(std::move(msg), it->second.adr, payload, reqId.seqId);
         _activeRequests.erase(it);
     }
 }

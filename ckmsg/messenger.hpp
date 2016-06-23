@@ -24,7 +24,7 @@ public:
     Messenger(const Messenger& ) = delete;
     Messenger& operator=(const Messenger& ) = delete;
 
-    Address attachEndpoint(Endpoint<Allocator>&& endpoint);
+    Address attachEndpoint(Endpoint<Allocator> endpoint);
     Endpoint<Allocator> detachEndpoint(Address endp);
 
     uint32_t send(Message&& msg, Address receiver,

@@ -28,7 +28,7 @@ Messenger<Allocator>::Messenger(Allocator allocator) :
 }
 
 template<typename Allocator>
-Address Messenger<Allocator>::attachEndpoint(Endpoint<Allocator>&& endpoint)
+Address Messenger<Allocator>::attachEndpoint(Endpoint<Allocator> endpoint)
 {
     Address result { 0 };
     {

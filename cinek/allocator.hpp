@@ -91,6 +91,18 @@ public:
     void* allocAligned(size_t size, size_t align) {
         return cinek_alloc_aligned(_heap, size, align);
     }
+    /**
+	 * Attempts to grow or reduce an existing buffer, or allocates a new buffer
+     * if necessary.
+     * @param  p  Pointer to the memory block to resize.  If resizing in place
+     *            is not possible, then will attempt to allocate a new block,
+     *            and in-effect frees the existing block.
+	 * @param  sz Size of the memory block to allocate.
+	 * @return    A pointer to the allocated block or nullptr.
+     */
+    void* realloc(void* p, size_t sz) {
+        return cinek_realloc(_heap, p, sz);
+    }
 	/**
 	 * Allocates and constucts instance of T.
      * @param  args Initialization arguments to the constructor for T.
