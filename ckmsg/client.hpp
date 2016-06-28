@@ -22,6 +22,29 @@
 
 namespace ckmsg {
 
+/*
+    promise = send();
+    promise.then(
+        [](ClassId classId, Result result, const Payload* payload) {
+            return send();
+        }
+    );
+    
+    
+    .then(
+        [](ClassId classId, Result result, const Payload* payload) {
+        }
+    )
+ */
+
+template<typename _DelegateType, typename _Allocator>
+class Promise
+{
+
+private:
+    uint32_t _seqId;
+};
+
 /**
  *  @class Client
  *  @brief An interface for sending and receiving Message objects to a Server
@@ -32,7 +55,7 @@ namespace ckmsg {
  *  The Client's _Delegate must be a callable object that conforms to the
  *  following signature:
  *
- *  void callback(uint32_t seqId, ClassId classId, const Payload* payload);
+ *  void callback(const Message& msg, const Payload& payload);
  *
  *  operator bool()
  *  support move
@@ -43,6 +66,13 @@ class Client
 public:
     Client(Messenger<_Allocator>& messenger, Endpoint<_Allocator> endpoint);
     ~Client();
+    
+    struct Result
+    {
+        const Payload* payload;
+        uint16_t customFlags;
+        bool error;
+    };
 
     /**
      *  Sends a message to the target with an optional callback on response
@@ -130,7 +160,7 @@ public:
 private:
     Messenger<_Allocator>* _messenger;
     Address _endpoint;
-
+    
     std::vector<std::pair<uint32_t, _DelegateType>> _sequenceDelegates;
     std::vector<std::pair<ClassId, _DelegateType>> _classDelegates;
 };

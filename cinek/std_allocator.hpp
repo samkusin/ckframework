@@ -155,12 +155,14 @@ unique_ptr<T, Allocator> allocate_unique(Allocator& allocator, Args&&... args) {
     return unique_ptr<T, Allocator>(ptr, allocator);
 }
 
+/*
 template<typename T, typename Allocator, typename... Args>
 unique_ptr<T, Allocator> allocate_unique(Args&&... args) {
     Allocator allocator;
     T* ptr = allocator.template newItem<T>(std::forward<Args>(args)...);
     return unique_ptr<T, Allocator>(ptr, allocator);
 }
+*/
 
 } // namespace cinek
 

@@ -21,8 +21,7 @@ namespace ckmsg {
 
  */
 template<typename Allocator>
-Messenger<Allocator>::Messenger(Allocator allocator) :
-    _allocator(allocator),
+Messenger<Allocator>::Messenger(Allocator ) :
     _thisEndpointId(0)
 {
 }
@@ -101,13 +100,12 @@ void Messenger<Allocator>::transmit(Address sender)
     //      - missing data results in a corrupt packet, which is thrown out
     //      - a full receive buffer results in an 'out of room' state
     //
-    while (sendBuffer.readSizeContiguous(kEncodedHeaderSize + sizeof(Address))) {
+    while (sendBuffer.readSizeContiguous(kEncodedHeaderSize + sizeof(Address::id))) {
 
-        const uint8_t* hdrpacket = sendBuffer.readp(kEncodedHeaderSize + sizeof(Address));
-        const Address& address = *reinterpret_cast<const Address*>(
-            hdrpacket+kEncodedHeaderSize
-        );
-
+        const uint8_t* hdrpacket = sendBuffer.readp(kEncodedHeaderSize + sizeof(Address::id));
+        Address address;
+        address.id = be32toh(*reinterpret_cast<const uint32_t*>(hdrpacket+kEncodedHeaderSize));
+       
         auto endpRecvIt = _endpoints.find(address.id);
         if (endpRecvIt != _endpoints.end()) {
             auto& recvPoint = endpRecvIt->second;
@@ -116,6 +114,7 @@ void Messenger<Allocator>::transmit(Address sender)
             enum
             {
                 kStartPacket,
+                kMessageSize,
                 kMessage,
                 kMessagePayloadSize,
                 kMessagePayload,
@@ -126,6 +125,7 @@ void Messenger<Allocator>::transmit(Address sender)
             inputState = kStartPacket;
 
             uint32_t datasize = 0;
+            uint32_t extra = 0;
             while (inputState < kCompleted) {
                 const uint8_t* inp = nullptr;
                 uint8_t* outp = nullptr;
@@ -135,12 +135,18 @@ void Messenger<Allocator>::transmit(Address sender)
                 case kStartPacket:
                     inp = hdrpacket;
                     datasize = kEncodedHeaderSize;
+                    extra = 0;
+                    break;
+                case kMessageSize:
+                    datasize = 2 * sizeof(uint16_t);
+                    extra = 0;
                     break;
                 case kMessage:
-                    datasize = sizeof(Message);
+                    //  datasize already set in kMessageSize
                     break;
                 case kMessagePayloadSize:
-                    datasize = sizeof(uint32_t);
+                    datasize = sizeof(uint32_t) + sizeof(int16_t) + sizeof(int16_t);
+                    extra = 0;
                     break;
                 case kMessagePayload:
                     //  datasize already set in kMessagePayloadSize state
@@ -148,6 +154,7 @@ void Messenger<Allocator>::transmit(Address sender)
                 default:
                     assert(false);  // logic error
                     datasize = 0;
+                    extra = 0;
                     break;
                 }
 
@@ -169,15 +176,20 @@ void Messenger<Allocator>::transmit(Address sender)
                 {
                 case kStartPacket:
                     if (recvPoint.checkHeader(inp, EndpointBase::kEncodedMessageHeader)) {
-                        inputState = kMessage;
+                        inputState = kMessageSize;
                     }
                     else {
                         inputState = kCorrupted;
                     }
                     break;
+                case kMessageSize: {
+                        datasize = be16toh(*reinterpret_cast<const uint16_t*>(inp));
+                        extra = be16toh(*reinterpret_cast<const uint16_t*>(inp+2));
+                        inputState = kMessage;
+                    }
+                    break;
                 case kMessage: {
-                        auto& msg = *reinterpret_cast<const Message*>(inp);
-                        if (msg.queryFlag(Message::kHasPayload)) {
+                        if ((extra & Message::kHasPayload) != 0) {
                             inputState = kMessagePayloadSize;
                         }
                         else {

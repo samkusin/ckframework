@@ -215,6 +215,170 @@ namespace cinek {
         //  - Clang (and likely GCC) do not have this problem
         void releaseRecord(typename ManagedObjectPoolBase<_Object, ThisType, _Allocator, _PoolAlign>::Record* record);
     };
+    
+    ////////////////////////////////////////////////////////////////////////////
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    ObjectPool<_T, _Allocator, _Align>::ObjectPool() :
+        _first(nullptr),
+        _last(nullptr),
+        _limit(nullptr),
+        _freefirst(nullptr),
+        _freelast(nullptr),
+        _freelimit(nullptr)
+    {
+    }
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    ObjectPool<_T, _Allocator, _Align>::ObjectPool
+    (
+        size_t blockCount,
+        _Allocator allocator
+    ) :
+        _allocator(allocator),
+        _first(nullptr),
+        _last(nullptr),
+        _limit(nullptr),
+        _freefirst(nullptr),
+        _freelast(nullptr),
+        _freelimit(nullptr)
+    {
+        size_t allocAmt = CK_ALIGN_SIZE(sizeof(_T), _Align);
+        allocAmt *= blockCount;
+
+        if (allocAmt > 0) {
+            _first = reinterpret_cast<uint8_t*>(_allocator.allocAligned(allocAmt, _Align));
+            _last = _first;
+            _limit = _first + allocAmt;
+            _freefirst = reinterpret_cast<pointer*>(_allocator.alloc(blockCount * sizeof(pointer)));
+            _freelast = _freefirst;
+            _freelimit = _freefirst + blockCount;
+        }
+    }
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    ObjectPool<_T, _Allocator, _Align>::~ObjectPool()
+    {
+        _allocator.free(_freefirst);
+        _allocator.freeAligned(_first);
+    }
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    ObjectPool<_T, _Allocator, _Align>::ObjectPool(ObjectPool&& other) :
+        _allocator(std::move(other._allocator)),
+        _first(other._first),
+        _last(other._last),
+        _limit(other._limit),
+        _freefirst(other._freefirst),
+        _freelast(other._freelast),
+        _freelimit(other._freelimit)
+    {
+        other.zeroVectors();
+    }
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    ObjectPool<_T, _Allocator, _Align>& ObjectPool<_T, _Allocator, _Align>::operator=(ObjectPool&& other)
+    {
+        _allocator = std::move(other._allocator);
+        _first = other._first;
+        _last = other._last;
+        _limit = other._limit;
+        _freefirst = other._freefirst;
+        _freelast = other._freelast;
+        _freelimit = other._freelimit;
+
+        other.zeroVectors();
+
+        return *this;
+    }
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    void ObjectPool<_T, _Allocator, _Align>::zeroVectors()
+    {
+        _first = nullptr;
+        _last = nullptr;
+        _limit = nullptr;
+        _freefirst = nullptr;
+        _freelast = nullptr;
+        _freelimit = nullptr;
+    }
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    bool ObjectPool<_T, _Allocator, _Align>::verify(pointer p) const
+    {
+        return (p >= (pointer)_first && p < (pointer)_last);
+    }
+
+    template<typename _T, typename _Allocator, size_t _Align> template<typename... Args>
+    auto ObjectPool<_T, _Allocator, _Align>::construct(Args&&... args) -> pointer
+    {
+        pointer p = nullptr;
+        if (_freefirst != _freelast)
+        {
+            --_freelast;
+            p = *_freelast;
+        }
+        else if (_last < _limit)
+        {
+            p = reinterpret_cast<pointer>(_last);
+            _last += CK_ALIGN_SIZE(sizeof(_T), _Align);
+            CK_ASSERT(_last <= _limit);
+        }
+
+        CK_ASSERT(p);
+
+        if (p)
+        {
+            ::new(p) _T(std::forward<Args>(args)...);
+        }
+
+        return p;
+    }
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    auto ObjectPool<_T, _Allocator, _Align>::construct() -> pointer
+    {
+        pointer p = nullptr;
+        if (_freefirst != _freelast)
+        {
+            --_freelast;
+            p = *_freelast;
+        }
+        else if (_last < _limit)
+        {
+            p = reinterpret_cast<pointer>(_last);
+            _last += CK_ALIGN_SIZE(sizeof(_T), _Align);
+            CK_ASSERT(_last <= _limit);
+        }
+
+        CK_ASSERT(p);
+
+        if (p)
+        {
+            ::new(p) _T();
+        }
+
+        return p;
+    }
+
+
+
+    template<typename _T, typename _Allocator, size_t _Align>
+    void ObjectPool<_T, _Allocator, _Align>::destruct(pointer p)
+    {
+        if (!p)
+            return;
+
+        CK_ASSERT((uint8_t*)p >= _first && (uint8_t*)p < _limit);
+        CK_ASSERT(_freelast < _freelimit);
+        if (_freelast >= _freelimit)
+            return;
+
+        p->~value_type();
+
+        *_freelast = p;
+        ++_freelast;
+    }
 
 } /* namespace cinek */
 

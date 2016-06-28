@@ -49,7 +49,7 @@ Task<Allocator>::Task(EndCallback cb) :
 }
 
 template<typename Allocator>
-void Task<Allocator>::setNextTask(unique_ptr<Task>&& task)
+void Task<Allocator>::setNextTask(Ptr&& task)
 {
     _nextTask = std::move(task);
 }

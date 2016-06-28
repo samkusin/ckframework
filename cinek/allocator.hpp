@@ -33,7 +33,6 @@
 
 #include "ckdefs.h"
 #include "memory.h"
-#include "std_allocator.hpp"
 
 #include <cstdint>
 #include <memory>

@@ -67,7 +67,7 @@ bool Server<_DelegateType, _Allocator>::receiveOne()
             ServerRequestId reqId { msg.sequenceId(), msg.type() };
             ActiveRequest activeReq { msg.sender(), msg.tagId() };
             _activeRequests.emplace(reqId, activeReq);
-            it->second(reqId, &payload);
+            it->second(reqId, payload);
         }
     }
     _messenger->pollEnd(_endpoint, true);
@@ -87,14 +87,18 @@ template<typename _DelegateType, typename _Allocator>
 void Server<_DelegateType, _Allocator>::reply
 (
     ServerRequestId reqId,
-    const Payload* payload
+    ReplyType replyType,
+    const Payload& payload
 )
 {
     auto it = _activeRequests.find(reqId);
     if (it != _activeRequests.end()) {
         Message msg(_endpoint, reqId.classId);
+        if (replyType == ReplyType::kFail) {
+            msg.setError();
+        }
         msg.setTag(it->second.tag);
-        _messenger->send(std::move(msg), it->second.adr, payload, reqId.seqId);
+        _messenger->send(std::move(msg), it->second.adr, &payload, reqId.seqId);
         _activeRequests.erase(it);
     }
 }

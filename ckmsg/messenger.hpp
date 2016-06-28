@@ -57,7 +57,6 @@ public:
     void pollEnd(Address receiver, bool consume);
 
 private:
-    Allocator _allocator;
     std::unordered_map<uint32_t, Endpoint<Allocator>> _endpoints;
     uint32_t _thisEndpointId;
 };

@@ -24,6 +24,12 @@ namespace ckmsg {
         void setFlags(Message& msg, uint16_t mask) { msg.setFlags(mask); }
         void clearFlags(Message& msg, uint16_t mask) { msg.clearFlags(mask); }
         void setSequenceId(Message& msg,uint32_t id) { msg.setSequenceId(id); }
+        uint16_t getFlags(Message& msg) const { return msg.getFlags(); }
+        uint16_t messageSize() const { return Message::serializeSize(); }
+        void serialize(Message& msg, uint8_t* out) { msg.serialize(out); }
+        void unserialize(Message& msg, const uint8_t* in, uint16_t sz) {
+            msg.unserialize(in, sz);
+        }
     };
 
     template<typename Allocator>

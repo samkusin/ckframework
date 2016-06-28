@@ -80,6 +80,7 @@
 		37823E991D14E5DE00B57BB1 /* server.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 37823E4A1D14E5DE00B57BB1 /* server.hpp */; };
 		37823E9A1D14E5DE00B57BB1 /* task.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 37823E4D1D14E5DE00B57BB1 /* task.hpp */; };
 		37823E9B1D14E5DE00B57BB1 /* taskscheduler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 37823E4F1D14E5DE00B57BB1 /* taskscheduler.hpp */; };
+		37823EE01D1CA71D00B57BB1 /* message.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37823EDF1D1CA71D00B57BB1 /* message.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -172,6 +173,7 @@
 		37823E4F1D14E5DE00B57BB1 /* taskscheduler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = taskscheduler.hpp; sourceTree = "<group>"; };
 		37823E501D14E5DE00B57BB1 /* taskscheduler.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = taskscheduler.inl; sourceTree = "<group>"; };
 		37823E511D14E5DE00B57BB1 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = ../../CMakeLists.txt; sourceTree = "<group>"; };
+		37823EDF1D1CA71D00B57BB1 /* message.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = message.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -361,6 +363,7 @@
 				37823E441D14E5DE00B57BB1 /* endpoint.cpp */,
 				37823E451D14E5DE00B57BB1 /* endpoint.hpp */,
 				37823E461D14E5DE00B57BB1 /* endpoint.inl */,
+				37823EDF1D1CA71D00B57BB1 /* message.cpp */,
 				37823E471D14E5DE00B57BB1 /* message.hpp */,
 				37823E481D14E5DE00B57BB1 /* messenger.hpp */,
 				37823E491D14E5DE00B57BB1 /* messenger.inl */,
@@ -516,6 +519,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				37823E671D14E5DE00B57BB1 /* file.c in Sources */,
+				37823EE01D1CA71D00B57BB1 /* message.cpp in Sources */,
 				37823E5D1D14E5DE00B57BB1 /* memory.c in Sources */,
 				37823E641D14E5DE00B57BB1 /* file.cpp in Sources */,
 				37823E6A1D14E5DE00B57BB1 /* json.cpp in Sources */,

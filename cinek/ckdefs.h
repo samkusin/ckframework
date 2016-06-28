@@ -225,6 +225,5 @@ struct sizeof_max<T0, Ts...>
 typedef double CKTime;
 typedef double CKTimeDelta;
 
-
 /* CINEK_DEFS_H */
 #endif

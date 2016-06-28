@@ -31,6 +31,12 @@ template<> struct hash<ckmsg::ServerRequestId>
 
 namespace ckmsg {
 
+enum class ServerReplyType
+{
+    kSuccess,
+    kFail
+};
+
 /**
  *  @class Server
  *  @brief An interface for receiving and replying to Message objects, the
@@ -42,15 +48,17 @@ namespace ckmsg {
  *  The Server's _Delegate must be a callable object that conforms to the
  *  following signature:
  *
- *  void cb(ServerRequestId reqId, const Payload* payload);
+ *  void cb(ServerRequestId reqId, const Payload& payload);
  */
 template<typename _DelegateType, typename _Allocator>
 class Server
 {
 public:
+    using ReplyType = ServerReplyType;
+    
     Server(Messenger<_Allocator>& messenger, Endpoint<_Allocator> endpoint);
     ~Server();
-
+    
     /**
      *  Registers a command handler for the specified class.  Only one
      *  handler is allowed per notifcation.  Calls that specify a class with
@@ -83,9 +91,10 @@ public:
      *  Reply to an active request.
      *
      *  @param  reqId   The request to reply to.
-     *  @param  payload (Optional) The payload included in the reply
+     *  @param  type    Type of reply (kSuccess or kFail)
+     *  @param  payload The payload included in the reply
      */
-    void reply(ServerRequestId reqId, const Payload* payload = nullptr);
+    void reply(ServerRequestId reqId, ReplyType type, const Payload& payload);
     /**
      *  Transmits any pending messages to their targets (flushes the message
      *  queue if it still has messages.)  Invoke once per receive.

@@ -23,8 +23,8 @@ Client<_Delegate, _Allocator>::Client
     _messenger(&messenger),
     _endpoint(_messenger->attachEndpoint(std::move(endpoint)))
 {
-    _sequenceDelegates.reserve(64);
-    _classDelegates.reserve(64);
+    _sequenceDelegates.reserve(32);
+    _classDelegates.reserve(32);
 }
 
 template<typename _Delegate, typename _Allocator>
@@ -99,8 +99,9 @@ bool Client<_Delegate, _Allocator>::receiveOne(TagId tag)
     Payload payload;
     Message msg = _messenger->pollReceive(_endpoint, payload);
     //  filter by tag if a tag is specified.  
-    if (msg && (!tag || (msg.tagId() && tag == msg.tagId())))
+    if (msg)
     {
+        bool runDelegate = (!tag || (msg.tagId() && tag == msg.tagId()));
         //  if a reply, check sequence delegates
         if (msg.queryFlag(Message::kIsReply)) {
             auto it = std::lower_bound(_sequenceDelegates.begin(), _sequenceDelegates.end(),
@@ -109,7 +110,9 @@ bool Client<_Delegate, _Allocator>::receiveOne(TagId tag)
                     return p.first < seqId;
                 });
             if (it != _sequenceDelegates.end() && it->first == msg.sequenceId()) {
-                it->second(msg.sequenceId(), msg.type(), &payload);
+                if (runDelegate) {
+                    it->second(msg, payload);
+                }
                 _sequenceDelegates.erase(it);
             }
         }
@@ -122,7 +125,9 @@ bool Client<_Delegate, _Allocator>::receiveOne(TagId tag)
             if (it != _classDelegates.end() && it->first == msg.type()) {
                 //  pass incoming messages to their respective class delegates
                 //  register the incoming sequence for replying
-                it->second(msg.sequenceId(), msg.type(), &payload);
+                if (runDelegate) {
+                    it->second(msg, payload);
+                }
             }
         }
     }
@@ -139,3 +144,4 @@ void Client<_DelegateType, _Allocator>::receive(TagId tag)
 }
 
 }   /* namespace ckmsg */
+

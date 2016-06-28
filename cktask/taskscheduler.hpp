@@ -48,6 +48,9 @@ namespace cinek {
         CK_CLASS_NON_COPYABLE(TaskScheduler);
 
     public:
+        using TaskPtr = typename Task<Allocator>::Ptr;
+        using TaskType = Task<Allocator>;
+        
         /**
          * Constructor
          *
@@ -63,7 +66,7 @@ namespace cinek {
          * @param  task Job pointer
          * @return      Handle to the scheduled Task
          */
-        TaskId schedule(unique_ptr<Task>&& task, void* context=nullptr);
+        TaskId schedule(TaskPtr&& task, void* context=nullptr);
         /**
          * Cancels a scheduled task.
          *
@@ -94,9 +97,7 @@ namespace cinek {
 
     private:
         intrusive_list<TaskListNode> _runList;
-        std::vector<
-            unique_ptr<Task, Allocator>,
-            std_allocator<unique_ptr<Task, Allocator>, Allocator>> _tasks;
+        std::vector<TaskPtr, std_allocator<TaskPtr, Allocator>> _tasks;
         TaskId _currentHandle;
     };
 

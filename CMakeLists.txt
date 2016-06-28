@@ -61,6 +61,7 @@ endif()
 if(INCLUDE_CKMSG_PROJECT)
     set(ckmsg_SOURCES
         "ckmsg/endpoint.cpp"
+        "ckmsg/message.cpp"
         )
     set(ckmsg_INCLUDES
         "ckmsg/buffer.hpp"
