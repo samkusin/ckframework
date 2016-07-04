@@ -157,6 +157,7 @@ public:
     TagId tagId() const { return _tagId; }
     
     void setError() { setFlags(kErrorFlag); }
+    bool isError() const { return queryFlag(kErrorFlag); }
     
 private:
     friend struct EndpointBase;
