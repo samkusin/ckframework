@@ -55,7 +55,7 @@ private:
  *  The Client's _Delegate must be a callable object that conforms to the
  *  following signature:
  *
- *  void callback(const Message& msg, const Payload& payload);
+ *  void callback(const Message& msg, const Payload* payload);
  *
  *  operator bool()
  *  support move
@@ -66,13 +66,6 @@ class Client
 public:
     Client(Messenger<_Allocator>& messenger, Endpoint<_Allocator> endpoint);
     ~Client();
-    
-    struct Result
-    {
-        const Payload* payload;
-        uint16_t customFlags;
-        bool error;
-    };
 
     /**
      *  Sends a message to the target with an optional callback on response
