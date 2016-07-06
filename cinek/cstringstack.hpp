@@ -100,7 +100,7 @@ namespace cinek {
             return _stack.size();
         }
     private:
-        MemoryStack _stack;
+        MemoryStack<_Allocator> _stack;
         size_t _count;
         static const char* kEmptyString;
     };
@@ -128,7 +128,7 @@ namespace cinek {
     }
 
     template<typename _Allocator>
-    CStringStack& CStringStack<_Allocator>::operator=(CStringStack&& other)
+    CStringStack<_Allocator>& CStringStack<_Allocator>::operator=(CStringStack&& other)
     {
         _stack = std::move(other._stack);
         _count = other._count;

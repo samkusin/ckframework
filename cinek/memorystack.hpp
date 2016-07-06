@@ -154,16 +154,16 @@ namespace cinek {
     }
 
     template<typename _Allocator>
-    void MemoryStack<_Allocator>::node::free(Allocator& allocator)
+    void MemoryStack<_Allocator>::node::free(_Allocator& allocator)
     {
         allocator.free(first);
         first = last = limit = nullptr;
     }
 
     template<typename _Allocator>
-    MemoryStack<_Allocator>::MemoryStack(size_t initSize, const Allocator& allocator) :
+    MemoryStack<_Allocator>::MemoryStack(size_t initSize, const _Allocator& allocator) :
         _allocator(allocator),
-        _tail(initSize > 0 ? _allocator.newItem<node>() : nullptr),
+        _tail(initSize > 0 ? _allocator.template newItem<node>() : nullptr),
         _current(_tail)
     {
         if (_tail)
@@ -272,7 +272,7 @@ namespace cinek {
     template<typename _Allocator>
     bool MemoryStack<_Allocator>::growBy(size_t cnt)
     {
-        node *next = _allocator.newItem<node>();
+        node *next = _allocator.template newItem<node>();
         if (next)
         {
             if (next->alloc(cnt, _allocator))
@@ -284,7 +284,7 @@ namespace cinek {
             }
             else
             {
-                _allocator.deleteItem<node>(next);
+                _allocator.template deleteItem<node>(next);
             }
         }
         return false;
