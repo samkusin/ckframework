@@ -50,6 +50,21 @@ void Server<_DelegateType, _Allocator>::on
 }
 
 template<typename _DelegateType, typename _Allocator>
+Address Server<_DelegateType, _Allocator>::querySenderAddressFromRequestId
+(
+    ServerRequestId reqId
+)
+const
+{
+    auto it = _activeRequests.find(reqId);
+    if (it == _activeRequests.end()) {
+        return { 0 };
+    }
+    
+    return it->second.adr;
+}
+
+template<typename _DelegateType, typename _Allocator>
 bool Server<_DelegateType, _Allocator>::receiveOne()
 {
     Payload payload;
@@ -101,6 +116,18 @@ void Server<_DelegateType, _Allocator>::reply
         _messenger->send(std::move(msg), it->second.adr, &payload, reqId.seqId);
         _activeRequests.erase(it);
     }
+}
+
+template<typename _DelegateType, typename _Allocator>
+void Server<_DelegateType, _Allocator>::notify
+(
+    Address target,
+    ClassId classId,
+    const Payload& payload
+)
+{
+    Message msg(_endpoint, classId);
+    _messenger->send(std::move(msg), target, &payload, kNullSequenceId);
 }
 
 template<typename _DelegateType, typename _Allocator>

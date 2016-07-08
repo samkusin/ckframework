@@ -87,6 +87,20 @@ void Client<_DelegateType, _Allocator>::on(ClassId classId, _DelegateType delega
     }
 }
 
+template<typename _DelegateType, typename _Allocator>
+void Client<_DelegateType, _Allocator>::remove(ClassId classId)
+{
+    auto it = std::lower_bound(_classDelegates.begin(), _classDelegates.end(),
+        classId,
+        [](const typename decltype(_classDelegates)::value_type& p, ClassId cid) -> bool {
+            return p.first < cid;
+        });
+    if (it != _classDelegates.end() && it->first == classId) {
+        _classDelegates.erase(it);
+    }
+}
+
+
 template<typename _Delegate, typename _Allocator>
 void Client<_Delegate, _Allocator>::transmit()
 {
@@ -101,7 +115,6 @@ bool Client<_Delegate, _Allocator>::receiveOne(TagId tag)
     //  filter by tag if a tag is specified.  
     if (msg)
     {
-        bool runDelegate = (!tag || (msg.tagId() && tag == msg.tagId()));
         //  if a reply, check sequence delegates
         if (msg.queryFlag(Message::kIsReply)) {
             auto it = std::lower_bound(_sequenceDelegates.begin(), _sequenceDelegates.end(),
@@ -110,6 +123,7 @@ bool Client<_Delegate, _Allocator>::receiveOne(TagId tag)
                     return p.first < seqId;
                 });
             if (it != _sequenceDelegates.end() && it->first == msg.sequenceId()) {
+                bool runDelegate = (!tag || (msg.tagId() && tag == msg.tagId()));
                 if (runDelegate) {
                     it->second(msg, payload);
                 }
@@ -125,9 +139,7 @@ bool Client<_Delegate, _Allocator>::receiveOne(TagId tag)
             if (it != _classDelegates.end() && it->first == msg.type()) {
                 //  pass incoming messages to their respective class delegates
                 //  register the incoming sequence for replying
-                if (runDelegate) {
-                    it->second(msg, payload);
-                }
+                it->second(msg, payload);
             }
         }
     }

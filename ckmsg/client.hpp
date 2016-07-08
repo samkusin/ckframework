@@ -146,6 +146,13 @@ public:
      */
     void on(ClassId classId, _DelegateType delegate);
     /**
+     *  Clears any event delegate assigned to the specified message class.  This
+     *  does not apply to delegates assigned via send().
+     *
+     *  @param classId  The notification class.
+     */
+    void remove(ClassId classId);
+    /**
      *  @return returns the address for this client.
      */
     Address address() const { return _endpoint; }

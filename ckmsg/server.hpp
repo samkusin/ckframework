@@ -96,6 +96,14 @@ public:
      */
     void reply(ServerRequestId reqId, ReplyType type, const Payload& payload);
     /**
+     *  Notify a target of an event.
+     *
+     *  @param  target          The destination for the message
+     *  @param  classId         The message class
+     *  @param  payload         The message payload
+     */
+    void notify(Address target, ClassId classId, const Payload& payload);
+    /**
      *  Transmits any pending messages to their targets (flushes the message
      *  queue if it still has messages.)  Invoke once per receive.
      */
@@ -104,6 +112,12 @@ public:
      *  @return returns the address for this server.
      */
     Address address() const { return _endpoint; }
+    /**
+     *  @param  reqId  The ServerRequestId acquired from an incoming message
+     *                 handler.
+     *  @return The sender address
+     */
+    Address querySenderAddressFromRequestId(ServerRequestId reqId) const;
 
 private:
     Messenger<_Allocator>* _messenger;
