@@ -9,15 +9,17 @@
 #ifndef CINEK_MATH_TYPES_HPP
 #define CINEK_MATH_TYPES_HPP
 
-#include <cmath>
+#ifndef CKM_SCALAR_TYPE
+#define CKM_SCALAR_TYPE double
+#endif
 
 namespace ckm {
 
-using scalar = float;
+using scalar = CKM_SCALAR_TYPE;
 
-constexpr scalar kEpsilon = 1e-6;
+constexpr scalar kEpsilon = 1e-9;
 constexpr scalar kEpsilonSmall = 1e-9;
-constexpr scalar kPi = M_PI;
+constexpr scalar kPi = 3.141592653589793;
 
 inline bool nearZero(scalar v) {
     return v > -kEpsilon && v < kEpsilon;

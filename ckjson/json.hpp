@@ -20,7 +20,7 @@ namespace cinek {
     uint32_t parseUint(const JsonValue& value, uint32_t defaultVal=0);
 
     uint32_t parseFlagsToUint(const JsonValue& flagsDef, const char* flags);
-
+    
 } /* namespace cinek */
 
 #endif

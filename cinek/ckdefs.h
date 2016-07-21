@@ -59,6 +59,7 @@
 /* CK_COMPILER_HAS_STDINT */
 #endif
 
+#ifdef __cplusplus
 /**
  * \def CK_CPP_EXCEPTIONS
  * Define if C++ exception handling is enabled.
@@ -85,6 +86,8 @@
     #endif
   #endif
 #endif
+
+#endif  /* __cplusplus */
 
 /**@}*/
 

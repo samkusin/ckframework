@@ -139,12 +139,21 @@ namespace cinek {
     template<typename _Allocator>
     const char* CStringStack<_Allocator>::create(const char* str)
     {
-        size_t len = strlen(str);
-        char* buf = reinterpret_cast<char*>(_stack.allocate(len+1));
-        if (!buf)
-            return NULL;
-        strncpy(buf, str, len);
-        buf[len] = 0;
+        char* buf;
+        if (str && str[0]) {
+            size_t len = strlen(str);
+            buf = reinterpret_cast<char*>(_stack.allocate(len+1));
+            if (!buf)
+                return NULL;
+            strncpy(buf, str, len);
+            buf[len] = 0;
+        }
+        else {
+            buf = reinterpret_cast<char*>(_stack.allocate(1));
+            if (!buf)
+                return NULL;
+            *buf = 0;
+        }
         ++_count;
         return buf;
     }

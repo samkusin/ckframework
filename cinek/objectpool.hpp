@@ -61,7 +61,8 @@ namespace cinek {
         template<typename... Args> pointer construct(Args&&... args);
         pointer construct();
         void destruct(pointer p);
-
+        void clear();
+        
         bool verify(pointer p) const;
 
     private:
@@ -259,6 +260,7 @@ namespace cinek {
     template<typename _T, typename _Allocator, size_t _Align>
     ObjectPool<_T, _Allocator, _Align>::~ObjectPool()
     {
+        CK_ASSERT(std::is_trivial<_T>::value || _freefirst == _freelast);
         _allocator.free(_freefirst);
         _allocator.freeAligned(_first);
     }
@@ -378,6 +380,15 @@ namespace cinek {
 
         *_freelast = p;
         ++_freelast;
+    }
+    
+    template<typename _T, typename _Allocator, size_t _Align>
+    void ObjectPool<_T, _Allocator, _Align>::clear()
+    {
+        CK_ASSERT(std::is_trivial<_T>::value || _freefirst == _freelast);
+        
+        _freelast = _freefirst;
+        _last = _first;
     }
 
 } /* namespace cinek */
