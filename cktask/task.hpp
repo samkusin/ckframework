@@ -47,6 +47,7 @@
 
 namespace cinek {
     template<typename Allocator> class TaskScheduler;
+    template<typename Allocator> class Task;
 }
 
 namespace cinek {
@@ -65,10 +66,17 @@ namespace cinek {
         kCanceled   /**< Task was canceled */
     };
 
+    template<typename Object> class intrusive_list;
+    
+    template<typename Allocator>
     struct TaskListNode
     {
     public:
+        using DerivedType = Task<Allocator>;
         TaskListNode(): __prevListNode(), __nextListNode() {}
+        
+    private:
+        friend class intrusive_list<TaskListNode>;
         //  as a node within a TaskScheduler's intrusive list of current tasks.
         TaskListNode* __prevListNode;
         TaskListNode* __nextListNode;
@@ -79,7 +87,7 @@ namespace cinek {
      * @brief A unit of execution managed by the TaskScheduler
      */
     template<typename Allocator>
-    class Task : public TaskListNode
+    class Task : public TaskListNode<Allocator>
     {
     public:
         using Ptr = unique_ptr<Task<Allocator>, Allocator>;

@@ -50,6 +50,20 @@ void Server<_DelegateType, _Allocator>::on
 }
 
 template<typename _DelegateType, typename _Allocator>
+void Server<_DelegateType, _Allocator>::clear(ClassId classId)
+{
+    auto it = std::lower_bound(_classDelegates.begin(), _classDelegates.end(),
+        classId,
+        [](const typename decltype(_classDelegates)::value_type& p, ClassId cid) -> bool {
+            return p.first < cid;
+        });
+    if (it == _classDelegates.end() || it->first != classId) {
+        return;
+    }
+    _classDelegates.erase(it);
+}
+
+template<typename _DelegateType, typename _Allocator>
 Address Server<_DelegateType, _Allocator>::querySenderAddressFromRequestId
 (
     ServerRequestId reqId

@@ -96,7 +96,7 @@ namespace cinek {
         bool isActive(TaskId taskHandle);
 
     private:
-        intrusive_list<TaskListNode> _runList;
+        intrusive_list<TaskListNode<Allocator>> _runList;
         std::vector<TaskPtr, std_allocator<TaskPtr, Allocator>> _tasks;
         TaskId _currentHandle;
     };

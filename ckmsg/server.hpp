@@ -73,6 +73,12 @@ public:
      */
     void on(ClassId classId, _DelegateType delegate);
     /**
+     *  Clears the message handler for the specified class.
+     *
+     *  @param classId  The Request class to unsubscribe from
+     */
+    void clear(ClassId classId);
+    /**
      *  Receives a single message targeted for this client (via localAddress).
      *  Servers should call this method regularly to poll for incoming messages.
      *  This method may invoke message handlers before returning.
