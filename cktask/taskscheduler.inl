@@ -153,7 +153,13 @@ void TaskScheduler<Allocator>::update(uint32_t deltaTimeMs)
             break;
         case TaskType::State::kFailed:
             {
+                task->_nextTask = nullptr;
                 task->onFail();
+                auto nextTask = std::move(task->_nextTask);
+                if (nextTask)
+                {
+                    schedule(std::move(nextTask));
+                }
             }
             break;
         case TaskType::State::kCanceled:
