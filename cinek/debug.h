@@ -136,6 +136,7 @@ void cinek_debug_break(void);
  * \def CK_ASSERT(_cond_)
  * Assert macro verifying the _cond_ expression is true.
  */
+#ifndef CK_ASSERT
 #define CK_ASSERT(_cond_) do {  \
     if (!(_cond_))                  \
     {                               \
@@ -143,7 +144,9 @@ void cinek_debug_break(void);
         cinek_debug_break();        \
     }                               \
 } while(0)
+#endif
 
+#ifndef CK_ASSERT_RETURN
 #define CK_ASSERT_RETURN(_cond_) do { \
     if (!(_cond_))                  \
     {                               \
@@ -152,7 +155,9 @@ void cinek_debug_break(void);
         return;                     \
     }                               \
 } while(0)
+#endif
 
+#ifndef CK_ASSERT_RETURN_VALUE
 #define CK_ASSERT_RETURN_VALUE(_cond_, _val_) do { \
     if (!(_cond_))                  \
     {                               \
@@ -161,14 +166,22 @@ void cinek_debug_break(void);
         return (_val_);             \
     }                               \
 } while(0)
-
+#endif
 
 
 #else
 
+#ifndef CK_ASSERT
 #define CK_ASSERT(_cond_)
+#endif
+
+#ifndef CK_ASSERT_RETURN
 #define CK_ASSERT_RETURN(_cond_) if (!(_cond_)) return
+#endif
+
+#ifndef CK_ASSERT_RETURN_VALUE
 #define CK_ASSERT_RETURN_VALUE(_cond_,_val_) if (!(_cond_)) return (_val_)
+#endif
 
 #endif
 

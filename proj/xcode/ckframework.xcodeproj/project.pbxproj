@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		37125C9D1D53FA91004D99C0 /* tree_node.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 37125C9B1D53FA91004D99C0 /* tree_node.hpp */; };
 		37823E521D14E5DE00B57BB1 /* allocator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 37823DEF1D14E5DE00B57BB1 /* allocator.hpp */; };
 		37823E531D14E5DE00B57BB1 /* buffer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 37823DF01D14E5DE00B57BB1 /* buffer.hpp */; };
 		37823E541D14E5DE00B57BB1 /* circular_queue.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 37823DF11D14E5DE00B57BB1 /* circular_queue.hpp */; };
@@ -84,6 +85,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		37125C9B1D53FA91004D99C0 /* tree_node.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tree_node.hpp; sourceTree = "<group>"; };
+		37125C9C1D53FA91004D99C0 /* tree_node.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tree_node.inl; sourceTree = "<group>"; };
 		37823DE71D14E57900B57BB1 /* libckframework.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libckframework.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		37823DEF1D14E5DE00B57BB1 /* allocator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = allocator.hpp; sourceTree = "<group>"; };
 		37823DF01D14E5DE00B57BB1 /* buffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = buffer.hpp; sourceTree = "<group>"; };
@@ -228,6 +231,8 @@
 				37823DFB1D14E5DE00B57BB1 /* memory.c */,
 				37823DFC1D14E5DE00B57BB1 /* memory.h */,
 				37823DFD1D14E5DE00B57BB1 /* memorystack.hpp */,
+				37125C9B1D53FA91004D99C0 /* tree_node.hpp */,
+				37125C9C1D53FA91004D99C0 /* tree_node.inl */,
 				37823DFE1D14E5DE00B57BB1 /* objectpool.hpp */,
 				37823DFF1D14E5DE00B57BB1 /* objectpool.inl */,
 				37823E001D14E5DE00B57BB1 /* std_allocator.hpp */,
@@ -413,6 +418,7 @@
 				37823E631D14E5DE00B57BB1 /* uuid.hpp in Headers */,
 				37823E721D14E5DE00B57BB1 /* en.h in Headers */,
 				37823E971D14E5DE00B57BB1 /* message.hpp in Headers */,
+				37125C9D1D53FA91004D99C0 /* tree_node.hpp in Headers */,
 				37823E561D14E5DE00B57BB1 /* ckopts.h in Headers */,
 				37823E6C1D14E5DE00B57BB1 /* jsonstreambuf.hpp in Headers */,
 				37823E661D14E5DE00B57BB1 /* filestreambuf.hpp in Headers */,
