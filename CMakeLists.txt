@@ -11,15 +11,10 @@ option(INCLUDE_CKIO_PROJECT     "CineK File IO" ON)
 option(INCLUDE_CKFILE_PROJECT   "CineK File Streaming" ON)
 option(INCLUDE_CKTASK_PROJECT   "CineK Task Scheduler" ON)
 
-option(DISABLE_TESTS            "Do not build tests" ON)
-option(DISABLE_TARGETS          "Do not build targets" ON)
+option(DISABLE_CKFRAMEWORK_TESTS    "Do not build tests" ON)
+option(DISABLE_CKFRAMEWORK_TARGETS  "Do not build targets" ON)
 option(ENABLE_CXX_EXCEPTIONS    "Enable C++ Exceptions" OFF)
 option(ENABLE_CXX_RTTI          "Enable C++ RTTI" OFF)
-
-# Testing
-if(NOT DISABLE_TESTS)
-    enable_testing()
-endif()
 
 # All subprojects
 set(PROJECT_SOURCES  )
@@ -73,10 +68,13 @@ if(HAS_PARENT_DIRECTORY)
 endif()
 
 # Setup target properties for building the static library
-if(NOT DISABLE_TARGETS)
+if(NOT DISABLE_CKFRAMEWORK_TARGETS)
     add_library(ckframework STATIC "${PROJECT_SOURCES}")
 
-    target_include_directories(ckframework PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+    target_include_directories(cksim PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:include>
+    )
 
     set_property(TARGET ckframework PROPERTY C_STANDARD 99)
     target_compile_features(ckframework PUBLIC
@@ -114,4 +112,4 @@ if(NOT DISABLE_TARGETS)
             target_compile_options(ckframework PRIVATE /GR-)
         endif()
     endif()
-endif(NOT DISABLE_TARGETS)
+endif(NOT DISABLE_CKFRAMEWORK_TARGETS)
