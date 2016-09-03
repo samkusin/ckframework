@@ -14,46 +14,49 @@
 
 namespace ckmsg {
 
-template<typename _Delegate>
-Client<_Delegate>::Client
+template<typename _Delegate, typename _Allocator>
+Client<_Delegate, _Allocator>::Client
 (
-    Messenger& messenger,
-    EndpointInitParams initParams
+    Messenger<_Allocator>& messenger,
+    Endpoint<_Allocator> endpoint
 ) :
     _messenger(&messenger),
-    _endpoint(_messenger->createEndpoint(initParams))
+    _endpoint(_messenger->attachEndpoint(std::move(endpoint)))
 {
-    _sequenceDelegates.reserve(64);
-    _classDelegates.reserve(64);
+    _sequenceDelegates.reserve(32);
+    _classDelegates.reserve(32);
 }
 
-template<typename _Delegate>
-Client<_Delegate>::~Client()
+template<typename _Delegate, typename _Allocator>
+Client<_Delegate, _Allocator>::~Client()
 {
-    _messenger->destroyEndpoint(_endpoint);
+    _messenger->detachEndpoint(_endpoint);
 }
-    
-template<typename _Delegate>
-uint32_t Client<_Delegate>::send
+
+template<typename _Delegate, typename _Allocator>
+uint32_t Client<_Delegate, _Allocator>::send
 (
     Address target,
     ClassId classId,
+    TagId tag,
     _Delegate delegate
 )
 {
-    return send(target, classId, Payload(), delegate);
+    return send(target, classId, tag, Payload(), delegate);
 }
 
-template<typename _Delegate>
-uint32_t Client<_Delegate>::send
+template<typename _Delegate, typename _Allocator>
+uint32_t Client<_Delegate, _Allocator>::send
 (
     Address target,
     ClassId classId,
+    TagId tag,
     const Payload& payload,
     _Delegate delegate
 )
 {
     Message msg(_endpoint, classId);
+    msg.setTag(tag);
     uint32_t seqId = _messenger->send(std::move(msg), target, &payload, kAssignSequenceId);
     if (seqId && delegate) {
         auto it = std::lower_bound(_sequenceDelegates.begin(), _sequenceDelegates.end(),
@@ -68,8 +71,8 @@ uint32_t Client<_Delegate>::send
     return seqId;
 }
 
-template<typename _DelegateType>
-void Client<_DelegateType>::on(ClassId classId, _DelegateType delegate)
+template<typename _DelegateType, typename _Allocator>
+void Client<_DelegateType, _Allocator>::on(ClassId classId, _DelegateType delegate)
 {
     auto it = std::lower_bound(_classDelegates.begin(), _classDelegates.end(),
         classId,
@@ -80,23 +83,36 @@ void Client<_DelegateType>::on(ClassId classId, _DelegateType delegate)
         it->second = std::move(delegate);
     }
     else {
-        _classDelegates.emplace(it, classId,
-        std::move(delegate));
+        _classDelegates.emplace(it, classId, std::move(delegate));
     }
 }
 
-template<typename _Delegate>
-void Client<_Delegate>::transmit()
+template<typename _DelegateType, typename _Allocator>
+void Client<_DelegateType, _Allocator>::remove(ClassId classId)
+{
+    auto it = std::lower_bound(_classDelegates.begin(), _classDelegates.end(),
+        classId,
+        [](const typename decltype(_classDelegates)::value_type& p, ClassId cid) -> bool {
+            return p.first < cid;
+        });
+    if (it != _classDelegates.end() && it->first == classId) {
+        _classDelegates.erase(it);
+    }
+}
+
+
+template<typename _Delegate, typename _Allocator>
+void Client<_Delegate, _Allocator>::transmit()
 {
     _messenger->transmit(_endpoint);
 }
 
-
-template<typename _Delegate>
-bool Client<_Delegate>::receive()
+template<typename _Delegate, typename _Allocator>
+bool Client<_Delegate, _Allocator>::receiveOne(TagId tag)
 {
     Payload payload;
     Message msg = _messenger->pollReceive(_endpoint, payload);
+    //  filter by tag if a tag is specified.  
     if (msg)
     {
         //  if a reply, check sequence delegates
@@ -107,7 +123,10 @@ bool Client<_Delegate>::receive()
                     return p.first < seqId;
                 });
             if (it != _sequenceDelegates.end() && it->first == msg.sequenceId()) {
-                it->second(msg.sequenceId(), msg.type(), &payload);
+                bool runDelegate = (!tag || (msg.tagId() && tag == msg.tagId()));
+                if (runDelegate) {
+                    it->second(msg, payload);
+                }
                 _sequenceDelegates.erase(it);
             }
         }
@@ -120,13 +139,21 @@ bool Client<_Delegate>::receive()
             if (it != _classDelegates.end() && it->first == msg.type()) {
                 //  pass incoming messages to their respective class delegates
                 //  register the incoming sequence for replying
-                it->second(msg.sequenceId(), msg.type(), &payload);
+                it->second(msg, payload);
             }
         }
     }
     _messenger->pollEnd(_endpoint, true);
-    
+
     return (bool)msg;
 }
 
+
+template<typename _DelegateType, typename _Allocator>
+void Client<_DelegateType, _Allocator>::receive(TagId tag)
+{
+    while (receiveOne(tag)) {}
+}
+
 }   /* namespace ckmsg */
+

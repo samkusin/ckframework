@@ -41,43 +41,61 @@
  */
 /**@{*/
 
+#ifdef _MSC_VER
+    #define CK_COMPILER_MSVC        1
+#else
+    #define CK_COMPILER_MSVC        0
+#endif
+
+#if __clang__
+    #define CK_COMPILER_CLANG       1
+#else
+    #define CK_COMPILER_CLANG       0
+#endif
+
+#if defined(__GNUC__)
+    #define CK_COMPILER_GNUC        1
+#else
+    #define CK_COMPILER_GNUC        0
+#endif
+
 /**
  * \def CK_COMPILER_HAS_STDINT
  * Set to 1 if available, else set to 0 if not available.
  */
 #ifndef CK_COMPILER_HAS_STDINT
-  #ifdef _MSC_VER
+  #if CK_COMPILER_MSVC
     #if _MSC_VER < 1600
       #define CK_COMPILER_HAS_STDINT 0
     #else
       #define CK_COMPILER_HAS_STDINT 1
     #endif
   #else
-  /* [TODO] - explicitly call out GNU/LLVM, etc. */
     #define CK_COMPILER_HAS_STDINT 1
   #endif
 /* CK_COMPILER_HAS_STDINT */
 #endif
 
+#ifdef __cplusplus
 /**
  * \def CK_CPP_EXCEPTIONS
  * Define if C++ exception handling is enabled.
  */
 #if !defined(CK_CPP_EXCEPTIONS) || !CK_CPP_EXCEPTIONS
-  #if __clang__
+  #if CK_COMPILER_CLANG
     #if __has_feature(cxx_exceptions)
       #define CK_CPP_EXCEPTIONS 1
     #else
       #define CK_CPP_EXCEPTIONS 0
     #endif
-  #elif defined(_MSC_VER)
+  #elif CK_COMPILER_MSVC
     #ifdef _CPPUNWIND
       #define CK_CPP_EXCEPTIONS 1
     #else
       #undef _HAS_EXCEPTIONS
       #define _HAS_EXCEPTIONS 0
     #endif
-  #elif defined(__GNUC__)
+  #elif CK_COMPILER_GNUC
     #if defined(__EXCEPTIONS) || defined(__cpp_exceptions)
       #define CK_CPP_EXCEPTIONS 1
     #else
@@ -85,6 +103,8 @@
     #endif
   #endif
 #endif
+
+#endif  /* __cplusplus */
 
 /**@}*/
 
@@ -224,7 +244,6 @@ struct sizeof_max<T0, Ts...>
 
 typedef double CKTime;
 typedef double CKTimeDelta;
-
 
 /* CINEK_DEFS_H */
 #endif

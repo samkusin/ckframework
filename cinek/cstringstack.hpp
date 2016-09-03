@@ -33,10 +33,11 @@
 
 #include "allocator.hpp"
 #include "memorystack.hpp"
+#include <cstring>
 
 namespace cinek {
     /**
-     * @class MemoryStack
+     * @class CStringStack
      * @brief Implements a simple stack-based memory allocation pool.
      *
      * The MemoryStack grabs memory from the supplied allocator in chunks.  The
@@ -49,6 +50,7 @@ namespace cinek {
      * One can manually increase the size of the available stack memory by
      * calling growBy.
      */
+    template<typename _Allocator>
     class CStringStack
     {
         CK_CLASS_NON_COPYABLE(CStringStack);
@@ -61,7 +63,7 @@ namespace cinek {
          * @param initSize  The initial memory block count.
          * @param allocator An optional custom memory allocator.
          */
-        CStringStack(size_t initSize, const Allocator& allocator = Allocator());
+        CStringStack(size_t initSize, const _Allocator& allocator = Allocator());
 
         /** @cond */
         CStringStack(CStringStack&& other);
@@ -98,12 +100,77 @@ namespace cinek {
             return _stack.size();
         }
     private:
-        MemoryStack _stack;
+        MemoryStack<_Allocator> _stack;
         size_t _count;
         static const char* kEmptyString;
     };
 
     ////////////////////////////////////////////////////////////////////////////
+    template<typename _Allocator>
+    CStringStack<_Allocator>::CStringStack() :
+        _count(0)
+    {
+    }
+
+    template<typename _Allocator>
+    CStringStack<_Allocator>::CStringStack(size_t initSize, const _Allocator& allocator) :
+        _stack(initSize, allocator),
+        _count(0)
+    {
+    }
+
+    template<typename _Allocator>
+    CStringStack<_Allocator>::CStringStack(CStringStack&& other) :
+        _stack(std::move(other._stack)),
+        _count(other._count)
+    {
+        other._count = 0;
+    }
+
+    template<typename _Allocator>
+    CStringStack<_Allocator>& CStringStack<_Allocator>::operator=(CStringStack&& other)
+    {
+        _stack = std::move(other._stack);
+        _count = other._count;
+        other._count = 0;
+        return *this;
+    }
+
+    template<typename _Allocator>
+    const char* CStringStack<_Allocator>::create(const char* str)
+    {
+        char* buf;
+        if (str && str[0]) {
+            size_t len = strlen(str);
+            buf = reinterpret_cast<char*>(_stack.allocate(len+1));
+            if (!buf)
+                return NULL;
+            strncpy(buf, str, len);
+            buf[len] = 0;
+        }
+        else {
+            buf = reinterpret_cast<char*>(_stack.allocate(1));
+            if (!buf)
+                return NULL;
+            *buf = 0;
+        }
+        ++_count;
+        return buf;
+    }
+
+    template<typename _Allocator>
+    bool CStringStack<_Allocator>::growBy(size_t cnt)
+    {
+        return _stack.growBy(cnt);
+    }
+
+    template<typename _Allocator>
+    void CStringStack<_Allocator>::reset()
+    {
+        _stack.reset();
+        _count = 0;
+    }
+
 
 }   // namespace cinek
 

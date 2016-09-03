@@ -1,5 +1,5 @@
 //
-//  messenger.cpp
+//  messenger.inl
 //  SampleCommon
 //
 //  Created by Samir Sinha on 11/16/15.
@@ -12,36 +12,6 @@
 #include <cstdlib>
 
 namespace ckmsg {
-
-
-static const size_t kEncodedHeaderSize = 4;
-static const uint8_t kEncodedMessageHeader[kEncodedHeaderSize] = { 'm','e','s','g' };
-
-inline void encodeHeader(uint8_t* target, const uint8_t hdr[]) {
-    target[0] = hdr[0];
-    target[1] = hdr[1];
-    target[2] = hdr[2];
-    target[3] = hdr[3];
-}
-
-inline bool checkHeader(const uint8_t* input, const uint8_t hdr[]) {
-    return input[0]==hdr[0] &&
-           input[1]==hdr[1] &&
-           input[2]==hdr[2] &&
-           input[3]==hdr[3];
-}
-
-
-uint8_t* Allocator::allocate(size_t sz)
-{
-    return (uint8_t*)std::malloc(sz);
-}
-
-void Allocator::free(uint8_t* p)
-{
-    std::free(p);
-}
-
 /*
     The Messenger collects messages into various send queues and dispatches
     them to their target receiver queues.  Helper classes such as 'Client' and
@@ -50,19 +20,15 @@ void Allocator::free(uint8_t* p)
     Some implementation notes:
 
  */
-Messenger::Messenger() :
+template<typename Allocator>
+Messenger<Allocator>::Messenger(Allocator ) :
     _thisEndpointId(0)
 {
 }
 
-Address Messenger::createEndpoint(EndpointInitParams initParams)
+template<typename Allocator>
+Address Messenger<Allocator>::attachEndpoint(Endpoint<Allocator> endpoint)
 {
-    Endpoint endpoint {
-        Buffer<Allocator>(initParams.sendSize),
-        Buffer<Allocator>(initParams.recvSize),
-        0
-    };
-
     Address result { 0 };
     {
         ++_thisEndpointId;
@@ -78,12 +44,22 @@ Address Messenger::createEndpoint(EndpointInitParams initParams)
     return result;
 }
 
-void Messenger::destroyEndpoint(Address endp)
+template<typename Allocator>
+Endpoint<Allocator> Messenger<Allocator>::detachEndpoint(Address endp)
 {
-    _endpoints.erase(endp.id);
+    Endpoint<Allocator> endpoint;
+
+    auto it = _endpoints.find(endp.id);
+    if (it != _endpoints.end()) {
+        endpoint = std::move(it->second);
+        _endpoints.erase(it);
+    }
+
+    return endpoint;
 }
 
-uint32_t Messenger::send
+template<typename Allocator>
+uint32_t Messenger<Allocator>::send
 (
     Message&& msg,
     Address receiver,
@@ -98,69 +74,14 @@ uint32_t Messenger::send
 
     //  todo - buffers that are full, call transmit to make space
     auto& sendPoint = it->second;
-    auto& sendBuffer = sendPoint.sendBuffer;
-
-    //  verify we can send out the message packet
-    uint8_t* packet = sendBuffer.writep(kEncodedHeaderSize +
-                                        sizeof(Address));
-    if (!packet)
-        return 0;
-
-    encodeHeader(packet, kEncodedMessageHeader);
-    memcpy(packet + kEncodedHeaderSize, &receiver, sizeof(Address));
-
-    auto outMsg = reinterpret_cast<Message*>(sendBuffer.writep(sizeof(Message)));
-    if (!outMsg) {
-        sendBuffer.revertWrite();
-        return 0;
-    }
-
-    *outMsg = std::move(msg);
-
-    if (payload && payload->size()>0) {
-        uint32_t payloadSize = payload->size();
-        uint8_t* outPayload = sendBuffer.writep(sizeof(uint32_t));
-        if (!outPayload) {
-            sendBuffer.revertWrite();
-            return 0;
-        }
-        memcpy(outPayload, &payloadSize, sizeof(uint32_t));
-        outPayload = sendBuffer.writep(payloadSize);
-        if (!outPayload) {
-            sendBuffer.revertWrite();
-            return 0;
-        }
-        outMsg->setFlags(Message::kHasPayload);
-
-        memcpy(outPayload, payload->data(), payloadSize);
-    }
-
-    if (seqId == kAssignSequenceId) {
-        //  reserve 0 and (uint32_t)(-1) (see message.hpp constants.)
-        ++sendPoint.thisSeqId;
-        if (sendPoint.thisSeqId == kAssignSequenceId)
-            sendPoint.thisSeqId = 1;
-        seqId = sendPoint.thisSeqId;
-    }
-    else if (seqId != kNullSequenceId) {
-        outMsg->setFlags(Message::kIsReply);
-    }
-
-    outMsg->setSequenceId(seqId);
-
-    //  finish write (note, we could've updated two times, message and payload.)
-    //  since we don't yet support transmitting during send to free send space
-    //  we want to perform the write in one sequence.
-    //
-    //  note, this doesn't mean much yet without multithreading.
-    //
-    sendBuffer.updateWrite();
-
+    seqId = sendPoint.send(std::move(msg), receiver, payload, seqId);
     return seqId;
 }
 
-void Messenger::transmit(Address sender)
+template<typename Allocator>
+void Messenger<Allocator>::transmit(Address sender)
 {
+    constexpr size_t kEncodedHeaderSize = sizeof(EndpointBase::kEncodedMessageHeader);
     auto endpIt = _endpoints.find(sender.id);
     if (endpIt == _endpoints.end())
         return;
@@ -179,13 +100,12 @@ void Messenger::transmit(Address sender)
     //      - missing data results in a corrupt packet, which is thrown out
     //      - a full receive buffer results in an 'out of room' state
     //
-    while (sendBuffer.readSizeContiguous(kEncodedHeaderSize + sizeof(Address))) {
+    while (sendBuffer.readSizeContiguous(kEncodedHeaderSize + sizeof(Address::id))) {
 
-        const uint8_t* hdrpacket = sendBuffer.readp(kEncodedHeaderSize + sizeof(Address));
-        const Address& address = *reinterpret_cast<const Address*>(
-            hdrpacket+kEncodedHeaderSize
-        );
-
+        const uint8_t* hdrpacket = sendBuffer.readp(kEncodedHeaderSize + sizeof(Address::id));
+        Address address;
+        address.id = be32toh(*reinterpret_cast<const uint32_t*>(hdrpacket+kEncodedHeaderSize));
+       
         auto endpRecvIt = _endpoints.find(address.id);
         if (endpRecvIt != _endpoints.end()) {
             auto& recvPoint = endpRecvIt->second;
@@ -194,6 +114,7 @@ void Messenger::transmit(Address sender)
             enum
             {
                 kStartPacket,
+                kMessageSize,
                 kMessage,
                 kMessagePayloadSize,
                 kMessagePayload,
@@ -204,6 +125,7 @@ void Messenger::transmit(Address sender)
             inputState = kStartPacket;
 
             uint32_t datasize = 0;
+            uint32_t extra = 0;
             while (inputState < kCompleted) {
                 const uint8_t* inp = nullptr;
                 uint8_t* outp = nullptr;
@@ -213,12 +135,18 @@ void Messenger::transmit(Address sender)
                 case kStartPacket:
                     inp = hdrpacket;
                     datasize = kEncodedHeaderSize;
+                    extra = 0;
+                    break;
+                case kMessageSize:
+                    datasize = 2 * sizeof(uint16_t);
+                    extra = 0;
                     break;
                 case kMessage:
-                    datasize = sizeof(Message);
+                    //  datasize already set in kMessageSize
                     break;
                 case kMessagePayloadSize:
-                    datasize = sizeof(uint32_t);
+                    datasize = sizeof(uint32_t) + sizeof(int16_t) + sizeof(int16_t);
+                    extra = 0;
                     break;
                 case kMessagePayload:
                     //  datasize already set in kMessagePayloadSize state
@@ -226,6 +154,7 @@ void Messenger::transmit(Address sender)
                 default:
                     assert(false);  // logic error
                     datasize = 0;
+                    extra = 0;
                     break;
                 }
 
@@ -246,16 +175,21 @@ void Messenger::transmit(Address sender)
                 switch (inputState)
                 {
                 case kStartPacket:
-                    if (checkHeader(inp, kEncodedMessageHeader)) {
-                        inputState = kMessage;
+                    if (recvPoint.checkHeader(inp, EndpointBase::kEncodedMessageHeader)) {
+                        inputState = kMessageSize;
                     }
                     else {
                         inputState = kCorrupted;
                     }
                     break;
+                case kMessageSize: {
+                        datasize = be16toh(*reinterpret_cast<const uint16_t*>(inp));
+                        extra = be16toh(*reinterpret_cast<const uint16_t*>(inp+2));
+                        inputState = kMessage;
+                    }
+                    break;
                 case kMessage: {
-                        auto& msg = *reinterpret_cast<const Message*>(inp);
-                        if (msg.queryFlag(Message::kHasPayload)) {
+                        if ((extra & Message::kHasPayload) != 0) {
                             inputState = kMessagePayloadSize;
                         }
                         else {
@@ -307,7 +241,8 @@ void Messenger::transmit(Address sender)
     }
 }
 
-Message Messenger::pollReceive
+template<typename Allocator>
+Message Messenger<Allocator>::pollReceive
 (
     Address receiver,
     Payload& payload
@@ -317,44 +252,19 @@ Message Messenger::pollReceive
 
     auto endpIt = _endpoints.find(receiver.id);
     if (endpIt != _endpoints.end()) {
-        auto& recvBuffer = endpIt->second.recvBuffer;
-        if (recvBuffer.readSizeContiguous(kEncodedHeaderSize)) {
-            const uint8_t* hdrpacket = recvBuffer.readp(kEncodedHeaderSize);
-
-            if (checkHeader(hdrpacket, kEncodedMessageHeader)) {
-                const Message* pkt = reinterpret_cast<const Message*>(
-                    recvBuffer.readp(sizeof(Message))
-                );
-                if (pkt) {
-                    const uint8_t* payloadData = nullptr;
-                    uint32_t payloadSize = 0;
-                    if (pkt->queryFlag(Message::kHasPayload)) {
-                        const uint8_t* p = recvBuffer.readp(sizeof(uint32_t));
-                        if (p) {
-                            payloadSize =  *reinterpret_cast<const uint32_t*>(p);
-                            payloadData = recvBuffer.readp(payloadSize);
-                        }
-                        payload = Payload(payloadData, payloadSize);
-                    }
-                    msg = *pkt;
-                }
-            }
-        }
+        auto& recvPoint = endpIt->second;
+        msg = std::move(recvPoint.receive(payload));
     }
 
     return msg;
 }
 
-void Messenger::pollEnd(Address receiver, bool consume)
+template<typename Allocator>
+void Messenger<Allocator>::pollEnd(Address receiver, bool consume)
 {
     auto endpIt = _endpoints.find(receiver.id);
     if (endpIt != _endpoints.end()) {
-        if (consume) {
-            endpIt->second.recvBuffer.updateRead();
-        }
-        else {
-            endpIt->second.recvBuffer.revertRead();
-        }
+        endpIt->second.receiveEnd(consume);
     }
 }
 

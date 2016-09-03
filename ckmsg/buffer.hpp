@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 
 namespace ckmsg {
 
@@ -29,35 +30,35 @@ class Buffer
 {
 public:
     Buffer() = default;
-    Buffer(size_t sz);
+    Buffer(size_t sz, Alloc alloc);
     ~Buffer();
-    
+
     Buffer(const Buffer& r) = delete;
     Buffer& operator=(const Buffer& r) = delete;
     Buffer(Buffer&& r);
     Buffer& operator=(Buffer&& r);
-    
+
     size_t size() const;
     size_t readSize() const;
     bool readSizeContiguous(size_t sz) const;
     size_t writeSize() const;
     bool writeSizeContiguous(size_t sz) const;
-    
+
     uint8_t* writep(size_t cnt);
     void updateWrite();
     void revertWrite();
-    
+
     const uint8_t* readp(size_t cnt);
     const uint8_t* peekp(size_t cnt) const;
-    
+
     void updateRead();
     void revertRead();
-    
+
     void reset();
-    
+
 private:
     void moveFrom(Buffer& buffer);
-    
+    Alloc _alloc;
     uint8_t* _start = nullptr;
     uint8_t* _head = nullptr;
     uint8_t* _tail = nullptr;
@@ -67,9 +68,10 @@ private:
 };
 
 template<typename Alloc>
-Buffer<Alloc>::Buffer(size_t sz)
+Buffer<Alloc>::Buffer(size_t sz, Alloc alloc) :
+    _alloc(alloc)
 {
-    _start = Alloc::allocate(sz);
+    _start = reinterpret_cast<uint8_t*>(_alloc.alloc(sz));
     _head = _start;
     _tail = _head;
     _limit = _start ? _start + sz : nullptr;
@@ -80,7 +82,7 @@ Buffer<Alloc>::Buffer(size_t sz)
 template<typename Alloc>
 Buffer<Alloc>::~Buffer()
 {
-    Alloc::free(_start);
+    _alloc.free(_start);
     _start = _head = _tail = _limit = nullptr;
 }
 
@@ -100,6 +102,7 @@ Buffer<Alloc>& Buffer<Alloc>::operator=(Buffer&& r)
 template<typename Alloc>
 void Buffer<Alloc>::moveFrom(Buffer& buffer)
 {
+    _alloc = std::move(buffer._alloc);
     _start = buffer._start;
     _head = buffer._head;
     _tail = buffer._tail;
@@ -168,7 +171,7 @@ uint8_t* Buffer<Alloc>::writep(size_t cnt)
     uint8_t* p = _tail;
     ptrdiff_t avail = 0;
 	ptrdiff_t amt = (ptrdiff_t)cnt;
-    
+
     //  enforce that write requests must be contiguous (in memory) blocks
     if (_tail >= _readHead) {
         avail = _limit - _tail;
@@ -203,7 +206,7 @@ const uint8_t* Buffer<Alloc>::readp(size_t cnt)
     const uint8_t* p = peekp(cnt);
     if (!p)
         return nullptr;
-    
+
     _head = const_cast<uint8_t*>(p) + cnt;
     return p;
 }

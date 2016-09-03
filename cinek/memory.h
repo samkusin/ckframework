@@ -42,15 +42,19 @@ struct cinek_memory_callbacks
     void*   (*alloc)(void* ctx, size_t numBytes);
     /** Invoked when a subsystem allocates aligned memory. */
     void*   (*alloc_aligned)(void* ctx, size_t numBytes, size_t align);
+    /**
+     * Invoked when a subsystem reallocates memory given a block of memory
+     * previously allocated by alloc.
+     */
+    void*   (*realloc)(void* ctx, void* ptr, size_t numBytes);
     /** Invoked when a subsystem frees memory. */
     void    (*free)(void* ctx, void* ptr);
     /** Invoked when a subsystem frees aligned memory. */
     void    (*free_aligned)(void* ctx, void* ptr);
-    /** Invoked when a subsystem reallocates memory given a block of memory
-     * previously allocated by alloc. */
-    void*   (*realloc)(void* ctx, void* ptr, size_t numBytes);
-    /** An application specific context pointer passed to the callback function
-     * pointers in callbacks. */
+    /**
+     * An application specific context pointer passed to the callback function
+     * pointers in callbacks.
+     */
     void*   context;
 };
 

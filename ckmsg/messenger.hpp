@@ -10,36 +10,29 @@
 #define CINEK_MSG_MESSENGER_HPP
 
 #include "message.hpp"
-#include "buffer.hpp"
+#include "endpoint.hpp"
 
-#include <vector>
 #include <unordered_map>
 
 namespace ckmsg {
-  
-struct Allocator
-{
-    static uint8_t* allocate(size_t sz);
-    static void free(uint8_t* p);
-};
 
-
+template<typename Allocator>
 class Messenger
 {
 public:
-    Messenger();
+    Messenger(Allocator allocator);
     Messenger(const Messenger& ) = delete;
     Messenger& operator=(const Messenger& ) = delete;
-    
-    Address createEndpoint(EndpointInitParams params);
-    void destroyEndpoint(Address endp);
-    
+
+    Address attachEndpoint(Endpoint<Allocator> endpoint);
+    Endpoint<Allocator> detachEndpoint(Address endp);
+
     uint32_t send(Message&& msg, Address receiver,
                   const Payload* payload,
                   uint32_t seqId=kNullSequenceId);
-    
+
     void transmit(Address sender);
-    
+
     /**
      *  Poll to receive a message packet.  An empty message is returned if
      *  no message is available.  Callers typically call pollReceive in a loop
@@ -64,18 +57,10 @@ public:
     void pollEnd(Address receiver, bool consume);
 
 private:
-    struct Endpoint
-    {
-        Buffer<Allocator> sendBuffer;
-        Buffer<Allocator> recvBuffer;
-        
-        uint32_t thisSeqId;
-    };
-    
-    std::unordered_map<uint32_t, Endpoint> _endpoints;
+    std::unordered_map<uint32_t, Endpoint<Allocator>> _endpoints;
     uint32_t _thisEndpointId;
 };
-  
+
 }   /* namespace ckmsg */
 
 #endif /* messenger_hpp */

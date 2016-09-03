@@ -10,6 +10,7 @@
 #define CINEK_MSG_SERVER_HPP
 
 #include "message.hpp"
+#include "endpoint.hpp"
 
 #include <vector>
 #include <unordered_map>
@@ -30,6 +31,12 @@ template<> struct hash<ckmsg::ServerRequestId>
 
 namespace ckmsg {
 
+enum class ServerReplyType
+{
+    kSuccess,
+    kFail
+};
+
 /**
  *  @class Server
  *  @brief An interface for receiving and replying to Message objects, the
@@ -41,13 +48,15 @@ namespace ckmsg {
  *  The Server's _Delegate must be a callable object that conforms to the
  *  following signature:
  *
- *  void cb(ServerRequestId reqId, const Payload* payload);
+ *  void cb(ServerRequestId reqId, const Payload& payload);
  */
-template<typename _DelegateType>
+template<typename _DelegateType, typename _Allocator>
 class Server
 {
 public:
-    Server(Messenger& messenger, EndpointInitParams params={256,256});
+    using ReplyType = ServerReplyType;
+    
+    Server(Messenger<_Allocator>& messenger, Endpoint<_Allocator> endpoint);
     ~Server();
     
     /**
@@ -64,20 +73,42 @@ public:
      */
     void on(ClassId classId, _DelegateType delegate);
     /**
+     *  Clears the message handler for the specified class.
+     *
+     *  @param classId  The Request class to unsubscribe from
+     */
+    void clear(ClassId classId);
+    /**
      *  Receives a single message targeted for this client (via localAddress).
      *  Servers should call this method regularly to poll for incoming messages.
      *  This method may invoke message handlers before returning.
      *
      *  @return False if there are no more messages on the receive buffer
      */
-    bool receive();
+    bool receiveOne();
+    /**
+     *  Receives all messages targeted for this endpoint (via localAddress).
+     *  This call will run until all messages have been processed.  It's offered
+     *  as a convenience method if an application's expected to process its
+     *  entire receive queue in one call.
+     */
+    void receive();
     /**
      *  Reply to an active request.
      *
      *  @param  reqId   The request to reply to.
-     *  @param  payload (Optional) The payload included in the reply
+     *  @param  type    Type of reply (kSuccess or kFail)
+     *  @param  payload The payload included in the reply
      */
-    void reply(ServerRequestId reqId, const Payload* payload = nullptr);
+    void reply(ServerRequestId reqId, ReplyType type, const Payload& payload);
+    /**
+     *  Notify a target of an event.
+     *
+     *  @param  target          The destination for the message
+     *  @param  classId         The message class
+     *  @param  payload         The message payload
+     */
+    void notify(Address target, ClassId classId, const Payload& payload);
     /**
      *  Transmits any pending messages to their targets (flushes the message
      *  queue if it still has messages.)  Invoke once per receive.
@@ -87,13 +118,23 @@ public:
      *  @return returns the address for this server.
      */
     Address address() const { return _endpoint; }
+    /**
+     *  @param  reqId  The ServerRequestId acquired from an incoming message
+     *                 handler.
+     *  @return The sender address
+     */
+    Address querySenderAddressFromRequestId(ServerRequestId reqId) const;
 
 private:
-    Messenger* _messenger;
+    Messenger<_Allocator>* _messenger;
     Address _endpoint;
-    
+
     std::vector<std::pair<ClassId, _DelegateType>> _classDelegates;
-    std::unordered_map<ServerRequestId, Address> _activeRequests;
+    struct ActiveRequest {
+        Address adr;
+        TagId tag;
+    };
+    std::unordered_map<ServerRequestId, ActiveRequest> _activeRequests;
 };
 
 } /* namespace ckmsg */

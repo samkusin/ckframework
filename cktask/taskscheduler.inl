@@ -35,19 +35,22 @@
 
 namespace cinek {
 
-bool operator<(const unique_ptr<Task>& l, TaskId r)
+template<typename Allocator>
+bool operator<(const unique_ptr<Task<Allocator>, Allocator>& l, TaskId r)
 {
     return l.get()->id() < r;
 }
 
-TaskScheduler::TaskScheduler(uint32_t taskLimit, const Allocator& allocator) :
+template<typename Allocator>
+TaskScheduler<Allocator>::TaskScheduler(uint32_t taskLimit, const Allocator& allocator) :
     _tasks(allocator),
     _currentHandle(0)
 {
     _tasks.reserve(taskLimit);
 }
 
-TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
+template<typename Allocator>
+TaskId TaskScheduler<Allocator>::schedule(TaskPtr&& task, void* context)
 {
     ++_currentHandle;
     if (!_currentHandle)
@@ -65,7 +68,7 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
     }
     //  add to our processing list
     _runList.push_back(task.get());
-    task->_state = Task::State::kStaged;
+    task->_state = TaskType::State::kStaged;
     task->_schedulerHandle = _currentHandle;
     task->_schedulerContext = context;
     //  place owned reference onto our searchable list
@@ -74,8 +77,11 @@ TaskId TaskScheduler::schedule(unique_ptr<Task>&& task, void* context)
     return _currentHandle;
 }
 
-void TaskScheduler::cancel(TaskId taskHandle)
+template<typename Allocator>
+void TaskScheduler<Allocator>::cancel(TaskId taskHandle)
 {
+    if (!taskHandle)
+        return;
     auto it = std::lower_bound(_tasks.begin(), _tasks.end(), taskHandle);
     if (it == _tasks.end() || (*it).get()->id() != taskHandle)
         return;
@@ -83,8 +89,11 @@ void TaskScheduler::cancel(TaskId taskHandle)
     (*it).get()->cancel();
 }
 
-bool TaskScheduler::isActive(TaskId taskHandle)
+template<typename Allocator>
+bool TaskScheduler<Allocator>::isActive(TaskId taskHandle)
 {
+    if (!taskHandle)
+        return false;
     auto it = std::lower_bound(_tasks.begin(), _tasks.end(), taskHandle);
     if (it == _tasks.end() || (*it).get()->id() != taskHandle)
         return false;
@@ -92,7 +101,8 @@ bool TaskScheduler::isActive(TaskId taskHandle)
     return true;
 }
 
-void TaskScheduler::cancelAll(void* context)
+template<typename Allocator>
+void TaskScheduler<Allocator>::cancelAll(void* context)
 {
     for (auto& tp : _tasks)
     {
@@ -102,26 +112,27 @@ void TaskScheduler::cancelAll(void* context)
     }
 }
 
-void TaskScheduler::update(uint32_t deltaTimeMs)
+template<typename Allocator>
+void TaskScheduler<Allocator>::update(uint32_t deltaTimeMs)
 {
     auto taskIt = _runList.begin();
 
     while (taskIt != _runList.end())
     {
-        Task* task = static_cast<Task*>(taskIt.ptr());
+        TaskType* task = static_cast<TaskType*>(taskIt.ptr());
 
-        CK_ASSERT(task->_state != Task::State::kIdle);
+        CK_ASSERT(task->_state != TaskType::State::kIdle);
 
         // remember, task actions (begin, end, etc) can alter the task's state
         // so set our default state prior to executing the action when necessary
         // for example, onBegin may call fail(), which should set the task state
         // to fail, overwriting our default 'active' state
-        if (task->_state == Task::State::kStaged)
+        if (task->_state == TaskType::State::kStaged)
         {
-            task->_state = Task::State::kActive;
+            task->_state = TaskType::State::kActive;
             task->onBegin();
         }
-        if (task->_state == Task::State::kActive)
+        if (task->_state == TaskType::State::kActive)
         {
             task->onUpdate(deltaTimeMs);
         }
@@ -129,7 +140,7 @@ void TaskScheduler::update(uint32_t deltaTimeMs)
         bool killState = true;
         switch (task->_state)
         {
-        case Task::State::kEnded:
+        case TaskType::State::kEnded:
             {
                 //  advance to next task in the chain
                 task->onEnd();
@@ -140,12 +151,18 @@ void TaskScheduler::update(uint32_t deltaTimeMs)
                 }
             }
             break;
-        case Task::State::kFailed:
+        case TaskType::State::kFailed:
             {
+                task->_nextTask = nullptr;
                 task->onFail();
+                auto nextTask = std::move(task->_nextTask);
+                if (nextTask)
+                {
+                    schedule(std::move(nextTask));
+                }
             }
             break;
-        case Task::State::kCanceled:
+        case TaskType::State::kCanceled:
             {
                 task->onCancel();
             }

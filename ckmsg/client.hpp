@@ -16,10 +16,34 @@
 #define CINEK_MSG_CLIENT_HPP
 
 #include "message.hpp"
+#include "endpoint.hpp"
 
 #include <vector>
 
 namespace ckmsg {
+
+/*
+    promise = send();
+    promise.then(
+        [](ClassId classId, Result result, const Payload* payload) {
+            return send();
+        }
+    );
+    
+    
+    .then(
+        [](ClassId classId, Result result, const Payload* payload) {
+        }
+    )
+ */
+
+template<typename _DelegateType, typename _Allocator>
+class Promise
+{
+
+private:
+    uint32_t _seqId;
+};
 
 /**
  *  @class Client
@@ -31,46 +55,47 @@ namespace ckmsg {
  *  The Client's _Delegate must be a callable object that conforms to the
  *  following signature:
  *
- *  bool callback(ResultType result, ClassId classId, const Payload* payload);
- *      ; returns true if message handled, false if it's kept on the queue
- *      ; returning false will hold the client's receive queue until it
- *      ; processes the message.
+ *  void callback(const Message& msg, const Payload* payload);
  *
  *  operator bool()
  *  support move
  */
-template<typename _DelegateType>
+template<typename _DelegateType, typename _Allocator>
 class Client
 {
 public:
-    Client(Messenger& messenger, EndpointInitParams params);
+    Client(Messenger<_Allocator>& messenger, Endpoint<_Allocator> endpoint);
     ~Client();
-    
+
     /**
      *  Sends a message to the target with an optional callback on response
      *  from the server.
      *
      *  @param  target          The destination for the message
      *  @param  classId         The message class
+     *  @param  tag             The message tag (0 if not used for filtering)
      *  @param  delegate        The callback invoked upon response from the
      *                          server of the sent message
      *  @return A sequence ID or 0 (failed)
      */
     uint32_t send(Address target, ClassId classId,
+                  TagId tag,
                   _DelegateType delegate=_DelegateType());
-    
+
     /**
      *  Sends a message with payload to the target with an optional callback
      *  on response from the server.
      *
      *  @param  target          The destination for the message
      *  @param  classId         The message class
+     *  @param  tag             The message tag (0 if not used for filtering)
      *  @param  payload         The message payload
      *  @param  delegate        The callback invoked upon response from the
      *                          server of the sent message
      *  @return A sequence ID or 0 (failed)
      */
     uint32_t send(Address target, ClassId classId,
+                  TagId tag,
                   const Payload& payload,
                   _DelegateType delegate=_DelegateType());
     /**
@@ -89,9 +114,21 @@ public:
      *  Clients should call this method regularly to poll for incoming messages.
      *  This method may invoke message handlers before returning.
      *
-     *  @return False is the receive buffer is empty
+     *  @param tag   Filter messages via tag.  Messages not matching the tag
+     *               filter are thrown out.  If zero, tag is ignored.
+     *  @return      False is the receive buffer is empty
      */
-    bool receive();
+    bool receiveOne(TagId tag=0);
+    /**
+     *  Receives all messages targeted for this endpoint (via localAddress).
+     *  This call will run until all messages have been processed.  It's offered
+     *  as a convenience method if an application's expected to process its
+     *  entire receive queue in one call.
+     *
+     *  @param tag   Filter messages via tag.  Messages not matching the tag
+     *               filter are thrown out.  If zero, tag is ignored.
+     */
+    void receive(TagId tag=0);
     /**
      *  Registers a notification handler for the specified class.  Only one
      *  handler is allowed per notifcation.  Calls that specify a class with
@@ -109,18 +146,25 @@ public:
      */
     void on(ClassId classId, _DelegateType delegate);
     /**
+     *  Clears any event delegate assigned to the specified message class.  This
+     *  does not apply to delegates assigned via send().
+     *
+     *  @param classId  The notification class.
+     */
+    void remove(ClassId classId);
+    /**
      *  @return returns the address for this client.
      */
     Address address() const { return _endpoint; }
-    
+
 private:
-    Messenger* _messenger;
+    Messenger<_Allocator>* _messenger;
     Address _endpoint;
     
     std::vector<std::pair<uint32_t, _DelegateType>> _sequenceDelegates;
     std::vector<std::pair<ClassId, _DelegateType>> _classDelegates;
 };
-    
+
 }   /* namespace ckmsg */
 
 

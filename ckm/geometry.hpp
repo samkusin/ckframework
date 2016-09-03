@@ -20,13 +20,13 @@ namespace ckm {
     {
         using value_type = vec_type;
         using scalar = typename vec_type::value_type;
-        
+
         value_type normal;
         value_type pt;
-        
+
         scalar testPoint(const value_type& testPt) const;
     };
-    
+
     template<typename vec_type>
     class frustrum
     {
@@ -41,33 +41,33 @@ namespace ckm {
             kBottomY,
             kPlaneCount
         };
-    
+
         using shell = std::array<plane<vec_type>, kPlaneCount>;
         using scalar = typename vec_type::value_type;
-        
+
         frustrum();
         frustrum(scalar nearZ, scalar farZ, scalar fov, scalar aspect);
-    
+
         scalar nearZ() const { return _nearZ; }
         scalar farZ() const { return _farZ; }
         scalar fovRadians() const { return _fovRadians; }
         scalar aspect() const { return _aspect; }
-        
+
         //const shell& shell() const { return _shell; }
-        
+
         template<typename mat_type>
         frustrum transform(const mat_type& basis, const vec_type& translate) const;
-        
+
         bool testAABB(const AABB<vec_type>& aabb) const;
         bool testAABBWithPlane(const AABB<vec_type>& aabb, side plane) const;
-        
+
     private:
         shell _shell;
         scalar _nearZ, _farZ;
         scalar _aspect;
         scalar _fovRadians;
     };
-    
+
     template<typename scalar_type>
     struct raytest
     {
@@ -77,7 +77,7 @@ namespace ckm {
             kIntersect,
             kCoplanar
         };
-        
+
         static result planeIntersection
         (
             vector3_type<scalar_type>* intersectPt,
@@ -86,7 +86,7 @@ namespace ckm {
             const plane<vector3_type<scalar_type>>& plane
         );
     };
-    
+
 }
 
 #include "geometry.inl"

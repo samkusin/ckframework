@@ -273,6 +273,29 @@ public:
         setNodePrevNode(&other._anchor, tmpPrev);
         setNodeNextNode(&other._anchor, tmpNext);
     }
+    void splice(const_iterator pos, this_type& other) {
+        splice(pos, other, other.begin(), other.end());
+    }
+    void splice(const_iterator pos, this_type& other, const_iterator it) {
+        splice(pos, other, it, other.end());
+    }
+    void splice(const_iterator pos, this_type& other,
+                const_iterator first, const_iterator last)
+    {
+        if (first == last)
+            return;
+        
+        pointer otherHead = first.ptr();
+        pointer otherTail = prevNode(last.ptr());
+        
+        setNodePrevNode(nextNode(otherTail), prevNode(otherHead));
+        setNodeNextNode(prevNode(otherHead), nextNode(otherTail));
+        
+        pointer thisNode = pos.ptr();
+        setNodePrevNode(otherHead, prevNode(thisNode));
+        setNodeNextNode(otherTail, thisNode);
+
+    }
 
     //  internal (undocumented)
     static pointer prevNode(const_pointer node) {

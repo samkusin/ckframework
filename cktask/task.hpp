@@ -40,24 +40,43 @@
 
 #include <cinek/ckdefs.h>
 #include <cinek/uuid.hpp>
-#include <cinek/allocator.hpp>
+#include <cinek/std_allocator.hpp>
 
 #include <cstdint>
 #include <functional>
 
 namespace cinek {
-    class TaskScheduler;
+    template<typename Allocator> class TaskScheduler;
+    template<typename Allocator> class Task;
 }
 
 namespace cinek {
 
     using TaskId = uint32_t;
     using TaskClassId = UUID;
+    
+    /** Task States */
+    enum class TaskState
+    {
+        kIdle,      /**< An unattached task.  A task's initial state */
+        kStaged,    /**< Claimed by a scheduler, but not yet started */
+        kActive,    /**< Task has started and running */
+        kEnded,     /**< Task completed as a result of calling end() */
+        kFailed,    /**< Task has failed as a result of calling fail() */
+        kCanceled   /**< Task was canceled */
+    };
 
+    template<typename Object> class intrusive_list;
+    
+    template<typename Allocator>
     struct TaskListNode
     {
     public:
+        using DerivedType = Task<Allocator>;
         TaskListNode(): __prevListNode(), __nextListNode() {}
+        
+    private:
+        friend class intrusive_list<TaskListNode>;
         //  as a node within a TaskScheduler's intrusive list of current tasks.
         TaskListNode* __prevListNode;
         TaskListNode* __nextListNode;
@@ -67,21 +86,12 @@ namespace cinek {
      * @class Task
      * @brief A unit of execution managed by the TaskScheduler
      */
-    class Task : public TaskListNode
+    template<typename Allocator>
+    class Task : public TaskListNode<Allocator>
     {
     public:
-
-        /** Task States */
-        enum class State
-        {
-            kIdle,      /**< An unattached task.  A task's initial state */
-            kStaged,    /**< Claimed by a scheduler, but not yet started */
-            kActive,    /**< Task has started and running */
-            kEnded,     /**< Task completed as a result of calling end() */
-            kFailed,    /**< Task has failed as a result of calling fail() */
-            kCanceled   /**< Task was canceled */
-        };
-
+        using Ptr = unique_ptr<Task<Allocator>, Allocator>;
+        using State = TaskState;
         using EndCallback = std::function<void(State, Task&, void*)>;
 
         Task(EndCallback _cb=0);
@@ -98,7 +108,7 @@ namespace cinek {
          * @param task The pointer to the next task.  This task will own the
          *             supplied task.
          */
-        void setNextTask(unique_ptr<Task>&& task);
+        void setNextTask(Ptr&& task);
         /**
          *  @return The next task in the chain
          */
@@ -147,11 +157,11 @@ namespace cinek {
         Task* nextTask() { return _nextTask.get(); }
 
     private:
-        friend class TaskScheduler;
+        friend class TaskScheduler<Allocator>;
 
         State _state;
         TaskId _schedulerHandle;
-        unique_ptr<Task> _nextTask;
+        Ptr _nextTask;
         EndCallback _endCb;
         void *_schedulerContext;
     };

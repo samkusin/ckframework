@@ -36,7 +36,7 @@ namespace cinek {
     /** A UUID array (128-bit) */
     struct UUID
     {
-        char bytes[16];
+        unsigned char bytes[16];
 
         static UUID kNull;
     };
